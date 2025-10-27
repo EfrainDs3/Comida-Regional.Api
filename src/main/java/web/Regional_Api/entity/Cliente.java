@@ -99,6 +99,3 @@ public class Cliente {
     }
 
 }
-
-//hola 
-//Efrain Rosquete
