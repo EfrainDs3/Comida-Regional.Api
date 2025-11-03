@@ -1,17 +1,11 @@
 package web.Regional_Api.entity;
-
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -21,30 +15,24 @@ import jakarta.persistence.Table;
 public class Categoria {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idCategoria;
+    private Integer id_categoria;
     
     private String nombre;
     private String descripcion;
     private Integer estado = 1;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_restaurante")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private Restaurante restaurante;
-
     public Categoria() {}
 
     public Categoria(Integer id) {
-        this.idCategoria = id;
+        this.id_categoria = id;
     }
 
-    // Getters and Setters
-    public Integer getIdCategoria() {
-        return idCategoria;
+    public Integer getId_categoria() {
+        return id_categoria;
     }
 
-    public void setIdCategoria(Integer idCategoria) {
-        this.idCategoria = idCategoria;
+    public void setId_categoria(Integer id_categoria) {
+        this.id_categoria = id_categoria;
     }
 
     public String getNombre() {
@@ -71,17 +59,8 @@ public class Categoria {
         this.estado = estado;
     }
 
-    public Restaurante getRestaurante() {
-        return restaurante;
-    }
-
-    public void setRestaurante(Restaurante restaurante) {
-        this.restaurante = restaurante;
-    }
-
     @Override
     public String toString() {
-        return "Categoria [idCategoria=" + idCategoria + ", nombre=" + nombre + ", estado=" + estado + "]";
+        return "Categoria [id_categoria=" + id_categoria + ", nombre=" + nombre + ", estado=" + estado + "]";
     }
 }
-

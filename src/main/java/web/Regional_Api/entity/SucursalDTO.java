@@ -1,49 +1,35 @@
 package web.Regional_Api.entity;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-
-public class SucursalDTO implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    private Integer idSucursal;
-    private Integer idRestaurante;
+public class SucursalDTO {
+    private Integer id_sucursal;
     private String nombre;
     private String direccion;
     private String telefono;
-    private String email;
-    private Integer estado = 1;
-    private LocalDateTime fechaCreacion;
-    private LocalDateTime fechaActualizacion;
+    private String ciudad;
+    private String estado_sucursal;
+    private Integer id_restaurante;
+    private Integer estado;
 
-    // Constructores
     public SucursalDTO() {}
 
-    public SucursalDTO(Integer idSucursal, Integer idRestaurante, String nombre,
-                      String direccion, String telefono, String email) {
-        this.idSucursal = idSucursal;
-        this.idRestaurante = idRestaurante;
+    public SucursalDTO(Integer id_sucursal, String nombre, String direccion, String telefono, 
+                       String ciudad, String estado_sucursal, Integer id_restaurante, Integer estado) {
+        this.id_sucursal = id_sucursal;
         this.nombre = nombre;
         this.direccion = direccion;
         this.telefono = telefono;
-        this.email = email;
+        this.ciudad = ciudad;
+        this.estado_sucursal = estado_sucursal;
+        this.id_restaurante = id_restaurante;
+        this.estado = estado;
     }
 
-    // Getters y Setters
-    public Integer getIdSucursal() {
-        return idSucursal;
+    public Integer getId_sucursal() {
+        return id_sucursal;
     }
 
-    public void setIdSucursal(Integer idSucursal) {
-        this.idSucursal = idSucursal;
-    }
-
-    public Integer getIdRestaurante() {
-        return idRestaurante;
-    }
-
-    public void setIdRestaurante(Integer idRestaurante) {
-        this.idRestaurante = idRestaurante;
+    public void setId_sucursal(Integer id_sucursal) {
+        this.id_sucursal = id_sucursal;
     }
 
     public String getNombre() {
@@ -70,12 +56,28 @@ public class SucursalDTO implements Serializable {
         this.telefono = telefono;
     }
 
-    public String getEmail() {
-        return email;
+    public String getCiudad() {
+        return ciudad;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setCiudad(String ciudad) {
+        this.ciudad = ciudad;
+    }
+
+    public String getEstado_sucursal() {
+        return estado_sucursal;
+    }
+
+    public void setEstado_sucursal(String estado_sucursal) {
+        this.estado_sucursal = estado_sucursal;
+    }
+
+    public Integer getId_restaurante() {
+        return id_restaurante;
+    }
+
+    public void setId_restaurante(Integer id_restaurante) {
+        this.id_restaurante = id_restaurante;
     }
 
     public Integer getEstado() {
@@ -86,25 +88,8 @@ public class SucursalDTO implements Serializable {
         this.estado = estado;
     }
 
-    public LocalDateTime getFechaCreacion() {
-        return fechaCreacion;
-    }
-
-    public void setFechaCreacion(LocalDateTime fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
-    }
-
-    public LocalDateTime getFechaActualizacion() {
-        return fechaActualizacion;
-    }
-
-    public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
-        this.fechaActualizacion = fechaActualizacion;
-    }
-
     @Override
     public String toString() {
-        return "SucursalDTO [idSucursal=" + idSucursal + ", idRestaurante=" + idRestaurante
-                + ", nombre=" + nombre + ", estado=" + estado + "]";
+        return "SucursalDTO [id_sucursal=" + id_sucursal + ", nombre=" + nombre + "]";
     }
 }

@@ -1,6 +1,6 @@
 package web.Regional_Api.entity;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -23,39 +23,37 @@ import jakarta.persistence.Table;
 public class Plato {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idPlato;
+    private Integer id_plato;
     
     private String nombre;
     private String descripcion;
-    private Double precioBase;
-    private String imagen;
+    private BigDecimal precio;
+    private String imagen_url;
+    private Integer disponible; // 1: disponible, 0: no disponible
     private Integer estado = 1;
-    private LocalDateTime fechaCreacion;
-    private LocalDateTime fechaActualizacion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_categoria")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private Categoria categoria;
+    private Categoria id_categoria;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_restaurante")
+    @JoinColumn(name = "id_sucursal")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private Restaurante restaurante;
+    private Sucursal id_sucursal;
 
     public Plato() {}
 
     public Plato(Integer id) {
-        this.idPlato = id;
+        this.id_plato = id;
     }
 
-    // Getters and Setters
-    public Integer getIdPlato() {
-        return idPlato;
+    public Integer getId_plato() {
+        return id_plato;
     }
 
-    public void setIdPlato(Integer idPlato) {
-        this.idPlato = idPlato;
+    public void setId_plato(Integer id_plato) {
+        this.id_plato = id_plato;
     }
 
     public String getNombre() {
@@ -74,20 +72,28 @@ public class Plato {
         this.descripcion = descripcion;
     }
 
-    public Double getPrecioBase() {
-        return precioBase;
+    public BigDecimal getPrecio() {
+        return precio;
     }
 
-    public void setPrecioBase(Double precioBase) {
-        this.precioBase = precioBase;
+    public void setPrecio(BigDecimal precio) {
+        this.precio = precio;
     }
 
-    public String getImagen() {
-        return imagen;
+    public String getImagen_url() {
+        return imagen_url;
     }
 
-    public void setImagen(String imagen) {
-        this.imagen = imagen;
+    public void setImagen_url(String imagen_url) {
+        this.imagen_url = imagen_url;
+    }
+
+    public Integer getDisponible() {
+        return disponible;
+    }
+
+    public void setDisponible(Integer disponible) {
+        this.disponible = disponible;
     }
 
     public Integer getEstado() {
@@ -98,41 +104,24 @@ public class Plato {
         this.estado = estado;
     }
 
-    public LocalDateTime getFechaCreacion() {
-        return fechaCreacion;
+    public Categoria getId_categoria() {
+        return id_categoria;
     }
 
-    public void setFechaCreacion(LocalDateTime fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
+    public void setId_categoria(Categoria id_categoria) {
+        this.id_categoria = id_categoria;
     }
 
-    public LocalDateTime getFechaActualizacion() {
-        return fechaActualizacion;
+    public Sucursal getId_sucursal() {
+        return id_sucursal;
     }
 
-    public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
-        this.fechaActualizacion = fechaActualizacion;
-    }
-
-    public Categoria getCategoria() {
-        return categoria;
-    }
-
-    public void setCategoria(Categoria categoria) {
-        this.categoria = categoria;
-    }
-
-    public Restaurante getRestaurante() {
-        return restaurante;
-    }
-
-    public void setRestaurante(Restaurante restaurante) {
-        this.restaurante = restaurante;
+    public void setId_sucursal(Sucursal id_sucursal) {
+        this.id_sucursal = id_sucursal;
     }
 
     @Override
     public String toString() {
-        return "Plato [idPlato=" + idPlato + ", nombre=" + nombre + 
-               ", precioBase=" + precioBase + ", estado=" + estado + "]";
+        return "Plato [id_plato=" + id_plato + ", nombre=" + nombre + ", precio=" + precio + ", estado=" + estado + "]";
     }
 }

@@ -1,10 +1,21 @@
 package web.Regional_Api.entity;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "pedidos")
@@ -13,56 +24,49 @@ import java.time.LocalDateTime;
 public class Pedido {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idPedido;
+    private Integer id_pedido;
     
-    private String numeroPedido;
-    private String tipoPedido; // "local", "delivery"
-    private String estado_pedido; // "pendiente", "en_cocina", "listo", "entregado"
-    private Double total;
-    private Double subtotal;
-    private Double impuestoTotal;
+    private String numero_pedido;
+    private LocalDateTime fecha_pedido;
+    private String estado_pedido; // Nuevo, En preparación, Listo, Entregado
+    private BigDecimal total;
+    private String mesa_numero; // Número de mesa del restaurante
+    private String notas;
     private Integer estado = 1;
-    private LocalDateTime fechaCreacion;
-    private LocalDateTime fechaActualizacion;
-    
-    // Datos para delivery
-    private String direccionEntrega;
-    private String telefonoEntrega;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_sucursal")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private Sucursal sucursal;
+    private Sucursal id_sucursal;
 
     public Pedido() {}
 
     public Pedido(Integer id) {
-        this.idPedido = id;
+        this.id_pedido = id;
     }
 
-    // Getters and Setters
-    public Integer getIdPedido() {
-        return idPedido;
+    public Integer getId_pedido() {
+        return id_pedido;
     }
 
-    public void setIdPedido(Integer idPedido) {
-        this.idPedido = idPedido;
+    public void setId_pedido(Integer id_pedido) {
+        this.id_pedido = id_pedido;
     }
 
-    public String getNumeroPedido() {
-        return numeroPedido;
+    public String getNumero_pedido() {
+        return numero_pedido;
     }
 
-    public void setNumeroPedido(String numeroPedido) {
-        this.numeroPedido = numeroPedido;
+    public void setNumero_pedido(String numero_pedido) {
+        this.numero_pedido = numero_pedido;
     }
 
-    public String getTipoPedido() {
-        return tipoPedido;
+    public LocalDateTime getFecha_pedido() {
+        return fecha_pedido;
     }
 
-    public void setTipoPedido(String tipoPedido) {
-        this.tipoPedido = tipoPedido;
+    public void setFecha_pedido(LocalDateTime fecha_pedido) {
+        this.fecha_pedido = fecha_pedido;
     }
 
     public String getEstado_pedido() {
@@ -73,28 +77,28 @@ public class Pedido {
         this.estado_pedido = estado_pedido;
     }
 
-    public Double getTotal() {
+    public BigDecimal getTotal() {
         return total;
     }
 
-    public void setTotal(Double total) {
+    public void setTotal(BigDecimal total) {
         this.total = total;
     }
 
-    public Double getSubtotal() {
-        return subtotal;
+    public String getMesa_numero() {
+        return mesa_numero;
     }
 
-    public void setSubtotal(Double subtotal) {
-        this.subtotal = subtotal;
+    public void setMesa_numero(String mesa_numero) {
+        this.mesa_numero = mesa_numero;
     }
 
-    public Double getImpuestoTotal() {
-        return impuestoTotal;
+    public String getNotas() {
+        return notas;
     }
 
-    public void setImpuestoTotal(Double impuestoTotal) {
-        this.impuestoTotal = impuestoTotal;
+    public void setNotas(String notas) {
+        this.notas = notas;
     }
 
     public Integer getEstado() {
@@ -105,49 +109,17 @@ public class Pedido {
         this.estado = estado;
     }
 
-    public LocalDateTime getFechaCreacion() {
-        return fechaCreacion;
+    public Sucursal getId_sucursal() {
+        return id_sucursal;
     }
 
-    public void setFechaCreacion(LocalDateTime fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
-    }
-
-    public LocalDateTime getFechaActualizacion() {
-        return fechaActualizacion;
-    }
-
-    public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
-        this.fechaActualizacion = fechaActualizacion;
-    }
-
-    public String getDireccionEntrega() {
-        return direccionEntrega;
-    }
-
-    public void setDireccionEntrega(String direccionEntrega) {
-        this.direccionEntrega = direccionEntrega;
-    }
-
-    public String getTelefonoEntrega() {
-        return telefonoEntrega;
-    }
-
-    public void setTelefonoEntrega(String telefonoEntrega) {
-        this.telefonoEntrega = telefonoEntrega;
-    }
-
-    public Sucursal getSucursal() {
-        return sucursal;
-    }
-
-    public void setSucursal(Sucursal sucursal) {
-        this.sucursal = sucursal;
+    public void setId_sucursal(Sucursal id_sucursal) {
+        this.id_sucursal = id_sucursal;
     }
 
     @Override
     public String toString() {
-        return "Pedido [idPedido=" + idPedido + ", numeroPedido=" + numeroPedido + 
-               ", estado_pedido=" + estado_pedido + ", total=" + total + ", estado=" + estado + "]";
+        return "Pedido [id_pedido=" + id_pedido + ", numero_pedido=" + numero_pedido + ", estado_pedido="
+                + estado_pedido + ", total=" + total + ", estado=" + estado + "]";
     }
 }

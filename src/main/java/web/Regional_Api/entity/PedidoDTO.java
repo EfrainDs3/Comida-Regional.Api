@@ -1,66 +1,64 @@
 package web.Regional_Api.entity;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class PedidoDTO implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    private Integer idPedido;
-    private Integer idSucursal;
-    private String numeroPedido;
-    private String estado;
+public class PedidoDTO {
+    private Integer id_pedido;
+    private String numero_pedido;
+    private LocalDateTime fecha_pedido;
+    private String estado_pedido;
     private BigDecimal total;
-    private String observaciones;
-    private String tipoPedido;
-    private LocalDateTime fechaCreacion;
-    private LocalDateTime fechaActualizacion;
+    private String mesa_numero;
+    private String notas;
+    private Integer id_sucursal;
+    private Integer estado;
 
-    // Constructores
     public PedidoDTO() {}
 
-    public PedidoDTO(Integer idPedido, Integer idSucursal, String numeroPedido,
-                    String estado, BigDecimal total, String tipoPedido) {
-        this.idPedido = idPedido;
-        this.idSucursal = idSucursal;
-        this.numeroPedido = numeroPedido;
-        this.estado = estado;
+    public PedidoDTO(Integer id_pedido, String numero_pedido, LocalDateTime fecha_pedido, String estado_pedido,
+                     BigDecimal total, String mesa_numero, String notas, Integer id_sucursal, Integer estado) {
+        this.id_pedido = id_pedido;
+        this.numero_pedido = numero_pedido;
+        this.fecha_pedido = fecha_pedido;
+        this.estado_pedido = estado_pedido;
         this.total = total;
-        this.tipoPedido = tipoPedido;
-    }
-
-    // Getters y Setters
-    public Integer getIdPedido() {
-        return idPedido;
-    }
-
-    public void setIdPedido(Integer idPedido) {
-        this.idPedido = idPedido;
-    }
-
-    public Integer getIdSucursal() {
-        return idSucursal;
-    }
-
-    public void setIdSucursal(Integer idSucursal) {
-        this.idSucursal = idSucursal;
-    }
-
-    public String getNumeroPedido() {
-        return numeroPedido;
-    }
-
-    public void setNumeroPedido(String numeroPedido) {
-        this.numeroPedido = numeroPedido;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
+        this.mesa_numero = mesa_numero;
+        this.notas = notas;
+        this.id_sucursal = id_sucursal;
         this.estado = estado;
+    }
+
+    public Integer getId_pedido() {
+        return id_pedido;
+    }
+
+    public void setId_pedido(Integer id_pedido) {
+        this.id_pedido = id_pedido;
+    }
+
+    public String getNumero_pedido() {
+        return numero_pedido;
+    }
+
+    public void setNumero_pedido(String numero_pedido) {
+        this.numero_pedido = numero_pedido;
+    }
+
+    public LocalDateTime getFecha_pedido() {
+        return fecha_pedido;
+    }
+
+    public void setFecha_pedido(LocalDateTime fecha_pedido) {
+        this.fecha_pedido = fecha_pedido;
+    }
+
+    public String getEstado_pedido() {
+        return estado_pedido;
+    }
+
+    public void setEstado_pedido(String estado_pedido) {
+        this.estado_pedido = estado_pedido;
     }
 
     public BigDecimal getTotal() {
@@ -71,41 +69,41 @@ public class PedidoDTO implements Serializable {
         this.total = total;
     }
 
-    public String getObservaciones() {
-        return observaciones;
+    public String getMesa_numero() {
+        return mesa_numero;
     }
 
-    public void setObservaciones(String observaciones) {
-        this.observaciones = observaciones;
+    public void setMesa_numero(String mesa_numero) {
+        this.mesa_numero = mesa_numero;
     }
 
-    public String getTipoPedido() {
-        return tipoPedido;
+    public String getNotas() {
+        return notas;
     }
 
-    public void setTipoPedido(String tipoPedido) {
-        this.tipoPedido = tipoPedido;
+    public void setNotas(String notas) {
+        this.notas = notas;
     }
 
-    public LocalDateTime getFechaCreacion() {
-        return fechaCreacion;
+    public Integer getId_sucursal() {
+        return id_sucursal;
     }
 
-    public void setFechaCreacion(LocalDateTime fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
+    public void setId_sucursal(Integer id_sucursal) {
+        this.id_sucursal = id_sucursal;
     }
 
-    public LocalDateTime getFechaActualizacion() {
-        return fechaActualizacion;
+    public Integer getEstado() {
+        return estado;
     }
 
-    public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
-        this.fechaActualizacion = fechaActualizacion;
+    public void setEstado(Integer estado) {
+        this.estado = estado;
     }
 
     @Override
     public String toString() {
-        return "PedidoDTO [idPedido=" + idPedido + ", idSucursal=" + idSucursal
-                + ", numeroPedido=" + numeroPedido + ", estado=" + estado + ", total=" + total + "]";
+        return "PedidoDTO [id_pedido=" + id_pedido + ", numero_pedido=" + numero_pedido + ", estado_pedido="
+                + estado_pedido + "]";
     }
 }

@@ -1,45 +1,26 @@
 package web.Regional_Api.entity;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-
-public class CategoriaDTO implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    private Integer idCategoria;
-    private Integer idRestaurante;
+public class CategoriaDTO {
+    private Integer id_categoria;
     private String nombre;
     private String descripcion;
-    private String icono;
-    private Integer estado = 1;
-    private LocalDateTime fechaCreacion;
-    private LocalDateTime fechaActualizacion;
+    private Integer estado;
 
-    // Constructores
     public CategoriaDTO() {}
 
-    public CategoriaDTO(Integer idCategoria, Integer idRestaurante, String nombre, String descripcion) {
-        this.idCategoria = idCategoria;
-        this.idRestaurante = idRestaurante;
+    public CategoriaDTO(Integer id_categoria, String nombre, String descripcion, Integer estado) {
+        this.id_categoria = id_categoria;
         this.nombre = nombre;
         this.descripcion = descripcion;
+        this.estado = estado;
     }
 
-    // Getters y Setters
-    public Integer getIdCategoria() {
-        return idCategoria;
+    public Integer getId_categoria() {
+        return id_categoria;
     }
 
-    public void setIdCategoria(Integer idCategoria) {
-        this.idCategoria = idCategoria;
-    }
-
-    public Integer getIdRestaurante() {
-        return idRestaurante;
-    }
-
-    public void setIdRestaurante(Integer idRestaurante) {
-        this.idRestaurante = idRestaurante;
+    public void setId_categoria(Integer id_categoria) {
+        this.id_categoria = id_categoria;
     }
 
     public String getNombre() {
@@ -58,14 +39,6 @@ public class CategoriaDTO implements Serializable {
         this.descripcion = descripcion;
     }
 
-    public String getIcono() {
-        return icono;
-    }
-
-    public void setIcono(String icono) {
-        this.icono = icono;
-    }
-
     public Integer getEstado() {
         return estado;
     }
@@ -74,25 +47,8 @@ public class CategoriaDTO implements Serializable {
         this.estado = estado;
     }
 
-    public LocalDateTime getFechaCreacion() {
-        return fechaCreacion;
-    }
-
-    public void setFechaCreacion(LocalDateTime fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
-    }
-
-    public LocalDateTime getFechaActualizacion() {
-        return fechaActualizacion;
-    }
-
-    public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
-        this.fechaActualizacion = fechaActualizacion;
-    }
-
     @Override
     public String toString() {
-        return "CategoriaDTO [idCategoria=" + idCategoria + ", idRestaurante=" + idRestaurante
-                + ", nombre=" + nombre + ", estado=" + estado + "]";
+        return "CategoriaDTO [id_categoria=" + id_categoria + ", nombre=" + nombre + "]";
     }
 }

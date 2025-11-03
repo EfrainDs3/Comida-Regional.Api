@@ -1,50 +1,58 @@
 package web.Regional_Api.entity;
 
+import java.math.BigDecimal;
+
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "detalle_pedido")
-@SQLDelete(sql = "UPDATE detalle_pedido SET estado = 0 WHERE id_detalle = ?")
+@Table(name = "detalles_pedido")
+@SQLDelete(sql = "UPDATE detalles_pedido SET estado = 0 WHERE id_detalle = ?")
 @Where(clause = "estado = 1")
 public class DetallePedido {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idDetalle;
+    private Integer id_detalle;
     
     private Integer cantidad;
-    private Double precioUnitario;
-    private Double subtotal;
+    private BigDecimal precio_unitario;
+    private BigDecimal subtotal;
     private String observaciones;
-    private String opcionesJSON; // JSON con opciones adicionales seleccionadas
     private Integer estado = 1;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_pedido")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private Pedido pedido;
+    private Pedido id_pedido;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_plato")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private Plato plato;
-
+    private Plato id_plato;
 
     public DetallePedido() {}
 
     public DetallePedido(Integer id) {
-        this.idDetalle = id;
+        this.id_detalle = id;
     }
 
-    // Getters and Setters
-    public Integer getIdDetalle() {
-        return idDetalle;
+    public Integer getId_detalle() {
+        return id_detalle;
     }
 
-    public void setIdDetalle(Integer idDetalle) {
-        this.idDetalle = idDetalle;
+    public void setId_detalle(Integer id_detalle) {
+        this.id_detalle = id_detalle;
     }
 
     public Integer getCantidad() {
@@ -55,19 +63,19 @@ public class DetallePedido {
         this.cantidad = cantidad;
     }
 
-    public Double getPrecioUnitario() {
-        return precioUnitario;
+    public BigDecimal getPrecio_unitario() {
+        return precio_unitario;
     }
 
-    public void setPrecioUnitario(Double precioUnitario) {
-        this.precioUnitario = precioUnitario;
+    public void setPrecio_unitario(BigDecimal precio_unitario) {
+        this.precio_unitario = precio_unitario;
     }
 
-    public Double getSubtotal() {
+    public BigDecimal getSubtotal() {
         return subtotal;
     }
 
-    public void setSubtotal(Double subtotal) {
+    public void setSubtotal(BigDecimal subtotal) {
         this.subtotal = subtotal;
     }
 
@@ -79,14 +87,6 @@ public class DetallePedido {
         this.observaciones = observaciones;
     }
 
-    public String getOpcionesJSON() {
-        return opcionesJSON;
-    }
-
-    public void setOpcionesJSON(String opcionesJSON) {
-        this.opcionesJSON = opcionesJSON;
-    }
-
     public Integer getEstado() {
         return estado;
     }
@@ -95,27 +95,25 @@ public class DetallePedido {
         this.estado = estado;
     }
 
-    public Pedido getPedido() {
-        return pedido;
+    public Pedido getId_pedido() {
+        return id_pedido;
     }
 
-    public void setPedido(Pedido pedido) {
-        this.pedido = pedido;
+    public void setId_pedido(Pedido id_pedido) {
+        this.id_pedido = id_pedido;
     }
 
-    public Plato getPlato() {
-        return plato;
+    public Plato getId_plato() {
+        return id_plato;
     }
 
-    public void setPlato(Plato plato) {
-        this.plato = plato;
+    public void setId_plato(Plato id_plato) {
+        this.id_plato = id_plato;
     }
-
 
     @Override
     public String toString() {
-        return "DetallePedido [idDetalle=" + idDetalle + ", cantidad=" + cantidad + 
-               ", precioUnitario=" + precioUnitario + ", estado=" + estado + "]";
+        return "DetallePedido [id_detalle=" + id_detalle + ", cantidad=" + cantidad + ", subtotal=" + subtotal
+                + ", estado=" + estado + "]";
     }
 }
-

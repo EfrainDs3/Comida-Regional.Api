@@ -18,40 +18,39 @@ import jakarta.persistence.Table;
 public class Restaurante {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idRestaurante;
+    private Integer id_restaurante;
     
-    private String razonSocial;
+    private String razon_social;
     private String ruc;
+    private String direccion;
     private String telefono;
     private String email;
-    private String logo;
-    private String moneda;
-    private Double impuesto;
+    private String horario_apertura;
+    private String horario_cierre;
+    private LocalDateTime fecha_afiliacion;
+    private Integer estado_pago; // 1: Al día, 2: Pendiente, 3: Cancelado
     private Integer estado = 1;
-    private LocalDateTime fechaCreacion;
-    private LocalDateTime fechaActualizacion;
 
     public Restaurante() {}
 
     public Restaurante(Integer id) {
-        this.idRestaurante = id;
+        this.id_restaurante = id;
     }
 
-    // Getters and Setters
-    public Integer getIdRestaurante() {
-        return idRestaurante;
+    public Integer getId_restaurante() {
+        return id_restaurante;
     }
 
-    public void setIdRestaurante(Integer idRestaurante) {
-        this.idRestaurante = idRestaurante;
+    public void setId_restaurante(Integer id_restaurante) {
+        this.id_restaurante = id_restaurante;
     }
 
-    public String getRazonSocial() {
-        return razonSocial;
+    public String getRazon_social() {
+        return razon_social;
     }
 
-    public void setRazonSocial(String razonSocial) {
-        this.razonSocial = razonSocial;
+    public void setRazon_social(String razon_social) {
+        this.razon_social = razon_social;
     }
 
     public String getRuc() {
@@ -60,6 +59,14 @@ public class Restaurante {
 
     public void setRuc(String ruc) {
         this.ruc = ruc;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
     }
 
     public String getTelefono() {
@@ -78,28 +85,36 @@ public class Restaurante {
         this.email = email;
     }
 
-    public String getLogo() {
-        return logo;
+    public String getHorario_apertura() {
+        return horario_apertura;
     }
 
-    public void setLogo(String logo) {
-        this.logo = logo;
+    public void setHorario_apertura(String horario_apertura) {
+        this.horario_apertura = horario_apertura;
     }
 
-    public String getMoneda() {
-        return moneda;
+    public String getHorario_cierre() {
+        return horario_cierre;
     }
 
-    public void setMoneda(String moneda) {
-        this.moneda = moneda;
+    public void setHorario_cierre(String horario_cierre) {
+        this.horario_cierre = horario_cierre;
     }
 
-    public Double getImpuesto() {
-        return impuesto;
+    public LocalDateTime getFecha_afiliacion() {
+        return fecha_afiliacion;
     }
 
-    public void setImpuesto(Double impuesto) {
-        this.impuesto = impuesto;
+    public void setFecha_afiliacion(LocalDateTime fecha_afiliacion) {
+        this.fecha_afiliacion = fecha_afiliacion;
+    }
+
+    public Integer getEstado_pago() {
+        return estado_pago;
+    }
+
+    public void setEstado_pago(Integer estado_pago) {
+        this.estado_pago = estado_pago;
     }
 
     public Integer getEstado() {
@@ -110,25 +125,9 @@ public class Restaurante {
         this.estado = estado;
     }
 
-    public LocalDateTime getFechaCreacion() {
-        return fechaCreacion;
-    }
-
-    public void setFechaCreacion(LocalDateTime fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
-    }
-
-    public LocalDateTime getFechaActualizacion() {
-        return fechaActualizacion;
-    }
-
-    public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
-        this.fechaActualizacion = fechaActualizacion;
-    }
-
     @Override
     public String toString() {
-        return "Restaurante [idRestaurante=" + idRestaurante + ", razonSocial=" + razonSocial + 
-               ", ruc=" + ruc + ", estado=" + estado + "]";
+        return "Restaurante [id_restaurante=" + id_restaurante + ", razon_social=" + razon_social + ", ruc=" + ruc
+                + ", direccion=" + direccion + ", estado=" + estado + "]";
     }
 }

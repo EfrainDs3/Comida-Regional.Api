@@ -1,53 +1,52 @@
 package web.Regional_Api.entity;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class RestauranteDTO implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    private Integer idRestaurante;
-    private String nombre;
+public class RestauranteDTO {
+    private Integer id_restaurante;
+    private String razon_social;
     private String ruc;
-    private String razonSocial;
-    private String ubicacion;
+    private String direccion;
     private String telefono;
     private String email;
-    private String logo;
-    private Integer estado = 1;
-    private LocalDateTime fechaCreacion;
-    private LocalDateTime fechaActualizacion;
+    private String horario_apertura;
+    private String horario_cierre;
+    private LocalDateTime fecha_afiliacion;
+    private Integer estado_pago;
+    private Integer estado;
 
-    // Constructores
     public RestauranteDTO() {}
 
-    public RestauranteDTO(Integer idRestaurante, String nombre, String ruc, String razonSocial,
-                         String ubicacion, String telefono, String email, String logo) {
-        this.idRestaurante = idRestaurante;
-        this.nombre = nombre;
+    public RestauranteDTO(Integer id_restaurante, String razon_social, String ruc, String direccion, 
+                          String telefono, String email, String horario_apertura, String horario_cierre,
+                          LocalDateTime fecha_afiliacion, Integer estado_pago, Integer estado) {
+        this.id_restaurante = id_restaurante;
+        this.razon_social = razon_social;
         this.ruc = ruc;
-        this.razonSocial = razonSocial;
-        this.ubicacion = ubicacion;
+        this.direccion = direccion;
         this.telefono = telefono;
         this.email = email;
-        this.logo = logo;
+        this.horario_apertura = horario_apertura;
+        this.horario_cierre = horario_cierre;
+        this.fecha_afiliacion = fecha_afiliacion;
+        this.estado_pago = estado_pago;
+        this.estado = estado;
     }
 
-    // Getters y Setters
-    public Integer getIdRestaurante() {
-        return idRestaurante;
+    public Integer getId_restaurante() {
+        return id_restaurante;
     }
 
-    public void setIdRestaurante(Integer idRestaurante) {
-        this.idRestaurante = idRestaurante;
+    public void setId_restaurante(Integer id_restaurante) {
+        this.id_restaurante = id_restaurante;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getRazon_social() {
+        return razon_social;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setRazon_social(String razon_social) {
+        this.razon_social = razon_social;
     }
 
     public String getRuc() {
@@ -58,20 +57,12 @@ public class RestauranteDTO implements Serializable {
         this.ruc = ruc;
     }
 
-    public String getRazonSocial() {
-        return razonSocial;
+    public String getDireccion() {
+        return direccion;
     }
 
-    public void setRazonSocial(String razonSocial) {
-        this.razonSocial = razonSocial;
-    }
-
-    public String getUbicacion() {
-        return ubicacion;
-    }
-
-    public void setUbicacion(String ubicacion) {
-        this.ubicacion = ubicacion;
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
     }
 
     public String getTelefono() {
@@ -90,12 +81,36 @@ public class RestauranteDTO implements Serializable {
         this.email = email;
     }
 
-    public String getLogo() {
-        return logo;
+    public String getHorario_apertura() {
+        return horario_apertura;
     }
 
-    public void setLogo(String logo) {
-        this.logo = logo;
+    public void setHorario_apertura(String horario_apertura) {
+        this.horario_apertura = horario_apertura;
+    }
+
+    public String getHorario_cierre() {
+        return horario_cierre;
+    }
+
+    public void setHorario_cierre(String horario_cierre) {
+        this.horario_cierre = horario_cierre;
+    }
+
+    public LocalDateTime getFecha_afiliacion() {
+        return fecha_afiliacion;
+    }
+
+    public void setFecha_afiliacion(LocalDateTime fecha_afiliacion) {
+        this.fecha_afiliacion = fecha_afiliacion;
+    }
+
+    public Integer getEstado_pago() {
+        return estado_pago;
+    }
+
+    public void setEstado_pago(Integer estado_pago) {
+        this.estado_pago = estado_pago;
     }
 
     public Integer getEstado() {
@@ -106,25 +121,8 @@ public class RestauranteDTO implements Serializable {
         this.estado = estado;
     }
 
-    public LocalDateTime getFechaCreacion() {
-        return fechaCreacion;
-    }
-
-    public void setFechaCreacion(LocalDateTime fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
-    }
-
-    public LocalDateTime getFechaActualizacion() {
-        return fechaActualizacion;
-    }
-
-    public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
-        this.fechaActualizacion = fechaActualizacion;
-    }
-
     @Override
     public String toString() {
-        return "RestauranteDTO [idRestaurante=" + idRestaurante + ", nombre=" + nombre + ", ruc=" + ruc
-                + ", razonSocial=" + razonSocial + ", estado=" + estado + "]";
+        return "RestauranteDTO [id_restaurante=" + id_restaurante + ", razon_social=" + razon_social + "]";
     }
 }

@@ -1,7 +1,4 @@
 package web.Regional_Api.entity;
-
-import java.time.LocalDateTime;
-
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -23,33 +20,32 @@ import jakarta.persistence.Table;
 public class Sucursal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idSucursal;
+    private Integer id_sucursal;
     
     private String nombre;
     private String direccion;
     private String telefono;
-    private String correo;
+    private String ciudad;
+    private String estado_sucursal; // Activo, Inactivo
     private Integer estado = 1;
-    private LocalDateTime fechaCreacion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_restaurante")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private Restaurante restaurante;
+    private Restaurante id_restaurante;
 
     public Sucursal() {}
 
     public Sucursal(Integer id) {
-        this.idSucursal = id;
+        this.id_sucursal = id;
     }
 
-    // Getters and Setters
-    public Integer getIdSucursal() {
-        return idSucursal;
+    public Integer getId_sucursal() {
+        return id_sucursal;
     }
 
-    public void setIdSucursal(Integer idSucursal) {
-        this.idSucursal = idSucursal;
+    public void setId_sucursal(Integer id_sucursal) {
+        this.id_sucursal = id_sucursal;
     }
 
     public String getNombre() {
@@ -76,12 +72,20 @@ public class Sucursal {
         this.telefono = telefono;
     }
 
-    public String getCorreo() {
-        return correo;
+    public String getCiudad() {
+        return ciudad;
     }
 
-    public void setCorreo(String correo) {
-        this.correo = correo;
+    public void setCiudad(String ciudad) {
+        this.ciudad = ciudad;
+    }
+
+    public String getEstado_sucursal() {
+        return estado_sucursal;
+    }
+
+    public void setEstado_sucursal(String estado_sucursal) {
+        this.estado_sucursal = estado_sucursal;
     }
 
     public Integer getEstado() {
@@ -92,26 +96,17 @@ public class Sucursal {
         this.estado = estado;
     }
 
-    public LocalDateTime getFechaCreacion() {
-        return fechaCreacion;
+    public Restaurante getId_restaurante() {
+        return id_restaurante;
     }
 
-    public void setFechaCreacion(LocalDateTime fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
-    }
-
-    public Restaurante getRestaurante() {
-        return restaurante;
-    }
-
-    public void setRestaurante(Restaurante restaurante) {
-        this.restaurante = restaurante;
+    public void setId_restaurante(Restaurante id_restaurante) {
+        this.id_restaurante = id_restaurante;
     }
 
     @Override
     public String toString() {
-        return "Sucursal [idSucursal=" + idSucursal + ", nombre=" + nombre + 
-               ", direccion=" + direccion + ", estado=" + estado + "]";
+        return "Sucursal [id_sucursal=" + id_sucursal + ", nombre=" + nombre + ", direccion=" + direccion
+                + ", estado=" + estado + "]";
     }
 }
-

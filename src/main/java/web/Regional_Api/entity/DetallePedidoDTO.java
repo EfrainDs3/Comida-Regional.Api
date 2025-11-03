@@ -1,58 +1,37 @@
 package web.Regional_Api.entity;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
-public class DetallePedidoDTO implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    private Integer idDetalle;
-    private Integer idPedido;
-    private Integer idPlato;
+public class DetallePedidoDTO {
+    private Integer id_detalle;
     private Integer cantidad;
-    private BigDecimal precioUnitario;
-    private BigDecimal precioTotal;
+    private BigDecimal precio_unitario;
+    private BigDecimal subtotal;
     private String observaciones;
-    private LocalDateTime fechaCreacion;
-    private LocalDateTime fechaActualizacion;
+    private Integer id_pedido;
+    private Integer id_plato;
+    private Integer estado;
 
-    // Constructores
     public DetallePedidoDTO() {}
 
-    public DetallePedidoDTO(Integer idDetalle, Integer idPedido, Integer idPlato,
-                           Integer cantidad, BigDecimal precioUnitario, BigDecimal precioTotal) {
-        this.idDetalle = idDetalle;
-        this.idPedido = idPedido;
-        this.idPlato = idPlato;
+    public DetallePedidoDTO(Integer id_detalle, Integer cantidad, BigDecimal precio_unitario, BigDecimal subtotal,
+                            String observaciones, Integer id_pedido, Integer id_plato, Integer estado) {
+        this.id_detalle = id_detalle;
         this.cantidad = cantidad;
-        this.precioUnitario = precioUnitario;
-        this.precioTotal = precioTotal;
+        this.precio_unitario = precio_unitario;
+        this.subtotal = subtotal;
+        this.observaciones = observaciones;
+        this.id_pedido = id_pedido;
+        this.id_plato = id_plato;
+        this.estado = estado;
     }
 
-    // Getters y Setters
-    public Integer getIdDetalle() {
-        return idDetalle;
+    public Integer getId_detalle() {
+        return id_detalle;
     }
 
-    public void setIdDetalle(Integer idDetalle) {
-        this.idDetalle = idDetalle;
-    }
-
-    public Integer getIdPedido() {
-        return idPedido;
-    }
-
-    public void setIdPedido(Integer idPedido) {
-        this.idPedido = idPedido;
-    }
-
-    public Integer getIdPlato() {
-        return idPlato;
-    }
-
-    public void setIdPlato(Integer idPlato) {
-        this.idPlato = idPlato;
+    public void setId_detalle(Integer id_detalle) {
+        this.id_detalle = id_detalle;
     }
 
     public Integer getCantidad() {
@@ -63,20 +42,20 @@ public class DetallePedidoDTO implements Serializable {
         this.cantidad = cantidad;
     }
 
-    public BigDecimal getPrecioUnitario() {
-        return precioUnitario;
+    public BigDecimal getPrecio_unitario() {
+        return precio_unitario;
     }
 
-    public void setPrecioUnitario(BigDecimal precioUnitario) {
-        this.precioUnitario = precioUnitario;
+    public void setPrecio_unitario(BigDecimal precio_unitario) {
+        this.precio_unitario = precio_unitario;
     }
 
-    public BigDecimal getPrecioTotal() {
-        return precioTotal;
+    public BigDecimal getSubtotal() {
+        return subtotal;
     }
 
-    public void setPrecioTotal(BigDecimal precioTotal) {
-        this.precioTotal = precioTotal;
+    public void setSubtotal(BigDecimal subtotal) {
+        this.subtotal = subtotal;
     }
 
     public String getObservaciones() {
@@ -87,26 +66,32 @@ public class DetallePedidoDTO implements Serializable {
         this.observaciones = observaciones;
     }
 
-    public LocalDateTime getFechaCreacion() {
-        return fechaCreacion;
+    public Integer getId_pedido() {
+        return id_pedido;
     }
 
-    public void setFechaCreacion(LocalDateTime fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
+    public void setId_pedido(Integer id_pedido) {
+        this.id_pedido = id_pedido;
     }
 
-    public LocalDateTime getFechaActualizacion() {
-        return fechaActualizacion;
+    public Integer getId_plato() {
+        return id_plato;
     }
 
-    public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
-        this.fechaActualizacion = fechaActualizacion;
+    public void setId_plato(Integer id_plato) {
+        this.id_plato = id_plato;
+    }
+
+    public Integer getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Integer estado) {
+        this.estado = estado;
     }
 
     @Override
     public String toString() {
-        return "DetallePedidoDTO [idDetalle=" + idDetalle + ", idPedido=" + idPedido
-                + ", idPlato=" + idPlato + ", cantidad=" + cantidad + ", precioTotal=" + precioTotal + "]";
+        return "DetallePedidoDTO [id_detalle=" + id_detalle + ", cantidad=" + cantidad + ", subtotal=" + subtotal + "]";
     }
 }
-
