@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import web.Regional_Api.entity.Usuarios;
-import web.Regional_Api.service.UsuarioService;
+import web.Regional_Api.service.jpa.UsuarioService;
 
 import java.util.HashMap;
 import java.util.List;

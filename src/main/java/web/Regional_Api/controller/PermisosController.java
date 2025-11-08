@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import web.Regional_Api.entity.Permisos;
-import web.Regional_Api.service.PermisoService;
+import web.Regional_Api.service.jpa.PermisoService;
 
 import java.util.List;
 
