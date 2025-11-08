@@ -44,7 +44,8 @@ public class UsuarioController {
             response.put("usuario", Map.of(
                 "idUsuario", usuarioRegistrado.getIdUsuario(),
                 "nombreUsuario", usuarioRegistrado.getNombreUsuario(),
-                "email", usuarioRegistrado.getEmail(),
+                "nombre_usuario_login", usuarioRegistrado.getNombreUsuarioLogin(),
+                "dni", usuarioRegistrado.getDniUsuario(),
                 "accessToken", usuarioRegistrado.getAccessToken()
             ));
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -61,24 +62,28 @@ public class UsuarioController {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            String email = credentials.get("email");
+            // Aceptamos tanto 'email' (compatibilidad) como 'nombre_usuario_login' como clave de usuario
+            String nombreLogin = credentials.get("nombre_usuario_login");
+            if (nombreLogin == null) {
+                nombreLogin = credentials.get("email");
+            }
             String contraseña = credentials.get("contraseña");
-            
-            if (email == null || contraseña == null) {
+
+            if (nombreLogin == null || contraseña == null) {
                 response.put("success", false);
-                response.put("message", "Email y contraseña son requeridos");
+                response.put("message", "Nombre de usuario (nombre_usuario_login) y contraseña son requeridos");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
-            
-            // Realizar login
-            Usuarios usuario = usuarioService.login(email, contraseña);
+
+            // Realizar login (por nombre de usuario de login)
+            Usuarios usuario = usuarioService.login(nombreLogin, contraseña);
             
             response.put("success", true);
             response.put("message", "Login exitoso");
             response.put("usuario", Map.of(
                 "idUsuario", usuario.getIdUsuario(),
                 "nombreUsuario", usuario.getNombreUsuario(),
-                "email", usuario.getEmail(),
+                "nombre_usuario_login", usuario.getNombreUsuarioLogin(),
                 "rolId", usuario.getRolId(),
                 "accessToken", usuario.getAccessToken()
             ));
@@ -125,7 +130,7 @@ public class UsuarioController {
             response.put("usuario", Map.of(
                 "idUsuario", usuario.getIdUsuario(),
                 "nombreUsuario", usuario.getNombreUsuario(),
-                "email", usuario.getEmail(),
+                "nombre_usuario_login", usuario.getNombreUsuarioLogin(),
                 "rolId", usuario.getRolId()
             ));
             

@@ -13,11 +13,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "usuarios")
-@SQLDelete(sql = "UPDATE usuarios SET estado = false WHERE id_usuario = ?")
-@Where(clause = "estado = true")
+// Asumimos que en la nueva tabla `estado` es un CHAR(1) donde '1' = activo, '0' = inactivo
+@SQLDelete(sql = "UPDATE usuarios SET estado = '0' WHERE id_usuario = ?")
+@Where(clause = "estado = '1'")
 
 public class Usuarios {
 
@@ -27,40 +29,49 @@ public class Usuarios {
     @Column(name = "id_usuario")
     private Integer idUsuario;
 
+    @Column(name = "id_perfil")
+    private Integer rolId; // mapeado a id_perfil en la nueva tabla
+
     @Column(name = "nombre_usuario")
     private String nombreUsuario;
 
+    @Column(name = "apellido_usuario")
     private String apellidos;
-    private String direccion;
-    private String email;
+
+    @Column(name = "dni_usuario")
+    private String dniUsuario;
+
+    @Column(name = "telefono_usuario")
     private String telefono;
 
-    @Column(name = "contraseña")
-    private String contraseña;
-    
-    private Boolean estado = true;
+    @Column(name = "nombre_usuario_login")
+    private String nombreUsuarioLogin;
 
-    @Column(name = "rol_id")
-    private int rolId;
+    @Column(name = "contraseña_usuario")
+    private String contraseña; // mantenemos getter/setter getContraseña/setContraseña
 
-    @Column(name = "access_token", length = 500)
+    @Column(name = "estado")
+    private String estado = "1"; // '1' activo por defecto
+
+    // Campo transient para devolver token JWT al cliente sin persistirlo en la BD
+    @Transient
     private String accessToken;
 
     public Usuarios(){
     }
     
-    public Usuarios(Integer idUsuario, String nombreUsuario, String apellidos, String direccion, String email,
-            String telefono, String contraseña, Boolean estado, int rolId, String accessToken) {
+    public Usuarios(Integer idUsuario, String nombreUsuario, String apellidos, String dniUsuario, String telefono,
+            String contraseña, String estado, int rolId, String nombreUsuarioLogin, String accessToken) {
         this.idUsuario = idUsuario;
         this.nombreUsuario = nombreUsuario;
         this.apellidos = apellidos;
-        this.direccion = direccion;
-        this.email = email;
+        this.dniUsuario = dniUsuario;
         this.telefono = telefono;
         this.setContraseña(contraseña);
         this.accessToken = accessToken;
         this.estado = estado;
         this.rolId = rolId;
+        this.nombreUsuarioLogin = nombreUsuarioLogin;
     }
 
     public Integer getIdUsuario() {
@@ -89,22 +100,15 @@ public class Usuarios {
         this.apellidos = apellidos;
     }
 
-    public String getDireccion() {
-        return direccion;
+    public String getDniUsuario() {
+        return dniUsuario;
     }
 
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
+    public void setDniUsuario(String dniUsuario) {
+        this.dniUsuario = dniUsuario;
     }
 
-   
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    // Nota: los campos direccion y email fueron removidos en la nueva estructura de la tabla
 
     public String getTelefono() {
         return telefono;
@@ -137,11 +141,11 @@ public class Usuarios {
         }
     }
 
-    public Boolean getEstado() {
+    public String getEstado() {
         return estado;
     }
 
-    public void setEstado(Boolean estado) {
+    public void setEstado(String estado) {
         this.estado = estado;
     }
 
@@ -162,11 +166,19 @@ public class Usuarios {
         this.accessToken = accessToken;
     }
 
+    public String getNombreUsuarioLogin() {
+        return nombreUsuarioLogin;
+    }
+
+    public void setNombreUsuarioLogin(String nombreUsuarioLogin) {
+        this.nombreUsuarioLogin = nombreUsuarioLogin;
+    }
+
     @Override
     public String toString() {
-        return "Usuarios [idUsuario=" + idUsuario + ", nombreUsuario=" + nombreUsuario + ", apellidos=" + apellidos
-                + ", direccion=" + direccion + ", email=" + email + ", telefono=" + telefono + ", contraseña="
-                + contraseña + ", estado=" + estado + ", rolId=" + rolId + ", accessToken=" + accessToken + "]";
+    return "Usuarios [idUsuario=" + idUsuario + ", nombreUsuario=" + nombreUsuario + ", apellidos=" + apellidos
+        + ", dniUsuario=" + dniUsuario + ", telefono=" + telefono + ", contraseña="
+        + contraseña + ", estado=" + estado + ", rolId=" + rolId + ", nombreUsuarioLogin=" + nombreUsuarioLogin + ", accessToken=" + accessToken + "]";
     }
     
 }
