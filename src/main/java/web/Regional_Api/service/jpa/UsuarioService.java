@@ -1,4 +1,4 @@
-package web.Regional_Api.service;
+package web.Regional_Api.service.jpa;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,17 +30,17 @@ public class UsuarioService {
      */
 
     public Usuarios registrarUsuario(Usuarios usuario) {
-        // Verificar si el email ya existe
-        if (usuarioRepository.existsByEmail(usuario.getEmail())) {
-            throw new RuntimeException("El email ya está registrado en el sistema");
+        // Verificar si el nombre de usuario de login ya existe
+        if (usuarioRepository.existsByNombreUsuarioLogin(usuario.getNombreUsuarioLogin())) {
+            throw new RuntimeException("El nombre de usuario de login ya está registrado en el sistema");
         }
-        
+
         // La contraseña ya se cifra automáticamente en el setter con SHA-256
-        // Generar el access token usando JWT
-        String token = jwtUtil.generateToken(usuario.getEmail());
+        // Generar el access token (transient) usando JWT con el nombre de usuario de login
+        String token = jwtUtil.generateToken(usuario.getNombreUsuarioLogin());
         usuario.setAccessToken(token);
-        
-        // Guardar el usuario en la base de datos
+
+        // Guardar el usuario en la base de datos (el accessToken es transient y no se persistirá)
         return usuarioRepository.save(usuario);
     }
 
@@ -51,33 +51,30 @@ public class UsuarioService {
      * @return Usuario con su información si las credenciales son correctas
      * @throws RuntimeException si las credenciales son incorrectas
      */
-    public Usuarios login(String email, String contraseña) {
-        // Buscar el usuario por email
-        Optional<Usuarios> usuarioOpt = usuarioRepository.findByEmail(email);
-        
+    public Usuarios login(String nombreUsuarioLogin, String contraseña) {
+        // Buscar el usuario por su nombre de usuario de login
+        Optional<Usuarios> usuarioOpt = usuarioRepository.findByNombreUsuarioLogin(nombreUsuarioLogin);
+
         if (usuarioOpt.isEmpty()) {
-            throw new RuntimeException("Email o contraseña incorrectos");
+            throw new RuntimeException("Usuario o contraseña incorrectos");
         }
-        
+
         Usuarios usuario = usuarioOpt.get();
-        
+
         // Cifrar la contraseña ingresada para compararla
         Usuarios temp = new Usuarios();
         temp.setContraseña(contraseña);
         String contraseñaCifrada = temp.getContraseña();
-        
+
         // Verificar si la contraseña coincide
         if (!usuario.getContraseña().equals(contraseñaCifrada)) {
-            throw new RuntimeException("Email o contraseña incorrectos");
+            throw new RuntimeException("Usuario o contraseña incorrectos");
         }
-        
-        // Si no tiene token, generar uno nuevo
-        if (usuario.getAccessToken() == null || usuario.getAccessToken().isEmpty()) {
-            String token = jwtUtil.generateToken(usuario.getEmail());
-            usuario.setAccessToken(token);
-            usuarioRepository.save(usuario);
-        }
-        
+
+        // Generar token JWT y asignarlo de forma transient (no se persiste)
+        String token = jwtUtil.generateToken(usuario.getNombreUsuarioLogin());
+        usuario.setAccessToken(token);
+
         return usuario;
     }
 
@@ -94,10 +91,11 @@ public class UsuarioService {
         }
         
         // Extraer el email del token
-        String email = jwtUtil.extractEmail(token);
-        
-        // Buscar el usuario en la base de datos
-        Optional<Usuarios> usuarioOpt = usuarioRepository.findByEmail(email);
+        // En el token guardamos como subject el nombreUsuarioLogin
+        String nombreUsuarioLogin = jwtUtil.extractEmail(token);
+
+        // Buscar el usuario en la base de datos por nombreUsuarioLogin
+        Optional<Usuarios> usuarioOpt = usuarioRepository.findByNombreUsuarioLogin(nombreUsuarioLogin);
         
         if (usuarioOpt.isEmpty()) {
             throw new RuntimeException("Usuario no encontrado");
@@ -120,7 +118,7 @@ public class UsuarioService {
      * @param email Email del usuario
      * @return Usuario si existe
      */
-    public Optional<Usuarios> getUsuarioByEmail(String email) {
-        return usuarioRepository.findByEmail(email);
+    public Optional<Usuarios> getUsuarioByLogin(String nombreUsuarioLogin) {
+        return usuarioRepository.findByNombreUsuarioLogin(nombreUsuarioLogin);
     }
 }
