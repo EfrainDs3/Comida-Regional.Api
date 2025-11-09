@@ -16,7 +16,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
 @Entity
-@Table(name = "usuarios")
+@Table(name = "usuario")
 // Asumimos que en la nueva tabla `estado` es un CHAR(1) donde '1' = activo, '0' = inactivo
 @SQLDelete(sql = "UPDATE usuarios SET estado = '0' WHERE id_usuario = ?")
 @Where(clause = "estado = '1'")

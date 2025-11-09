@@ -58,4 +58,29 @@ public class JwtUtil {
                 .getBody()
                 .getSubject();
     }
+
+    public String generarToken(String clienteId){
+        return Jwts.builder()
+            .setSubject(clienteId)
+            .setIssuedAt(new Date())
+            .setExpiration(new Date(System.currentTimeMillis()
+                                +EXPIRATION_TIME))
+            .signWith(key).compact();  
+    }
+    public boolean validarToken(String token){
+        try {
+            Jwts.parserBuilder()
+                .setSigningKey(key).build()
+                .parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            return false;    
+        }
+    }
+    public String extraerClienteId(String token){
+        return Jwts.parserBuilder()
+                .setSigningKey(key).build()
+                .parseClaimsJws(token)
+                .getBody().getSubject();
+    }
 }
