@@ -1,5 +1,7 @@
 package web.Regional_Api.entity;
 
+import org.hibernate.annotations.Where;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,6 +11,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "modulo")
+@Where(clause = "estado = 'A'")
 public class Modulo {
 
 	@Id
@@ -59,4 +62,12 @@ public class Modulo {
 	public void setOrden(Integer orden) {
 		this.orden = orden;
 	}
+
+    @Override
+    public String toString() {
+        return "Modulo [idModulo=" + idModulo + ", nombreModulo=" + nombreModulo + ", estado=" + estado + ", orden="
+                + orden + "]";
+    }
+
+    
 }

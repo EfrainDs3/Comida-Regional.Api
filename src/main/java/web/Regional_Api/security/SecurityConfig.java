@@ -13,21 +13,24 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class SecurityConfig {
 
-	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
-		http
-			.csrf(csrf -> csrf.disable())
-			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/usuarios/registro", "/usuarios/login", "/actuator/**").permitAll()
-				.anyRequest().authenticated())
-			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())  // Desactiva CSRF para servicios RESTful
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sin estado
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/usuarios/registro", "/usuarios/login", "/actuator/**").permitAll() // Endpoints públicos
+                .requestMatchers("/modulos", "/modulos/**",
+                    "/perfiles", "/perfiles/**",
+                    "/accesos", "/accesos/**").permitAll()  // Otras rutas públicas
+                .anyRequest().authenticated())  // Requiere autenticación para el resto
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class); // Filtro JWT
 
-		return http.build();
-	}
+        return http.build();
+    }
 
-	@Bean
-	public BCryptPasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }
