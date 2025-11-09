@@ -27,7 +27,7 @@ public class UsuarioController {
     @Autowired
     private AuthorizationService authorizationService;
 
-    @GetMapping("/usuarios")
+    @GetMapping("")
     public List<Usuarios> getAllUsuarios() {
         return usuarioService.getAllUsuarios();
     }
