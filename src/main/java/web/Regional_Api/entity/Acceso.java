@@ -1,6 +1,8 @@
 
 package web.Regional_Api.entity;
 
+import org.hibernate.annotations.Where;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,6 +12,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "acceso")
+@Where(clause = "estado = 'A'")
 public class Acceso {
 
 	@Id
@@ -60,5 +63,12 @@ public class Acceso {
 	public void setEstado(String estado) {
 		this.estado = estado;
 	}
+
+    @Override
+    public String toString() {
+        return "Acceso [idAcceso=" + idAcceso + ", idModulo=" + idModulo + ", idPerfil=" + idPerfil + ", estado="
+                + estado + "]";
+    }
+
 }
 
