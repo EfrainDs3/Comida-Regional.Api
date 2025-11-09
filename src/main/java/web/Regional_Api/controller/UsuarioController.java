@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import web.Regional_Api.entity.Usuarios;
+import web.Regional_Api.service.AuthorizationService;
 import web.Regional_Api.service.jpa.UsuarioService;
 
 import java.util.HashMap;
@@ -22,6 +23,9 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private AuthorizationService authorizationService;
 
     @GetMapping("/usuarios")
     public List<Usuarios> getAllUsuarios() {
@@ -136,6 +140,50 @@ public class UsuarioController {
             
             return ResponseEntity.ok(response);
             
+        } catch (RuntimeException e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+    }
+
+    @PostMapping("/verificar-acceso")
+    public ResponseEntity<Map<String, Object>> verificarAcceso(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestBody(required = false) Map<String, String> body) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            if (body == null || !body.containsKey("nombreModulo")) {
+                response.put("success", false);
+                response.put("message", "El nombre del módulo es requerido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            String token = null;
+
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                token = authHeader.substring(7);
+            } else if (body.containsKey("token")) {
+                token = body.get("token");
+            }
+
+            if (token == null || token.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Token no proporcionado");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            Usuarios usuario = usuarioService.validarToken(token);
+            boolean hasAccess = authorizationService.userHasAccess(usuario.getNombreUsuarioLogin(), body.get("nombreModulo"));
+
+            response.put("success", true);
+            response.put("hasAccess", hasAccess);
+            response.put("message", hasAccess ? "Acceso concedido" : "Acceso denegado");
+
+            return ResponseEntity.ok(response);
+
         } catch (RuntimeException e) {
             response.put("success", false);
             response.put("message", e.getMessage());
