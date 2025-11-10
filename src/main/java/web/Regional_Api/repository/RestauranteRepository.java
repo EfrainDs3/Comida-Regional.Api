@@ -28,10 +28,4 @@ public interface RestauranteRepository extends JpaRepository<Restaurante, Intege
     List<Restaurante> buscarRestaurantes(@Param("search") String search);
 }
 
-<<<<<<< Updated upstream
-    
-
-
-=======
->>>>>>> Stashed changes
 

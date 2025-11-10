@@ -1,10 +1,10 @@
-package com.comidas.api.repository;
+package web.Regional_Api.repository;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.comidas.api.entity.SesionesCaja;
+import web.Regional_Api.entity.SesionesCaja;
 
 public interface SesionesCajaRepository extends JpaRepository<SesionesCaja, Integer> {
     

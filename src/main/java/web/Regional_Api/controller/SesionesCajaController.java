@@ -1,4 +1,4 @@
-package com.comidas.api.controller;
+package web.Regional_Api.controller;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,29 +25,22 @@ public class SesionesCajaController {
     @Autowired
     private ISesionesCajaService serviceSesiones;
 
-    // --- Métodos Auxiliares de Seguridad (Simulación) ---
-
-    // CRÍTICO: Usado para Multi-Tenant (viene del token/header del restaurante)
     private Integer getIdSucursalFromSecurityContext(String idSucursalHeader) {
         try {
-            return Integer.parseInt(idSucursalHeader); 
+            return Integer.parseInt(idSucursalHeader);
         } catch (NumberFormatException e) {
             throw new RuntimeException("Error de Seguridad: ID de Sucursal inválido o ausente.");
         }
     }
-    
-    // CRÍTICO: Usado para auditar aperturas y cierres (viene del token del usuario)
+
     private Integer getIdUsuarioFromSecurityContext(String idUsuarioHeader) {
         try {
-            return Integer.parseInt(idUsuarioHeader); 
+            return Integer.parseInt(idUsuarioHeader);
         } catch (NumberFormatException e) {
             throw new RuntimeException("Error de Seguridad: ID de Usuario inválido o ausente.");
         }
     }
 
-    // ----------------------------------------------------
-    // GET: /restful/caja (Buscar todas las sesiones de la sucursal)
-    // ----------------------------------------------------
     @GetMapping("/caja")
     public List<SesionesCaja> buscarTodas(
         @RequestHeader("X-Sucursal-ID") String idSucursalHeader) { 
@@ -56,9 +49,6 @@ public class SesionesCajaController {
         return serviceSesiones.buscarTodasPorSucursal(idSucursal);
     }
     
-    // ----------------------------------------------------
-    // GET: /restful/caja/abierta (Buscar la sesión abierta actual)
-    // ----------------------------------------------------
     @GetMapping("/caja/abierta")
     public Optional<SesionesCaja> buscarAbierta(
             @RequestHeader("X-Sucursal-ID") String idSucursalHeader) { 
@@ -67,9 +57,6 @@ public class SesionesCajaController {
         return serviceSesiones.buscarSesionAbiertaPorSucursal(idSucursal);
     }
 
-    // ----------------------------------------------------
-    // POST: /restful/caja (ABRIR CAJA - Requiere Monto Inicial)
-    // ----------------------------------------------------
     @PostMapping("/caja")
     public SesionesCaja abrirCaja(@RequestBody SesionesCaja sesion,
                                   @RequestHeader("X-Sucursal-ID") String idSucursalHeader,
@@ -83,10 +70,6 @@ public class SesionesCajaController {
         return sesion; 
     }
 
-    // ----------------------------------------------------
-    // PUT: /restful/caja (CERRAR CAJA - Requiere Monto Final Real)
-    // ----------------------------------------------------
-    // El cuerpo debe contener idSesion y montoFinalReal
     @PutMapping("/caja")
     public SesionesCaja cerrarCaja(@RequestBody SesionesCaja sesionCierre,
                                    @RequestHeader("X-Sucursal-ID") String idSucursalHeader,
@@ -100,9 +83,6 @@ public class SesionesCajaController {
         return sesionCierre; 
     }
 
-    // ----------------------------------------------------
-    // DELETE: /restful/caja/{id} (ELIMINAR LÓGICO)
-    // ----------------------------------------------------
     @DeleteMapping("/caja/{id}")
     public String eliminar(@PathVariable Integer id,
                            @RequestHeader("X-Sucursal-ID") String idSucursalHeader) {

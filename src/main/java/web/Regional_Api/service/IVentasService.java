@@ -1,9 +1,11 @@
-package com.comidas.api.service; 
+package web.Regional_Api.service;
 
 import java.util.List;
 import java.util.Optional;
 
-import com.comidas.api.entity.Ventas;
+import web.Regional_Api.entity.Ventas;
+
+
 
 public interface IVentasService {
     

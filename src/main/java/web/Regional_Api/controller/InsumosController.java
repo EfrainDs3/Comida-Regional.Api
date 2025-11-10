@@ -17,9 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import web.Regional_Api.entity.InsumosDTO;
+import web.Regional_Api.entity.Sucursales;
+import web.Regional_Api.repository.SucursalesRepository;
 import web.Regional_Api.entity.Insumos;
-import web.Regional_Api.entity.Sucursal;
-import web.Regional_Api.repository.SucursalRepository; 
+
 import web.Regional_Api.service.IInsumosService;
 
 @RestController
@@ -41,10 +42,6 @@ public class InsumosController {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * GET /regional/insumos/{id}
-     * Busca un insumo por ID.
-     */
     @GetMapping("/{id}")
     public ResponseEntity<InsumosDTO> buscarPorId(@PathVariable Integer id) {
         return serviceInsumos.buscarId(id)
@@ -53,10 +50,6 @@ public class InsumosController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * POST /regional/insumos
-     * Crea un nuevo insumo.
-     */
     @PostMapping
     public ResponseEntity<InsumosDTO> guardar(@RequestBody InsumosDTO dto) {
         try {
@@ -64,27 +57,22 @@ public class InsumosController {
             Insumos entidadGuardada = serviceInsumos.guardar(entidad);
             return ResponseEntity.status(HttpStatus.CREATED).body(convertirADTO(entidadGuardada));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null); // 400 si la sucursal no existe
+            return ResponseEntity.badRequest().body(null);
         }
     }
 
-    /**
-     * PUT /regional/insumos/{id}
-     * Modifica un insumo existente.
-     */
     @PutMapping("/{id}")
     public ResponseEntity<InsumosDTO> modificar(@PathVariable Integer id, @RequestBody InsumosDTO dto) {
-        
+
         Optional<Insumos> optInsumo = serviceInsumos.buscarId(id);
-        
+
         if (optInsumo.isEmpty()) {
-            return ResponseEntity.notFound().build(); // 404
+            return ResponseEntity.notFound().build();
         }
-        
+
         try {
             Insumos entidadExistente = optInsumo.get();
-            
-            // Actualizamos la entidad con los datos del DTO
+
             entidadExistente.setNombre(dto.getNombre());
             entidadExistente.setDescripcion(dto.getDescripcion());
             entidadExistente.setStock_actual(dto.getStock_actual());
@@ -93,36 +81,29 @@ public class InsumosController {
             entidadExistente.setFecha_vencimiento(dto.getFecha_vencimiento());
             entidadExistente.setEstado(dto.getEstado());
 
-            // Buscamos y asignamos la sucursal
-            Sucursal sucursal = repoSucursal.findById(dto.getIdSucursal())
+            Sucursales sucursal = repoSucursal.findById(dto.getIdSucursal())
                     .orElseThrow(() -> new RuntimeException("Sucursal no encontrada"));
-            entidadExistente.setSucursal(sucursal);
+            entidadExistente.setSucursales(sucursal);
 
             Insumos entidadActualizada = serviceInsumos.modificar(entidadExistente);
             return ResponseEntity.ok(convertirADTO(entidadActualizada));
-            
+
         } catch (RuntimeException e) {
-             return ResponseEntity.badRequest().build(); // 400 si la sucursal es inválida
+            return ResponseEntity.badRequest().build();
         }
     }
 
-    /**
-     * DELETE /regional/insumos/{id}
-     * Elimina (lógicamente) un insumo.
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         Optional<Insumos> optionalInsumo = serviceInsumos.buscarId(id);
-        
-        if (optionalInsumo.isEmpty()) {
-            return ResponseEntity.notFound().build(); // 404
-        }
-        
-        serviceInsumos.eliminar(id); // Llama al borrado lógico
-        return ResponseEntity.noContent().build(); // 204
-    }
 
-    // --- Métodos de Mapeo (Helpers) ---
+        if (optionalInsumo.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        serviceInsumos.eliminar(id);
+        return ResponseEntity.noContent().build();
+    }
 
     private InsumosDTO convertirADTO(Insumos entidad) {
         InsumosDTO dto = new InsumosDTO();
@@ -134,16 +115,16 @@ public class InsumosController {
         dto.setUnidad_medida(entidad.getUnidad_medida());
         dto.setFecha_vencimiento(entidad.getFecha_vencimiento());
         dto.setEstado(entidad.getEstado());
-        
-        if (entidad.getSucursal() != null) {
-            dto.setIdSucursal(entidad.getSucursal().getId_sucursal()); // Asumiendo que el ID se llama 'id_sucursal'
+
+        if (entidad.getSucursales() != null) {
+            dto.setIdSucursal(entidad.getSucursales().getIdSucursal());
         }
         return dto;
     }
 
     private Insumos convertirAEntidad(InsumosDTO dto) {
         Insumos entidad = new Insumos();
-        entidad.setId_insumo(dto.getId_insumo()); // Será null si es nuevo
+        entidad.setId_insumo(dto.getId_insumo());
         entidad.setNombre(dto.getNombre());
         entidad.setDescripcion(dto.getDescripcion());
         entidad.setStock_actual(dto.getStock_actual());
@@ -152,13 +133,12 @@ public class InsumosController {
         entidad.setFecha_vencimiento(dto.getFecha_vencimiento());
         entidad.setEstado(dto.getEstado() != null ? dto.getEstado() : 1);
 
-        // Buscamos la sucursal completa
         if (dto.getIdSucursal() != null) {
-            Sucursal sucursal = repoSucursal.findById(dto.getIdSucursal())
+            Sucursales sucursal = repoSucursal.findById(dto.getIdSucursal())
                     .orElseThrow(() -> new RuntimeException("Sucursal no encontrada con ID: " + dto.getIdSucursal()));
-            entidad.setSucursal(sucursal);
+            entidad.setSucursales(sucursal);
         } else {
-             throw new RuntimeException("Es obligatorio proveer un idSucursal");
+            throw new RuntimeException("Es obligatorio proveer un idSucursal");
         }
         return entidad;
     }

@@ -47,12 +47,10 @@ public class Insumos {
 
     private Integer estado = 1;
 
-    // --- Relación Clave ---
-    // Esto maneja tu columna 'id_sucursal'
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_sucursal", nullable = false)
     @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
-    private Sucursal sucursal; // Asumiendo que tienes una entidad 'Sucursal'
+    private Sucursales sucursales;
 
     // --- Getters y Setters ---
     
@@ -120,11 +118,11 @@ public class Insumos {
         this.estado = estado;
     }
 
-    public Sucursal getSucursal() {
-        return sucursal;
+    public Sucursales getSucursales() {
+        return sucursales;
     }
 
-    public void setSucursal(Sucursal sucursal) {
-        this.sucursal = sucursal;
+    public void setSucursales(Sucursales sucursales) {
+        this.sucursales = sucursales;
     }
 }

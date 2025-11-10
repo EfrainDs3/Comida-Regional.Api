@@ -1,4 +1,4 @@
-package com.comidas.api.controller;
+package web.Regional_Api.controller;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -12,9 +12,13 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.comidas.api.entity.MovimientosCaja;
-import com.comidas.api.service.IMovimientosCajaService;
-import com.comidas.api.service.ISesionesCajaService; // Para validaciones futuras
+import web.Regional_Api.entity.MovimientosCaja;
+import web.Regional_Api.service.IMovimientosCajaService;
+import web.Regional_Api.service.ISesionesCajaService;
+
+
+
+
 
 @RestController
 @RequestMapping("/restful")
@@ -37,19 +41,14 @@ public class MovimientosCajaController {
         }
     }
 
-    // ----------------------------------------------------
-    // GET: /restful/caja/movimientos/{idSesion} (Buscar movimientos por Sesión)
-    // ----------------------------------------------------
+ 
     @GetMapping("/caja/movimientos/{idSesion}")
     public List<MovimientosCaja> buscarPorSesion(@PathVariable("idSesion") Integer idSesion) {
-        // Nota: La validación de que la Sesión pertenece a la Sucursal del usuario 
-        // debe hacerse aquí si la seguridad fuera completa. Por ahora, solo listamos.
+
         return serviceMovimientos.buscarPorSesion(idSesion);
     }
-    
-    // ----------------------------------------------------
-    // POST: /restful/caja/movimientos (Registrar Ingreso/Egreso)
-    // ----------------------------------------------------
+
+
     @PostMapping("/caja/movimientos")
     public MovimientosCaja registrarMovimiento(@RequestBody MovimientosCaja movimiento,
                                                @RequestHeader("X-Usuario-ID") String idUsuarioHeader) {

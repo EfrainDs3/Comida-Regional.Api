@@ -6,10 +6,6 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -43,29 +39,22 @@ public class DetallePedidoController {
     @Autowired
     private PlatoRepository platoRepository;
     
-    // Obtener todos los detalles
     @GetMapping
     public ResponseEntity<List<DetallePedido>> obtenerTodos() {
         List<DetallePedido> detalles = detallePedidoRepository.findAll();
         return ResponseEntity.ok(detalles);
     }
-    
-    // Obtener detalles por pedido
     @GetMapping("/pedido/{id_pedido}")
     public ResponseEntity<List<DetallePedido>> obtenerPorPedido(@PathVariable Integer id_pedido) {
         List<DetallePedido> detalles = detallePedidoRepository.detallesPorPedido(id_pedido);
         return ResponseEntity.ok(detalles);
     }
-    
-    // Obtener detalle por ID
     @GetMapping("/{id}")
     public ResponseEntity<DetallePedido> obtenerPorId(@PathVariable Integer id) {
         Optional<DetallePedido> detalle = detallePedidoRepository.findById(id);
         return detalle.map(ResponseEntity::ok)
                       .orElseGet(() -> ResponseEntity.notFound().build());
     }
-    
-    // Crear detalle de pedido
     @PostMapping
     public ResponseEntity<DetallePedido> crear(@RequestBody DetallePedidoDTO detalleDTO) {
         try {
@@ -93,9 +82,8 @@ public class DetallePedidoController {
                 detalle.setSubtotal(detalleDTO.getSubtotal());
             }
             detalle.setObservaciones(detalleDTO.getObservaciones());
-            detalle.setId_pedido(pedido.get());
-            detalle.setId_plato(plato.get());
-            detalle.setEstado(1);
+            detalle.setPedido(pedido.get());
+            detalle.setPlato(plato.get());
             
             DetallePedido guardado = detallePedidoRepository.save(detalle);
             return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
@@ -104,7 +92,6 @@ public class DetallePedidoController {
         }
     }
     
-    // Actualizar detalle
     @PutMapping("/{id}")
     public ResponseEntity<DetallePedido> actualizar(@PathVariable Integer id, @RequestBody DetallePedidoDTO detalleDTO) {
         Optional<DetallePedido> optional = detallePedidoRepository.findById(id);
@@ -122,17 +109,14 @@ public class DetallePedidoController {
         return ResponseEntity.ok(actualizado);
     }
     
-    // Eliminar detalle (soft delete)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         Optional<DetallePedido> optional = detallePedidoRepository.findById(id);
         if (optional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        
         DetallePedido detalle = optional.get();
-        detalle.setEstado(0);
-        detallePedidoRepository.save(detalle);
+        detallePedidoRepository.delete(detalle);
         return ResponseEntity.noContent().build();
     }
 }

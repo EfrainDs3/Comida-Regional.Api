@@ -1,8 +1,10 @@
-package com.comidas.api.repository;
+package web.Regional_Api.repository;
 
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.comidas.api.entity.Ventas;
+
+import web.Regional_Api.entity.Ventas;
+
 
 public interface VentasRepository extends JpaRepository<Ventas, Integer> {
     

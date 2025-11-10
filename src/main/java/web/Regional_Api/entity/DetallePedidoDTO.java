@@ -5,14 +5,21 @@ package web.Regional_Api.entity;
 import java.math.BigDecimal;
 
 public class DetallePedidoDTO {
-    
+    private Integer id_pedido;
     private Integer id_plato;
     private Integer cantidad;
     private String observaciones;
     private BigDecimal precio_unitario;
+    private BigDecimal subtotal;
     
     public Integer getId_plato() {
         return id_plato;
+    }
+    public Integer getId_pedido() {
+        return id_pedido;
+    }
+    public void setId_pedido(Integer id_pedido) {
+        this.id_pedido = id_pedido;
     }
     public BigDecimal getPrecio_unitario() {
         return precio_unitario;
@@ -22,6 +29,12 @@ public class DetallePedidoDTO {
     }
     public void setId_plato(Integer id_plato) {
         this.id_plato = id_plato;
+    }
+    public BigDecimal getSubtotal() {
+        return subtotal;
+    }
+    public void setSubtotal(BigDecimal subtotal) {
+        this.subtotal = subtotal;
     }
     public Integer getCantidad() {
         return cantidad;

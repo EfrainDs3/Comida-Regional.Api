@@ -1,9 +1,11 @@
-package com.comidas.api.service;
+package web.Regional_Api.service;
 
 import java.util.List; // <<-- ¡Importante!
 import java.util.Optional; // <<-- ¡Importante!
 
-import com.comidas.api.entity.SesionesCaja;
+import web.Regional_Api.entity.SesionesCaja;
+
+
 
 public interface ISesionesCajaService {
     

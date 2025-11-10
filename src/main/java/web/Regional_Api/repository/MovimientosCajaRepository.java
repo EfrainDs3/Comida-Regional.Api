@@ -1,9 +1,9 @@
-package com.comidas.api.repository;
+package web.Regional_Api.repository;
 
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.comidas.api.entity.MovimientosCaja;
+import web.Regional_Api.entity.MovimientosCaja;
 
 public interface MovimientosCajaRepository extends JpaRepository<MovimientosCaja, Integer> {
     

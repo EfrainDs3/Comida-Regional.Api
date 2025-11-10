@@ -1,19 +1,18 @@
-package com.comidas.api.service.jpa; 
+package web.Regional_Api.service.jpa;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDateTime;
 
-import com.comidas.api.entity.Ventas;
-import com.comidas.api.repository.VentasRepository; 
-import com.comidas.api.service.IVentasService; 
-import com.comidas.api.service.ISesionesCajaService; // Necesario para validar sesión
-
-import jakarta.persistence.EntityNotFoundException; 
+import jakarta.persistence.EntityNotFoundException;
+import web.Regional_Api.entity.Ventas;
+import web.Regional_Api.repository.VentasRepository;
+import web.Regional_Api.service.IVentasService;
+import web.Regional_Api.service.ISesionesCajaService;
 
 @Service
 @Transactional

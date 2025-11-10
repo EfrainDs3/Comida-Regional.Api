@@ -1,11 +1,14 @@
-package com.comidas.api.repository; // PAQUETE ACTUALIZADO
+package web.Regional_Api.repository;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.comidas.api.entity.Sucursales; // PAQUETE ACTUALIZADO
+import org.springframework.stereotype.Repository;
 
+import web.Regional_Api.entity.Sucursales;
+
+@Repository
 public interface SucursalesRepository extends JpaRepository<Sucursales, Integer> {
     
     /**

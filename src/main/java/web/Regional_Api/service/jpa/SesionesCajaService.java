@@ -1,22 +1,22 @@
-package com.comidas.api.service.jpa; 
+package web.Regional_Api.service.jpa;
 
-import java.util.List; // <<-- ¡Verifica este import!
-import java.util.Optional; // <<-- ¡Verifica este import!
+import java.util.List;
+import java.util.Optional;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.comidas.api.entity.SesionesCaja;
-import com.comidas.api.repository.SesionesCajaRepository; 
-import com.comidas.api.service.ISesionesCajaService; 
+import web.Regional_Api.entity.SesionesCaja;
+import web.Regional_Api.repository.SesionesCajaRepository;
+import web.Regional_Api.service.ISesionesCajaService;
 
-import jakarta.persistence.EntityNotFoundException; 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import org.springframework.transaction.annotation.Transactional; // <<-- ¡AÑADE ESTO!
-
 @Service
+@Transactional
 public class SesionesCajaService implements ISesionesCajaService {
     
     @Autowired

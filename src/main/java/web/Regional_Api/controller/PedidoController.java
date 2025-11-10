@@ -10,16 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import web.Regional_Api.dto.DetallePedidoDTO;
-import web.Regional_Api.dto.PedidoDTO;
 
 import web.Regional_Api.entity.*; 
 import web.Regional_Api.service.IPedidoService;
-<<<<<<< HEAD
 
-=======
 import web.Regional_Api.repository.SucursalesRepository;
->>>>>>> 4eed324141c32d6306ea2c79d3b6632bd3b03081
 import web.Regional_Api.repository.MesasRepository;
 import web.Regional_Api.repository.UsuarioRepository;
 import web.Regional_Api.repository.PlatoRepository;
