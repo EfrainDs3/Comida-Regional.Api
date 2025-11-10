@@ -1,18 +1,13 @@
 package web.Regional_Api.repository;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import web.Regional_Api.entity.Pedido;
 
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
+<<<<<<< HEAD
     
     @Query("SELECT p FROM Pedido p WHERE p.numero_pedido = :numero_pedido")
     Optional<Pedido> buscarPorNumeroPedido(@Param("numero_pedido") String numero_pedido);
@@ -31,3 +26,9 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
     List<Pedido> pedidosPorSucursalYFechas(@Param("id_sucursal") Integer id_sucursal, @Param("fechaInicio") LocalDateTime fechaInicio, @Param("fechaFin") LocalDateTime fechaFin);
 }
 
+=======
+    // (Opcional) Métodos de búsqueda:
+    // List<Pedido> findByEstadoPedido(String estado);
+    // List<Pedido> findByIdSucursal(Integer idSucursal);
+}
+>>>>>>> 5ba32ea10d85de05f149f524abc14c8c287c4435

@@ -1,12 +1,7 @@
 package web.Regional_Api.entity;
 
 import java.math.BigDecimal;
-
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -16,36 +11,39 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import web.Regional_Api.entity.Plato;
+
 @Entity
-@Table(name = "detalles_pedido")
-@SQLDelete(sql = "UPDATE detalles_pedido SET estado = 0 WHERE id_detalle = ?")
-@Where(clause = "estado = 1")
+@Table(name = "detalle_pedido")
 public class DetallePedido {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_detalle;
-    
+
+    // --- Relación Fiel a FOREIGN KEY (con Pedido) ---
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_pedido", nullable = false)
+    private Pedido pedido;
+    // ------------------------------------------------
+
+    // --- Relación Fiel a FOREIGN KEY (Módulo de compañero) ---
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_plato", nullable = false)
+    private Plato plato;
+    // -----------------------------------------------------
+
+    @Column(nullable = false)
     private Integer cantidad;
+
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal precio_unitario;
+
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
+
+    @Column(columnDefinition = "text") // Fiel al .sql (text)
     private String observaciones;
-    private Integer estado = 1;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_pedido")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private Pedido id_pedido;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_plato")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private Plato id_plato;
-
-    public DetallePedido() {}
-
-    public DetallePedido(Integer id) {
-        this.id_detalle = id;
-    }
 
     public Integer getId_detalle() {
         return id_detalle;
@@ -53,6 +51,22 @@ public class DetallePedido {
 
     public void setId_detalle(Integer id_detalle) {
         this.id_detalle = id_detalle;
+    }
+
+    public Pedido getPedido() {
+        return pedido;
+    }
+
+    public void setPedido(Pedido pedido) {
+        this.pedido = pedido;
+    }
+
+    public Plato getPlato() {
+        return plato;
+    }
+
+    public void setPlato(Plato plato) {
+        this.plato = plato;
     }
 
     public Integer getCantidad() {
@@ -87,33 +101,12 @@ public class DetallePedido {
         this.observaciones = observaciones;
     }
 
-    public Integer getEstado() {
-        return estado;
-    }
-
-    public void setEstado(Integer estado) {
-        this.estado = estado;
-    }
-
-    public Pedido getId_pedido() {
-        return id_pedido;
-    }
-
-    public void setId_pedido(Pedido id_pedido) {
-        this.id_pedido = id_pedido;
-    }
-
-    public Plato getId_plato() {
-        return id_plato;
-    }
-
-    public void setId_plato(Plato id_plato) {
-        this.id_plato = id_plato;
-    }
-
     @Override
     public String toString() {
-        return "DetallePedido [id_detalle=" + id_detalle + ", cantidad=" + cantidad + ", subtotal=" + subtotal
-                + ", estado=" + estado + "]";
+        return "DetallePedido [id_detalle=" + id_detalle + ", pedido=" + pedido + ", plato=" + plato + ", cantidad="
+                + cantidad + ", precio_unitario=" + precio_unitario + ", subtotal=" + subtotal + ", observaciones="
+                + observaciones + "]";
     }
+
+    
 }

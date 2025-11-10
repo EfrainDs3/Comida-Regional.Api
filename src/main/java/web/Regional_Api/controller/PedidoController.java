@@ -1,139 +1,140 @@
 package web.Regional_Api.controller;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import web.Regional_Api.entity.Pedido;
 import web.Regional_Api.entity.PedidoDTO;
-import web.Regional_Api.entity.Sucursal;
-import web.Regional_Api.repository.PedidoRepository;
+import web.Regional_Api.entity.DetallePedidoDTO;
+
+import web.Regional_Api.entity.*; 
+import web.Regional_Api.service.IPedidoService;
+
 import web.Regional_Api.repository.SucursalRepository;
+import web.Regional_Api.repository.MesaRepository;
+import web.Regional_Api.repository.UsuarioRepository;
+import web.Regional_Api.repository.PlatoRepository;
 
 @RestController
 @RequestMapping("/api/pedidos")
 @CrossOrigin(origins = "*")
 public class PedidoController {
-    
+
     @Autowired
-    private PedidoRepository pedidoRepository;
-    
+    private IPedidoService pedidoService;
+
     @Autowired
-    private SucursalRepository sucursalRepository;
-    
-    // Obtener todos los pedidos
+    private SucursalRepository sucursalRepo;
+    @Autowired
+    private MesaRepository mesaRepo;
+    @Autowired
+    private UsuarioRepository usuarioRepo;
+    @Autowired
+    private PlatoRepository platoRepo;
+
+    // 1. GET (Todos)
     @GetMapping
     public ResponseEntity<List<Pedido>> obtenerTodos() {
-        List<Pedido> pedidos = pedidoRepository.findAll();
-        return ResponseEntity.ok(pedidos);
+        return ResponseEntity.ok(pedidoService.buscarTodos());
     }
-    
-    // Obtener pedido por ID
+
+    // 2. GET (Por ID)
     @GetMapping("/{id}")
     public ResponseEntity<Pedido> obtenerPorId(@PathVariable Integer id) {
-        Optional<Pedido> pedido = pedidoRepository.findById(id);
-        return pedido.map(ResponseEntity::ok)
-                     .orElseGet(() -> ResponseEntity.notFound().build());
+        return pedidoService.buscarId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
-    
-    // Obtener pedidos por sucursal
-    @GetMapping("/sucursal/{id_sucursal}")
-    public ResponseEntity<List<Pedido>> obtenerPorSucursal(@PathVariable Integer id_sucursal) {
-        List<Pedido> pedidos = pedidoRepository.findByIdSucursal_Id_sucursal(id_sucursal);
-        return ResponseEntity.ok(pedidos);
-    }
-    
-    // Obtener pedidos por estado
-    @GetMapping("/estado/{estado}")
-    public ResponseEntity<List<Pedido>> obtenerPorEstado(@PathVariable String estado) {
-        List<Pedido> pedidos = pedidoRepository.findByEstado_pedido(estado);
-        return ResponseEntity.ok(pedidos);
-    }
-    
-    // Crear pedido
+
+    // 3. POST (Crear Pedido y sus Detalles)
     @PostMapping
-    public ResponseEntity<Pedido> crear(@RequestBody PedidoDTO pedidoDTO) {
-        try {
-            Optional<Sucursal> sucursal = sucursalRepository.findById(pedidoDTO.getId_sucursal());
-            if (sucursal.isEmpty()) {
-                return ResponseEntity.badRequest().build();
+    public ResponseEntity<?> crearPedido(@RequestBody PedidoDTO dto) {
+        
+        // --- 1. Buscar Objetos para FK (Fidelidad) ---
+        // (En un futuro, aquí consumirías las APIs de tus compañeros)
+        Optional<Sucursal> suc = sucursalRepo.findById(dto.getId_sucursal());
+        Optional<Mesa> mes = mesaRepo.findById(dto.getId_mesa());
+        Optional<Usuarios> moz = usuarioRepo.findById(dto.getId_usuario_mozo());
+        
+        // (Validación mínima)
+        if (suc.isEmpty() || mes.isEmpty() || moz.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Sucursal, Mesa o Mozo no encontrado.");
+        }
+        
+        // --- 2. Mapear DTO a Entidad "Padre" (Pedido) ---
+        Pedido pedido = new Pedido();
+        pedido.setSucursal(suc.get());
+        pedido.setMesa(mes.get());
+        pedido.setUsuarioMozo(moz.get());
+        
+        // Los campos 'fecha_hora_pedido' y 'estado_pedido' usan el DEFAULT
+        
+        BigDecimal totalGeneral = BigDecimal.ZERO;
+        List<DetallePedido> detallesEntidad = new ArrayList<>();
+        
+        // --- 3. Mapear DTOs "Hijos" (Detalles) ---
+        for (DetallePedidoDTO detDto : dto.getDetalles()) {
+            Optional<Plato> pla = platoRepo.findById(detDto.getId_plato());
+            if (pla.isEmpty()) {
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Plato con ID " + detDto.getId_plato() + " no encontrado.");
             }
             
-            Pedido pedido = new Pedido();
-            pedido.setNumero_pedido("PED-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
-            pedido.setFecha_pedido(LocalDateTime.now());
-            pedido.setEstado_pedido("Nuevo");
-            pedido.setTotal(pedidoDTO.getTotal());
-            pedido.setMesa_numero(pedidoDTO.getMesa_numero());
-            pedido.setNotas(pedidoDTO.getNotas());
-            pedido.setId_sucursal(sucursal.get());
-            pedido.setEstado(1);
+            DetallePedido detalle = new DetallePedido();
+            detalle.setPlato(pla.get());
+            detalle.setCantidad(detDto.getCantidad());
+            detalle.setPrecio_unitario(detDto.getPrecio_unitario());
+            detalle.setObservaciones(detDto.getObservaciones());
             
-            Pedido guardado = pedidoRepository.save(pedido);
-            return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            BigDecimal subtotal = detDto.getPrecio_unitario()
+                                    .multiply(new BigDecimal(detDto.getCantidad()));
+            detalle.setSubtotal(subtotal);
+            
+            totalGeneral = totalGeneral.add(subtotal);
+            
+            // --- 4. Enlace Bidireccional (Clave de JPA) ---
+            detalle.setPedido(pedido);
+            detallesEntidad.add(detalle);
         }
+        
+        // --- 5. Asignar Hijos y Total al Padre ---
+        pedido.setDetalles(detallesEntidad); 
+        pedido.setTotal_pedido(totalGeneral);
+        
+        // --- 6. Guardar ---
+        Pedido nuevoPedido = pedidoService.guardar(pedido);
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoPedido);
     }
-    
-    // Actualizar estado del pedido
+
+    // 4. PUT (Actualizar ESTADO de Pedido)
+
     @PutMapping("/{id}/estado")
-    public ResponseEntity<Pedido> actualizarEstado(@PathVariable Integer id, @RequestParam String estado_pedido) {
-        Optional<Pedido> optional = pedidoRepository.findById(id);
-        if (optional.isEmpty()) {
+    public ResponseEntity<Pedido> actualizarEstado(
+            @PathVariable Integer id, 
+            @RequestBody String nuevoEstado) { 
+        
+        Optional<Pedido> opt = pedidoService.buscarId(id);
+        if (opt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         
-        Pedido pedido = optional.get();
-        pedido.setEstado_pedido(estado_pedido);
-        Pedido actualizado = pedidoRepository.save(pedido);
+        Pedido pedido = opt.get();
+        
+        pedido.setEstado_pedido(nuevoEstado); 
+        
+        Pedido actualizado = pedidoService.guardar(pedido);
         return ResponseEntity.ok(actualizado);
     }
     
-    // Actualizar pedido completo
-    @PutMapping("/{id}")
-    public ResponseEntity<Pedido> actualizar(@PathVariable Integer id, @RequestBody PedidoDTO pedidoDTO) {
-        Optional<Pedido> optional = pedidoRepository.findById(id);
-        if (optional.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        
-        Pedido pedido = optional.get();
-        if (pedidoDTO.getTotal() != null) pedido.setTotal(pedidoDTO.getTotal());
-        if (pedidoDTO.getMesa_numero() != null) pedido.setMesa_numero(pedidoDTO.getMesa_numero());
-        if (pedidoDTO.getNotas() != null) pedido.setNotas(pedidoDTO.getNotas());
-        if (pedidoDTO.getEstado_pedido() != null) pedido.setEstado_pedido(pedidoDTO.getEstado_pedido());
-        
-        Pedido actualizado = pedidoRepository.save(pedido);
-        return ResponseEntity.ok(actualizado);
-    }
-    
-    // Eliminar pedido (soft delete)
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
-        Optional<Pedido> optional = pedidoRepository.findById(id);
-        if (optional.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        
-        Pedido pedido = optional.get();
-        pedido.setEstado(0);
-        pedidoRepository.save(pedido);
-        return ResponseEntity.noContent().build();
-    }
+    // 5. DELETE (No implementado)
+    // no podemos borrar físicamente.
+
 }

@@ -1,11 +1,6 @@
 package web.Regional_Api.repository;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import web.Regional_Api.entity.Restaurante;
@@ -13,6 +8,7 @@ import web.Regional_Api.entity.Restaurante;
 @Repository
 public interface RestauranteRepository extends JpaRepository<Restaurante, Integer> {
     
+<<<<<<< HEAD
     Optional<Restaurante> findByRuc(String ruc);
     
     Optional<Restaurante> findByEmail(String email);
@@ -25,3 +21,6 @@ public interface RestauranteRepository extends JpaRepository<Restaurante, Intege
     List<Restaurante> buscarRestaurantes(@Param("search") String search);
 }
 
+=======
+}
+>>>>>>> 5ba32ea10d85de05f149f524abc14c8c287c4435

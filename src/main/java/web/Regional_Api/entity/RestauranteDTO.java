@@ -1,128 +1,79 @@
 package web.Regional_Api.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class RestauranteDTO {
+    
     private Integer id_restaurante;
     private String razon_social;
     private String ruc;
-    private String direccion;
-    private String telefono;
-    private String email;
-    private String horario_apertura;
-    private String horario_cierre;
-    private LocalDateTime fecha_afiliacion;
-    private Integer estado_pago;
+    private String direccion_principal;
+    private String logo_url;
+    private String moneda;
+    private String simbolo_moneda;
+    private BigDecimal tasa_igv;
     private Integer estado;
-
-    public RestauranteDTO() {}
-
-    public RestauranteDTO(Integer id_restaurante, String razon_social, String ruc, String direccion, 
-                          String telefono, String email, String horario_apertura, String horario_cierre,
-                          LocalDateTime fecha_afiliacion, Integer estado_pago, Integer estado) {
-        this.id_restaurante = id_restaurante;
-        this.razon_social = razon_social;
-        this.ruc = ruc;
-        this.direccion = direccion;
-        this.telefono = telefono;
-        this.email = email;
-        this.horario_apertura = horario_apertura;
-        this.horario_cierre = horario_cierre;
-        this.fecha_afiliacion = fecha_afiliacion;
-        this.estado_pago = estado_pago;
-        this.estado = estado;
-    }
+    private LocalDateTime fecha_creacion;
 
     public Integer getId_restaurante() {
         return id_restaurante;
     }
-
     public void setId_restaurante(Integer id_restaurante) {
         this.id_restaurante = id_restaurante;
     }
-
     public String getRazon_social() {
         return razon_social;
     }
-
     public void setRazon_social(String razon_social) {
         this.razon_social = razon_social;
     }
-
     public String getRuc() {
         return ruc;
     }
-
     public void setRuc(String ruc) {
         this.ruc = ruc;
     }
-
-    public String getDireccion() {
-        return direccion;
+    public String getDireccion_principal() {
+        return direccion_principal;
     }
-
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
+    public void setDireccion_principal(String direccion_principal) {
+        this.direccion_principal = direccion_principal;
     }
-
-    public String getTelefono() {
-        return telefono;
+    public String getLogo_url() {
+        return logo_url;
     }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
+    public void setLogo_url(String logo_url) {
+        this.logo_url = logo_url;
     }
-
-    public String getEmail() {
-        return email;
+    public String getMoneda() {
+        return moneda;
     }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public void setMoneda(String moneda) {
+        this.moneda = moneda;
     }
-
-    public String getHorario_apertura() {
-        return horario_apertura;
+    public String getSimbolo_moneda() {
+        return simbolo_moneda;
     }
-
-    public void setHorario_apertura(String horario_apertura) {
-        this.horario_apertura = horario_apertura;
+    public void setSimbolo_moneda(String simbolo_moneda) {
+        this.simbolo_moneda = simbolo_moneda;
     }
-
-    public String getHorario_cierre() {
-        return horario_cierre;
+    public BigDecimal getTasa_igv() {
+        return tasa_igv;
     }
-
-    public void setHorario_cierre(String horario_cierre) {
-        this.horario_cierre = horario_cierre;
+    public void setTasa_igv(BigDecimal tasa_igv) {
+        this.tasa_igv = tasa_igv;
     }
-
-    public LocalDateTime getFecha_afiliacion() {
-        return fecha_afiliacion;
-    }
-
-    public void setFecha_afiliacion(LocalDateTime fecha_afiliacion) {
-        this.fecha_afiliacion = fecha_afiliacion;
-    }
-
-    public Integer getEstado_pago() {
-        return estado_pago;
-    }
-
-    public void setEstado_pago(Integer estado_pago) {
-        this.estado_pago = estado_pago;
-    }
-
     public Integer getEstado() {
         return estado;
     }
-
     public void setEstado(Integer estado) {
         this.estado = estado;
     }
-
-    @Override
-    public String toString() {
-        return "RestauranteDTO [id_restaurante=" + id_restaurante + ", razon_social=" + razon_social + "]";
+    public LocalDateTime getFecha_creacion() {
+        return fecha_creacion;
+    }
+    public void setFecha_creacion(LocalDateTime fecha_creacion) {
+        this.fecha_creacion = fecha_creacion;
     }
 }
