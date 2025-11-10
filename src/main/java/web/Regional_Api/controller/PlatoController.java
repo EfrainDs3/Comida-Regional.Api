@@ -28,7 +28,7 @@ public class PlatoController {
     private CategoriaRepository categoriaRepository;
 
     @Autowired
-    private SucursalesRepository sucursalRepository;
+    private SucursalesRepository sucursalesRepository; // ahora coincide con la llamada
 
     // Obtener todos los platos
     @GetMapping
@@ -58,13 +58,13 @@ public class PlatoController {
 
     // Obtener platos por sucursales (queda intacto)
     @GetMapping("/sucursal/{id_sucursal}")
-    public ResponseEntity<List<Plato>> obtenerPorSucursal(@PathVariable Integer id_sucursal) {
-        return ResponseEntity.ok(platoRepository.findByIdSucursales_Id_sucursal(id_sucursal));
+    public ResponseEntity<List<Plato>> obtenerPorSucursales(@PathVariable Integer id_sucursal) {
+        return ResponseEntity.ok(platoRepository.findBySucursales_Id_sucursal(id_sucursal));
     }
 
     // Obtener platos disponibles por sucursales (queda intacto)
     @GetMapping("/sucursal/{id_sucursal}/disponibles")
-    public ResponseEntity<List<Plato>> obtenerDisponiblesPorSucursal(@PathVariable Integer id_sucursal) {
+    public ResponseEntity<List<Plato>> obtenerDisponiblesPorSucursales(@PathVariable Integer id_sucursal) {
         return ResponseEntity.ok(platoRepository.platosDisponiblesPorSucursales(id_sucursal));
     }
 
@@ -83,7 +83,7 @@ public class PlatoController {
             }
 
             Optional<Categoria> categoriaOpt = categoriaRepository.findById(platoDTO.getId_categoria());
-            Optional<Sucursales> sucursalOpt = sucursalRepository.findById(platoDTO.getId_sucursal());
+            Optional<Sucursales> sucursalOpt = sucursalesRepository.findById(platoDTO.getId_sucursal());
 
             if (categoriaOpt.isEmpty() || sucursalOpt.isEmpty()) {
                 return ResponseEntity.badRequest().build();
