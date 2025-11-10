@@ -5,12 +5,13 @@ import org.springframework.stereotype.Service;
 import web.Regional_Api.entity.Usuarios;
 import web.Regional_Api.repository.UsuarioRepository;
 import web.Regional_Api.security.JwtUtil;
+import web.Regional_Api.service.IUsuarioService;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UsuarioService {
+public class UsuarioService implements IUsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -18,6 +19,7 @@ public class UsuarioService {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Override
     public List<Usuarios> getAllUsuarios() {
         return usuarioRepository.findAll();
     }
@@ -29,6 +31,7 @@ public class UsuarioService {
      * @throws RuntimeException si el email ya existe
      */
 
+    @Override
     public Usuarios registrarUsuario(Usuarios usuario) {
         // Verificar si el nombre de usuario de login ya existe
         if (usuarioRepository.existsByNombreUsuarioLogin(usuario.getNombreUsuarioLogin())) {
@@ -51,6 +54,7 @@ public class UsuarioService {
      * @return Usuario con su información si las credenciales son correctas
      * @throws RuntimeException si las credenciales son incorrectas
      */
+    @Override
     public Usuarios login(String nombreUsuarioLogin, String contraseña) {
         // Buscar el usuario por su nombre de usuario de login
         Optional<Usuarios> usuarioOpt = usuarioRepository.findByNombreUsuarioLogin(nombreUsuarioLogin);
@@ -84,6 +88,7 @@ public class UsuarioService {
      * @return Usuario asociado al token si es válido
      * @throws RuntimeException si el token es inválido
      */
+    @Override
     public Usuarios validarToken(String token) {
         // Primero validar el token con JWT
         if (!jwtUtil.validateToken(token)) {
@@ -109,15 +114,17 @@ public class UsuarioService {
      * @param id ID del usuario
      * @return Usuario si existe
      */
+    @Override
     public Optional<Usuarios> getUsuarioById(Integer id) {
         return usuarioRepository.findById(id);
     }
 
     /**
-     * Busca un usuario por su email
-     * @param email Email del usuario
+     * Busca un usuario por su nombreUsuarioLogin
+     * @param nombreUsuarioLogin Nombre de usuario
      * @return Usuario si existe
      */
+    @Override
     public Optional<Usuarios> getUsuarioByLogin(String nombreUsuarioLogin) {
         return usuarioRepository.findByNombreUsuarioLogin(nombreUsuarioLogin);
     }

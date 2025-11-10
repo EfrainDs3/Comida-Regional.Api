@@ -11,7 +11,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "modulo")
-@Where(clause = "estado = 'A'")
+@Where(clause = "estado = 1")
 public class Modulo {
 
 	@Id
@@ -23,7 +23,7 @@ public class Modulo {
 	private String nombreModulo;
 
 	@Column(name = "estado")
-	private String estado;
+	private Integer estado = 1;
 
 	@Column(name = "orden")
 	private Integer orden;
@@ -47,11 +47,11 @@ public class Modulo {
 		this.nombreModulo = nombreModulo;
 	}
 
-	public String getEstado() {
+	public Integer getEstado() {
 		return estado;
 	}
 
-	public void setEstado(String estado) {
+	public void setEstado(Integer estado) {
 		this.estado = estado;
 	}
 

@@ -7,5 +7,5 @@ import web.Regional_Api.entity.Acceso;
 
 @Repository
 public interface AccesoRepository extends JpaRepository<Acceso, Integer> {
-	boolean existsByIdModuloAndIdPerfilAndEstado(Integer idModulo, Integer idPerfil, String estado);
+	boolean existsByIdModuloAndIdPerfilAndEstado(Integer idModulo, Integer idPerfil, Integer estado);
 }

@@ -11,7 +11,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "perfil")
-@Where(clause = "estado = 'A'")
+@Where(clause = "estado = 1")
 public class Perfil {
 
 	@Id
@@ -23,7 +23,7 @@ public class Perfil {
 	private String nombrePerfil;
 
 	@Column(name = "estado")
-	private String estado;
+	private Integer estado = 1;
 
 	public Perfil() {
 	}
@@ -44,17 +44,17 @@ public class Perfil {
 		this.nombrePerfil = nombrePerfil;
 	}
 
-	public String getEstado() {
+	public Integer getEstado() {
 		return estado;
 	}
 
-	public void setEstado(String estado) {
+	public void setEstado(Integer estado) {
 		this.estado = estado;
 	}
 
     @Override
     public String toString() {
-        return "Perfil [idPerfil=" + idPerfil + ", nombrePerfil=" + nombrePerfil + ", estado=" + estado + "]";
+		return "Perfil [idPerfil=" + idPerfil + ", nombrePerfil=" + nombrePerfil + ", estado=" + estado + "]";
     }
 
 
