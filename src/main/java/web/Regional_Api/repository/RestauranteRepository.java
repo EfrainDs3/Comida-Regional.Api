@@ -17,11 +17,11 @@ public interface RestauranteRepository extends JpaRepository<Restaurante, Intege
     
     Optional<Restaurante> findByEmail(String email);
     
-    List<Restaurante> findByRazon_socialContainingIgnoreCase(String razon_social);
-    
-    List<Restaurante> findByEstado_pago(Integer estado_pago);
-    
-    @Query("SELECT r FROM Restaurante r WHERE r.razon_social LIKE %:search% OR r.ruc LIKE %:search%")
+    @Query("SELECT r FROM Restaurante r WHERE LOWER(r.razon_social) LIKE LOWER(CONCAT('%', :razon_social, '%'))")
+    List<Restaurante> buscarPorRazonSocial(@Param("razon_social") String razon_social);
+
+    @Query("SELECT r FROM Restaurante r WHERE r.estado_pago = :estado_pago")
+    List<Restaurante> buscarPorEstadoPago(@Param("estado_pago") Integer estado_pago);    @Query("SELECT r FROM Restaurante r WHERE r.razon_social LIKE %:search% OR r.ruc LIKE %:search%")
     List<Restaurante> buscarRestaurantes(@Param("search") String search);
 }
 

@@ -14,13 +14,14 @@ import web.Regional_Api.entity.Pedido;
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
     
-    Optional<Pedido> findByNumero_pedido(String numero_pedido);
-    
-    List<Pedido> findByIdSucursal_Id_sucursal(Integer id_sucursal);
-    
-    List<Pedido> findByEstado_pedido(String estado_pedido);
-    
-    @Query("SELECT p FROM Pedido p WHERE p.id_sucursal.id_sucursal = :id_sucursal AND p.estado_pedido = :estado_pedido")
+    @Query("SELECT p FROM Pedido p WHERE p.numero_pedido = :numero_pedido")
+    Optional<Pedido> buscarPorNumeroPedido(@Param("numero_pedido") String numero_pedido);
+
+    @Query("SELECT p FROM Pedido p WHERE p.id_sucursal.id_sucursal = :id_sucursal")
+    List<Pedido> buscarPorSucursal(@Param("id_sucursal") Integer id_sucursal);
+
+    @Query("SELECT p FROM Pedido p WHERE p.estado_pedido = :estado_pedido")
+    List<Pedido> buscarPorEstado(@Param("estado_pedido") String estado_pedido);    @Query("SELECT p FROM Pedido p WHERE p.id_sucursal.id_sucursal = :id_sucursal AND p.estado_pedido = :estado_pedido")
     List<Pedido> pedidosPorSucursalYEstado(@Param("id_sucursal") Integer id_sucursal, @Param("estado_pedido") String estado_pedido);
     
     @Query("SELECT p FROM Pedido p WHERE p.fecha_pedido BETWEEN :fechaInicio AND :fechaFin ORDER BY p.fecha_pedido DESC")

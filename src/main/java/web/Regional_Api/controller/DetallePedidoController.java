@@ -1,5 +1,6 @@
 package web.Regional_Api.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,6 +65,12 @@ public class DetallePedidoController {
     @PostMapping
     public ResponseEntity<DetallePedido> crear(@RequestBody DetallePedidoDTO detalleDTO) {
         try {
+            // Validaciones básicas
+            if (detalleDTO.getId_pedido() == null || detalleDTO.getId_plato() == null || 
+                detalleDTO.getCantidad() == null || detalleDTO.getPrecio_unitario() == null) {
+                return ResponseEntity.badRequest().build();
+            }
+
             Optional<Pedido> pedido = pedidoRepository.findById(detalleDTO.getId_pedido());
             Optional<Plato> plato = platoRepository.findById(detalleDTO.getId_plato());
             
@@ -74,7 +81,13 @@ public class DetallePedidoController {
             DetallePedido detalle = new DetallePedido();
             detalle.setCantidad(detalleDTO.getCantidad());
             detalle.setPrecio_unitario(detalleDTO.getPrecio_unitario());
-            detalle.setSubtotal(detalleDTO.getSubtotal());
+            // Calcular el subtotal si no viene en el DTO
+            if (detalleDTO.getSubtotal() == null) {
+                BigDecimal cantidad = BigDecimal.valueOf(detalleDTO.getCantidad());
+                detalle.setSubtotal(detalleDTO.getPrecio_unitario().multiply(cantidad));
+            } else {
+                detalle.setSubtotal(detalleDTO.getSubtotal());
+            }
             detalle.setObservaciones(detalleDTO.getObservaciones());
             detalle.setId_pedido(pedido.get());
             detalle.setId_plato(plato.get());

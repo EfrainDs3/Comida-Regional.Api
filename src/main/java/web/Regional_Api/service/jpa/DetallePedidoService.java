@@ -44,12 +44,12 @@ public class DetallePedidoService implements IDetallePedidoService {
     
     @Override
     public List<DetallePedido> buscarPorPedido(Integer idPedido) {
-        return repoDetallePedido.findByIdPedido_Id_pedido(idPedido);
+        return repoDetallePedido.detallesPorPedido(idPedido);
     }
     
     @Override
     public List<DetallePedido> buscarPorPlato(Integer idPlato) {
-        return repoDetallePedido.findByIdPlato_Id_plato(idPlato);
+        return repoDetallePedido.detallesPorPlato(idPlato);
     }
     
     @Override
