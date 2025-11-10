@@ -11,6 +11,7 @@ import web.Regional_Api.entity.Restaurante;
 
 @Repository
 public interface RestauranteRepository extends JpaRepository<Restaurante, Integer> {
+<<<<<<< HEAD
 
     Optional<Restaurante> findByRuc(String ruc);
 
@@ -25,3 +26,8 @@ public interface RestauranteRepository extends JpaRepository<Restaurante, Intege
     @Query("SELECT r FROM Restaurante r WHERE r.razon_social LIKE %:search% OR r.ruc LIKE %:search%")
     List<Restaurante> buscarRestaurantes(@Param("search") String search);
 }
+=======
+    
+}
+
+>>>>>>> 786491ebf00f4033710da2dfdb753b9d86f79148

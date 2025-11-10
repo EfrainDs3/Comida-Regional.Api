@@ -12,6 +12,7 @@ import web.Regional_Api.entity.DetallePedido;
 @Repository
 public interface DetallePedidoRepository extends JpaRepository<DetallePedido, Integer> {
 
+<<<<<<< HEAD
     // Los métodos usan consultas explícitas para evitar ambigüedades en rutas de propiedades.
     @Query("SELECT dp FROM DetallePedido dp WHERE dp.id_pedido.id_pedido = :id_pedido")
     List<DetallePedido> detallesPorPedido(@Param("id_pedido") Integer id_pedido);
@@ -22,3 +23,6 @@ public interface DetallePedidoRepository extends JpaRepository<DetallePedido, In
     @Query("SELECT SUM(dp.subtotal) FROM DetallePedido dp WHERE dp.id_pedido.id_pedido = :id_pedido")
     BigDecimal calcularTotalPedido(@Param("id_pedido") Integer id_pedido);
 }
+=======
+}
+>>>>>>> 786491ebf00f4033710da2dfdb753b9d86f79148

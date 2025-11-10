@@ -15,9 +15,11 @@ import web.Regional_Api.entity.DetallePedidoDTO;
 
 import web.Regional_Api.entity.*; 
 import web.Regional_Api.service.IPedidoService;
+import web.Regional_Api.entity.Mesas;
+import web.Regional_Api.entity.Usuarios;
 
 import web.Regional_Api.repository.SucursalRepository;
-import web.Regional_Api.repository.MesaRepository;
+import web.Regional_Api.repository.MesasRepository;
 import web.Regional_Api.repository.UsuarioRepository;
 import web.Regional_Api.repository.PlatoRepository;
 
@@ -32,7 +34,7 @@ public class PedidoController {
     @Autowired
     private SucursalRepository sucursalRepo;
     @Autowired
-    private MesaRepository mesaRepo;
+    private MesasRepository mesaRepo;
     @Autowired
     private UsuarioRepository usuarioRepo;
     @Autowired
@@ -56,30 +58,26 @@ public class PedidoController {
     @PostMapping
     public ResponseEntity<?> crearPedido(@RequestBody PedidoDTO dto) {
         
-        // --- 1. Buscar Objetos para FK (Fidelidad) ---
-        // (En un futuro, aquí consumirías las APIs de tus compañeros)
         Optional<Sucursal> suc = sucursalRepo.findById(dto.getId_sucursal());
-        Optional<Mesa> mes = mesaRepo.findById(dto.getId_mesa());
+        Optional<Mesas> mes = mesaRepo.findById(dto.getId_mesa());
         Optional<Usuarios> moz = usuarioRepo.findById(dto.getId_usuario_mozo());
         
-        // (Validación mínima)
         if (suc.isEmpty() || mes.isEmpty() || moz.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Sucursal, Mesa o Mozo no encontrado.");
         }
         
-        // --- 2. Mapear DTO a Entidad "Padre" (Pedido) ---
+    
         Pedido pedido = new Pedido();
         pedido.setSucursal(suc.get());
-        pedido.setMesa(mes.get());
-        pedido.setUsuarioMozo(moz.get());
+        pedido.setMesa((Mesas)mes.get());
+        pedido.setUsuarioMozo((Usuarios)moz.get());
         
-        // Los campos 'fecha_hora_pedido' y 'estado_pedido' usan el DEFAULT
+   
         
         BigDecimal totalGeneral = BigDecimal.ZERO;
         List<DetallePedido> detallesEntidad = new ArrayList<>();
         
-        // --- 3. Mapear DTOs "Hijos" (Detalles) ---
         for (DetallePedidoDTO detDto : dto.getDetalles()) {
             Optional<Plato> pla = platoRepo.findById(detDto.getId_plato());
             if (pla.isEmpty()) {
