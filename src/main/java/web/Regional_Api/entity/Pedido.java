@@ -65,11 +65,11 @@ public class Pedido {
         this.id_pedido = id_pedido;
     }
 
-    public Sucursal getSucursal() {
+    public Sucursales getSucursal() {
         return sucursal;
     }
 
-    public void setSucursal(Sucursal sucursal) {
+    public void setSucursal(Sucursales sucursal) {
         this.sucursal = sucursal;
     }
 

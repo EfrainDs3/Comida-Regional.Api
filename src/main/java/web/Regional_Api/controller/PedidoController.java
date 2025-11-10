@@ -15,7 +15,11 @@ import web.Regional_Api.dto.PedidoDTO;
 
 import web.Regional_Api.entity.*; 
 import web.Regional_Api.service.IPedidoService;
+<<<<<<< HEAD
 
+=======
+import web.Regional_Api.repository.SucursalesRepository;
+>>>>>>> 4eed324141c32d6306ea2c79d3b6632bd3b03081
 import web.Regional_Api.repository.MesasRepository;
 import web.Regional_Api.repository.UsuarioRepository;
 import web.Regional_Api.repository.PlatoRepository;
@@ -53,7 +57,7 @@ public class PedidoController {
     @PostMapping
     public ResponseEntity<?> crearPedido(@RequestBody PedidoDTO dto) { // Asumo que usas PedidoDTO
         
-        Optional<Sucursal> suc = sucursalRepo.findById(dto.getId_sucursal());
+        Optional<Sucursales> suc = sucursalRepo.findById(dto.getId_sucursal());
         Optional<Mesas> mes = mesaRepo.findById(dto.getId_mesa());
         
         // ✅ LÓGICA CORREGIDA
