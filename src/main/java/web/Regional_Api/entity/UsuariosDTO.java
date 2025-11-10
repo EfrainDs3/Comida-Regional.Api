@@ -1,28 +1,36 @@
 package web.Regional_Api.entity;
 
+import java.time.LocalDateTime;
+
 public class UsuariosDTO {
     private Integer idUsuario;
     private Integer rolId;
+    private Integer idSucursal;
     private String nombreUsuario;
     private String apellidos;
     private String dniUsuario;
     private String telefono;
     private String nombreUsuarioLogin;
     private Integer estado;
+    private LocalDateTime fechaCreacion;
+    private LocalDateTime ultimoLogin;
     private String accessToken; // opcional para respuestas después de login/registro
 
     public UsuariosDTO() {}
 
-    public UsuariosDTO(Integer idUsuario, Integer rolId, String nombreUsuario, String apellidos, String dniUsuario,
-                       String telefono, String nombreUsuarioLogin, Integer estado, String accessToken) {
+    public UsuariosDTO(Integer idUsuario, Integer rolId, Integer idSucursal, String nombreUsuario, String apellidos, String dniUsuario,
+                       String telefono, String nombreUsuarioLogin, Integer estado, LocalDateTime fechaCreacion, LocalDateTime ultimoLogin, String accessToken) {
         this.idUsuario = idUsuario;
         this.rolId = rolId;
+        this.idSucursal = idSucursal;
         this.nombreUsuario = nombreUsuario;
         this.apellidos = apellidos;
         this.dniUsuario = dniUsuario;
         this.telefono = telefono;
         this.nombreUsuarioLogin = nombreUsuarioLogin;
         this.estado = estado;
+        this.fechaCreacion = fechaCreacion;
+        this.ultimoLogin = ultimoLogin;
         this.accessToken = accessToken;
     }
 
@@ -40,6 +48,14 @@ public class UsuariosDTO {
 
     public void setRolId(Integer rolId) {
         this.rolId = rolId;
+    }
+
+    public Integer getIdSucursal() {
+        return idSucursal;
+    }
+
+    public void setIdSucursal(Integer idSucursal) {
+        this.idSucursal = idSucursal;
     }
 
     public String getNombreUsuario() {
@@ -90,6 +106,22 @@ public class UsuariosDTO {
         this.estado = estado;
     }
 
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public LocalDateTime getUltimoLogin() {
+        return ultimoLogin;
+    }
+
+    public void setUltimoLogin(LocalDateTime ultimoLogin) {
+        this.ultimoLogin = ultimoLogin;
+    }
+
     public String getAccessToken() {
         return accessToken;
     }
@@ -100,6 +132,6 @@ public class UsuariosDTO {
 
     @Override
     public String toString() {
-        return "UsuariosDTO [idUsuario=" + idUsuario + ", rolId=" + rolId + ", nombreUsuario=" + nombreUsuario + ", nombreUsuarioLogin=" + nombreUsuarioLogin + "]";
+        return "UsuariosDTO [idUsuario=" + idUsuario + ", rolId=" + rolId + ", idSucursal=" + idSucursal + ", nombreUsuario=" + nombreUsuario + ", nombreUsuarioLogin=" + nombreUsuarioLogin + "]";
     }
 }

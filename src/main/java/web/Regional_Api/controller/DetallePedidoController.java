@@ -1,5 +1,6 @@
 package web.Regional_Api.controller;
 
+<<<<<<< HEAD
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -62,6 +63,8 @@ public class DetallePedidoController {
     // porque son operaciones ilógicas para esta entidad invertebrado.
 }
 /*
+=======
+>>>>>>> 7b5c11b640779154c64e5a2a1b93ec86433d57f9
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -195,4 +198,3 @@ public class DetallePedidoController {
     }
 }
 
-*/

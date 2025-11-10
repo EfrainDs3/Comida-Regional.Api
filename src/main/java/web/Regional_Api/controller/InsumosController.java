@@ -29,14 +29,11 @@ public class InsumosController {
     @Autowired
     private IInsumosService serviceInsumos;
 
-    // Necesitamos el repo de Sucursal para asignar la relación
+
     @Autowired
     private SucursalRepository repoSucursal;
 
-    /**
-     * GET /regional/insumos
-     * Lista todos los insumos.
-     */
+
     @GetMapping
     public List<InsumosDTO> buscarTodos() {
         return serviceInsumos.buscarTodos().stream()

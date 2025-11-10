@@ -50,6 +50,9 @@ public class UsuarioController {
                 "nombreUsuario", usuarioRegistrado.getNombreUsuario(),
                 "nombre_usuario_login", usuarioRegistrado.getNombreUsuarioLogin(),
                 "dni", usuarioRegistrado.getDniUsuario(),
+                "idSucursal", usuarioRegistrado.getIdSucursal(),
+                "fechaCreacion", usuarioRegistrado.getFechaCreacion(),
+                "ultimoLogin", usuarioRegistrado.getUltimoLogin(),
                 "accessToken", usuarioRegistrado.getAccessToken()
             ));
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -89,6 +92,9 @@ public class UsuarioController {
                 "nombreUsuario", usuario.getNombreUsuario(),
                 "nombre_usuario_login", usuario.getNombreUsuarioLogin(),
                 "rolId", usuario.getRolId(),
+                "idSucursal", usuario.getIdSucursal(),
+                "fechaCreacion", usuario.getFechaCreacion(),
+                "ultimoLogin", usuario.getUltimoLogin(),
                 "accessToken", usuario.getAccessToken()
             ));
             
@@ -135,7 +141,10 @@ public class UsuarioController {
                 "idUsuario", usuario.getIdUsuario(),
                 "nombreUsuario", usuario.getNombreUsuario(),
                 "nombre_usuario_login", usuario.getNombreUsuarioLogin(),
-                "rolId", usuario.getRolId()
+                "rolId", usuario.getRolId(),
+                "idSucursal", usuario.getIdSucursal(),
+                "fechaCreacion", usuario.getFechaCreacion(),
+                "ultimoLogin", usuario.getUltimoLogin()
             ));
             
             return ResponseEntity.ok(response);

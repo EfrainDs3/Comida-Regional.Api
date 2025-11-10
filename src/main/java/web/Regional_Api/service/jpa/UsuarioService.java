@@ -7,6 +7,7 @@ import web.Regional_Api.repository.UsuarioRepository;
 import web.Regional_Api.security.JwtUtil;
 import web.Regional_Api.service.IUsuarioService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,6 +79,10 @@ public class UsuarioService implements IUsuarioService {
         // Generar token JWT y asignarlo de forma transient (no se persiste)
         String token = jwtUtil.generateToken(usuario.getNombreUsuarioLogin());
         usuario.setAccessToken(token);
+
+        // Actualizar ultimo_login en la BD
+        usuario.setUltimoLogin(LocalDateTime.now());
+        usuarioRepository.save(usuario);
 
         return usuario;
     }
