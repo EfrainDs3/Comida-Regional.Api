@@ -6,6 +6,8 @@ import org.hibernate.annotations.Where;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,8 +15,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 
 @Entity
 @Table(name = "mesas")
@@ -28,7 +28,7 @@ public class Mesas {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_sucursal")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private Sucursal id_sucursal;
+    private Sucursales id_sucursal;
     
     private String numero_mesa;
     private Integer capacidad;
@@ -46,7 +46,7 @@ public class Mesas {
     // Constructores
     public Mesas() {}
 
-    public Mesas(Sucursal id_sucursal, String numero_mesa, Integer capacidad, EstadoMesa estado_mesa) {
+    public Mesas(Sucursales id_sucursal, String numero_mesa, Integer capacidad, EstadoMesa estado_mesa) {
         this.id_sucursal = id_sucursal;
         this.numero_mesa = numero_mesa;
         this.capacidad = capacidad;
@@ -63,11 +63,11 @@ public class Mesas {
         this.id_mesa = id_mesa;
     }
 
-    public Sucursal getId_sucursal() {
+    public Sucursales getId_sucursal() {
         return id_sucursal;
     }
 
-    public void setId_sucursal(Sucursal id_sucursal) {
+    public void setId_sucursal(Sucursales id_sucursal) {
         this.id_sucursal = id_sucursal;
     }
 
