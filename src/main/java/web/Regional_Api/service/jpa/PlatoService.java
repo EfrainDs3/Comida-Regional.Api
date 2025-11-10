@@ -73,14 +73,6 @@ public class PlatoService implements IPlatoService {
         return repoPlato.findByEstado(disponible);
     }
 
-    // MÉTODOS DE SUCURSAL QUEDAN IGUALES
-    @Override
-    public List<Plato> buscarPorSucursal(Integer idSucursal) {
-        return repoPlato.findBySucursales_Id_sucursal(idSucursal);
-    }
-
-    @Override
-    public List<Plato> buscarDisponiblesPorSucursal(Integer idSucursal) {
-        return repoPlato.platosDisponiblesPorSucursales(idSucursal);
-    }
+    // Note: Plato entity does not reference Sucursales in the current model.
+    // Sucursal-related service methods were removed to match repository changes.
 }

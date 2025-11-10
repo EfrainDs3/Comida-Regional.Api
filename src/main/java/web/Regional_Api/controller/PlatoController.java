@@ -11,10 +11,9 @@ import org.springframework.web.bind.annotation.*;
 import web.Regional_Api.entity.Categoria;
 import web.Regional_Api.entity.Plato;
 import web.Regional_Api.entity.PlatoDTO;
-import web.Regional_Api.entity.Sucursales;
+// Sucursales relation removed from Plato entity; imports removed
 import web.Regional_Api.repository.CategoriaRepository;
 import web.Regional_Api.repository.PlatoRepository;
-import web.Regional_Api.repository.SucursalesRepository;
 
 @RestController
 @RequestMapping("/api/platos")
@@ -26,9 +25,6 @@ public class PlatoController {
 
     @Autowired
     private CategoriaRepository categoriaRepository;
-
-    @Autowired
-    private SucursalesRepository sucursalesRepository; // ahora coincide con la llamada
 
     // Obtener todos los platos
     @GetMapping
@@ -56,17 +52,8 @@ public class PlatoController {
         return ResponseEntity.ok(platoRepository.platosDisponiblesPorCategoria(id_categoria));
     }
 
-    // Obtener platos por sucursales (queda intacto)
-    @GetMapping("/sucursal/{id_sucursal}")
-    public ResponseEntity<List<Plato>> obtenerPorSucursales(@PathVariable Integer id_sucursal) {
-        return ResponseEntity.ok(platoRepository.findBySucursales_Id_sucursal(id_sucursal));
-    }
-
-    // Obtener platos disponibles por sucursales (queda intacto)
-    @GetMapping("/sucursal/{id_sucursal}/disponibles")
-    public ResponseEntity<List<Plato>> obtenerDisponiblesPorSucursales(@PathVariable Integer id_sucursal) {
-        return ResponseEntity.ok(platoRepository.platosDisponiblesPorSucursales(id_sucursal));
-    }
+    // NOTE: The Plato entity does not have a sucursales relation.
+    // Endpoints that filtered by sucursal were removed to match the entity model.
 
     // Buscar platos por nombre
     @GetMapping("/buscar")
@@ -78,14 +65,13 @@ public class PlatoController {
     @PostMapping
     public ResponseEntity<Plato> crear(@RequestBody PlatoDTO platoDTO) {
         try {
-            if (platoDTO.getId_categoria() == null || platoDTO.getId_sucursal() == null) {
+            if (platoDTO.getId_categoria() == null) {
                 return ResponseEntity.badRequest().body(null);
             }
 
             Optional<Categoria> categoriaOpt = categoriaRepository.findById(platoDTO.getId_categoria());
-            Optional<Sucursales> sucursalOpt = sucursalesRepository.findById(platoDTO.getId_sucursal());
 
-            if (categoriaOpt.isEmpty() || sucursalOpt.isEmpty()) {
+            if (categoriaOpt.isEmpty()) {
                 return ResponseEntity.badRequest().build();
             }
 
@@ -95,7 +81,7 @@ public class PlatoController {
             plato.setPrecio(platoDTO.getPrecio());
             plato.setImagen(platoDTO.getImagen_url());
             plato.setCategoria(categoriaOpt.get());
-            // sucursales queda intacta
+            // Note: Plato does not reference Sucursales in the current model
             plato.setEstado(1);
 
             Plato guardado = platoRepository.save(plato);

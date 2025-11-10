@@ -54,6 +54,9 @@ public class Restaurante {
     @ColumnDefault("1")
     private Integer estado; // Usamos Integer para tinyint(1)
 
+    @Column(length = 150, nullable = false, unique = true)
+    private String email;
+
     @CreationTimestamp // Fiel al .sql (DEFAULT current_timestamp())
     @Column(nullable = false, updatable = false)
     private LocalDateTime fecha_creacion;
@@ -128,6 +131,14 @@ public class Restaurante {
 
     public void setEstado(Integer estado) {
         this.estado = estado;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public LocalDateTime getFecha_creacion() {

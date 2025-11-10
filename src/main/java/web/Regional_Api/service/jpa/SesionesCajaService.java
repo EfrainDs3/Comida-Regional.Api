@@ -2,7 +2,7 @@ package web.Regional_Api.service.jpa;
 
 import java.util.List;
 import java.util.Optional;
-import java.time.LocalDateTime;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,8 +12,6 @@ import web.Regional_Api.entity.SesionesCaja;
 import web.Regional_Api.repository.SesionesCajaRepository;
 import web.Regional_Api.service.ISesionesCajaService;
 
-import jakarta.persistence.EntityNotFoundException;
-import org.springframework.dao.DataIntegrityViolationException;
 
 @Service
 @Transactional

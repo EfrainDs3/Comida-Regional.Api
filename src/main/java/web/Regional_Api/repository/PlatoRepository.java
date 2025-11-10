@@ -31,9 +31,7 @@ public interface PlatoRepository extends JpaRepository<Plato, Integer> {
     // Buscar platos por disponibilidad usando 'estado' (1 = disponible, 0 = no disponible)
     List<Plato> findByEstado(Integer estado);
 
-    // Métodos de sucursales (queda intacto)
-    List<Plato> findBySucursales_Id_sucursal(Integer id_sucursal);
-
-    @Query("SELECT p FROM Plato p WHERE p.sucursales.id_sucursal = :id_sucursal AND p.estado = 1")
-    List<Plato> platosDisponiblesPorSucursales(@Param("id_sucursal") Integer id_sucursal);
+    // Buscar platos por id_categoria (método claro y fácil de usar desde servicios)
+    @Query("SELECT p FROM Plato p WHERE p.categoria.id_categoria = :idCategoria")
+    List<Plato> findByIdCategoria(@Param("idCategoria") Integer idCategoria);
 }
