@@ -31,7 +31,7 @@ public class InsumosController {
 
 
     @Autowired
-    private SucursalRepository repoSucursal;
+    private SucursalesRepository repoSucursal;
 
 
     @GetMapping
