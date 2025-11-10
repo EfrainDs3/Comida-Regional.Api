@@ -1,24 +1,21 @@
 package web.Regional_Api.controller;
-<<<<<<< HEAD
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-=======
+
 
 import org.springframework.beans.factory.annotation.Autowired;
->>>>>>> 4eed324141c32d6306ea2c79d3b6632bd3b03081
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-<<<<<<< HEAD
 import org.springframework.web.bind.annotation.PostMapping;
-=======
->>>>>>> 4eed324141c32d6306ea2c79d3b6632bd3b03081
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import web.Regional_Api.entity.DetallePedido;
 import web.Regional_Api.entity.DetallePedidoDTO;
-<<<<<<< HEAD
 import web.Regional_Api.entity.Pedido;
 import web.Regional_Api.entity.Plato;
 import web.Regional_Api.repository.DetallePedidoRepository;
@@ -139,54 +135,4 @@ public class DetallePedidoController {
         detallePedidoRepository.save(detalle);
         return ResponseEntity.noContent().build();
     }
-=======
-import web.Regional_Api.service.IDetallePedidoService;
-
-@RestController
-@RequestMapping("/api/detalles")
-@CrossOrigin(origins = "*")
-public class DetallePedidoController {
-
-    @Autowired
-    private IDetallePedidoService detalleService;
-
-    // 1. GET (Por ID) - Operación lógica de Lectura
-    @GetMapping("/{id}")
-    public ResponseEntity<DetallePedido> obtenerPorId(@PathVariable Integer id) {
-        return detalleService.buscarId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    // 2. PUT (Actualizar) - Operación lógica de Actualización
-    @PutMapping("/{id}")
-    public ResponseEntity<DetallePedido> actualizarDetalle(
-            @PathVariable Integer id,
-            @RequestBody DetallePedidoDTO dto) {
-        
-        try {
-            DetallePedido detalleActualizado = detalleService.actualizar(id, dto);
-            return ResponseEntity.ok(detalleActualizado);
-        } catch (Exception e) {
-            // (Manejo simple de error si no se encuentra)
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    // 3. DELETE (Eliminar) - Operación lógica de Borrado
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarDetalle(@PathVariable Integer id) {
-        try {
-            detalleService.eliminar(id);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            // (Manejo simple de error si no se encuentra)
-            return ResponseEntity.notFound().build();
-        }
-    }
-    
-    // NOTA: No hay POST (Crear) ni GET (Listar Todos)
-    // porque son operaciones ilógicas para esta entidad invertebrado.
->>>>>>> 4eed324141c32d6306ea2c79d3b6632bd3b03081
 }
-

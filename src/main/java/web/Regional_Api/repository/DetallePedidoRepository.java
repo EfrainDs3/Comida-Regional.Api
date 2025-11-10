@@ -1,5 +1,4 @@
 package web.Regional_Api.repository;
-package web.Regional_Api.repository;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,9 +9,6 @@ import web.Regional_Api.entity.DetallePedido;
 @Repository
 public interface DetallePedidoRepository extends JpaRepository<DetallePedido, Integer> {
 
-<<<<<<< HEAD
-}
-=======
 
     // Los métodos usan consultas explícitas para evitar ambigüedades en rutas de propiedades.
     @Query("SELECT dp FROM DetallePedido dp WHERE dp.id_pedido.id_pedido = :id_pedido")
@@ -27,4 +23,3 @@ public interface DetallePedidoRepository extends JpaRepository<DetallePedido, In
 
 }
 
->>>>>>> 7b5c11b640779154c64e5a2a1b93ec86433d57f9
