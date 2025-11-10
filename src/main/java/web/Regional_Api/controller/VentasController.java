@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.comidas.api.entity.Ventas;
-import com.comidas.api.service.IVentasService;
+import org.springframework.web.bind.annotation.PutMapping;  
+import web.Regional_Api.entity.Ventas;
+import web.Regional_Api.service.IVentasService;
 import jakarta.persistence.EntityNotFoundException;
 
 @RestController

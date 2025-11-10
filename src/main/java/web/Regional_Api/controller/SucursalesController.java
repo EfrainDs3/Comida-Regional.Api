@@ -13,10 +13,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestHeader; // CRÍTICO para seguridad Multi-Tenant
-
-import com.comidas.api.entity.Sucursales;
-import com.comidas.api.service.ISucursalesService;
+import org.springframework.web.bind.annotation.RequestHeader;
+import web.Regional_Api.entity.Sucursales;
+import web.Regional_Api.service.ISucursalesService;
 
 import jakarta.persistence.EntityNotFoundException; 
 

@@ -1,4 +1,4 @@
-package com.comidas.api.entity;
+package web.Regional_Api.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

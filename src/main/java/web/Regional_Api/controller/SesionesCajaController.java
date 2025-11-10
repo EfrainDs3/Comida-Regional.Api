@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.comidas.api.entity.SesionesCaja;
-import com.comidas.api.service.ISesionesCajaService;
+import web.Regional_Api.entity.SesionesCaja;
+import web.Regional_Api.service.ISesionesCajaService;
 import jakarta.persistence.EntityNotFoundException;
 
 @RestController

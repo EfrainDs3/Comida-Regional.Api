@@ -10,9 +10,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import web.Regional_Api.dto.DetallePedidoDTO;
+import web.Regional_Api.dto.PedidoDTO;
+
 import web.Regional_Api.entity.*; 
 import web.Regional_Api.service.IPedidoService;
-import web.Regional_Api.repository.SucursalRepository;
+
 import web.Regional_Api.repository.MesasRepository;
 import web.Regional_Api.repository.UsuarioRepository;
 import web.Regional_Api.repository.PlatoRepository;
@@ -26,7 +29,7 @@ public class PedidoController {
     private IPedidoService pedidoService;
 
     @Autowired
-    private SucursalRepository sucursalRepo;
+    private SucursalesRepository sucursalRepo;
     @Autowired
     private MesasRepository mesaRepo;
     @Autowired

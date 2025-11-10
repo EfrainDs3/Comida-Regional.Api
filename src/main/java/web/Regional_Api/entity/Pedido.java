@@ -32,7 +32,7 @@ public class Pedido {
     // --- Relaciones Fieles a FOREIGN KEYs (Módulos de compañeros) ---
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_sucursal", nullable = false)
-    private Sucursal sucursal;
+    private Sucursales sucursal;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_mesa")
