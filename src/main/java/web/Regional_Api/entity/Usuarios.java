@@ -17,8 +17,8 @@ import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "usuario")
-@SQLDelete(sql = "UPDATE usuarios SET estado = '0' WHERE id_usuario = ?")
-@Where(clause = "estado = 'A'")
+@SQLDelete(sql = "UPDATE usuario SET estado = 0 WHERE id_usuario = ?")
+@Where(clause = "estado = 1")
 
 public class Usuarios {
 
@@ -50,7 +50,7 @@ public class Usuarios {
     private String contraseña; // mantenemos getter/setter getContraseña/setContraseña
 
     @Column(name = "estado")
-    private String estado = "1"; // '1' activo por defecto
+    private Integer estado = 1; // 1 = activo por defecto
 
     // Campo transient para devolver token JWT al cliente sin persistirlo en la BD
     @Transient
@@ -60,7 +60,7 @@ public class Usuarios {
     }
     
     public Usuarios(Integer idUsuario, String nombreUsuario, String apellidos, String dniUsuario, String telefono,
-            String contraseña, String estado, int rolId, String nombreUsuarioLogin, String accessToken) {
+            String contraseña, Integer estado, int rolId, String nombreUsuarioLogin, String accessToken) {
         this.idUsuario = idUsuario;
         this.nombreUsuario = nombreUsuario;
         this.apellidos = apellidos;
@@ -140,11 +140,11 @@ public class Usuarios {
         }
     }
 
-    public String getEstado() {
+    public Integer getEstado() {
         return estado;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(Integer estado) {
         this.estado = estado;
     }
 
