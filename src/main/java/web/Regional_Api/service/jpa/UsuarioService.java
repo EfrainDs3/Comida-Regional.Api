@@ -39,8 +39,6 @@ public class UsuarioService implements IUsuarioService {
             throw new RuntimeException("El nombre de usuario de login ya está registrado en el sistema");
         }
 
-        // La contraseña ya se cifra automáticamente en el setter con SHA-256
-        // Generar el access token (transient) usando JWT con el nombre de usuario de login
         String token = jwtUtil.generateToken(usuario.getNombreUsuarioLogin());
         usuario.setAccessToken(token);
 
@@ -50,10 +48,10 @@ public class UsuarioService implements IUsuarioService {
 
     /**
      * Realiza el login de un usuario
-     * @param email Email del usuario
-     * @param contraseña Contraseña en texto plano (se cifrará para comparar)
-     * @return Usuario con su información si las credenciales son correctas
-     * @throws RuntimeException si las credenciales son incorrectas
+     * @param email
+     * @param contraseña 
+     * @return 
+     * @throws RuntimeException 
      */
     @Override
     public Usuarios login(String nombreUsuarioLogin, String contraseña) {
