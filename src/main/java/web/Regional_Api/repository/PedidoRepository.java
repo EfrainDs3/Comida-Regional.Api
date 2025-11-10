@@ -1,16 +1,19 @@
 package web.Regional_Api.repository;
 
 <<<<<<< HEAD
+import java.util.List;
+
+=======
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-=======
+
 import java.util.List;
 
->>>>>>> 786491ebf00f4033710da2dfdb753b9d86f79148
+
+>>>>>>> 7b5c11b640779154c64e5a2a1b93ec86433d57f9
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import web.Regional_Api.entity.Pedido;
@@ -18,6 +21,8 @@ import web.Regional_Api.entity.Pedido;
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
 <<<<<<< HEAD
+=======
+
 
     @Query("SELECT p FROM Pedido p WHERE p.numero_pedido = :numero_pedido")
     Optional<Pedido> buscarPorNumeroPedido(@Param("numero_pedido") String numero_pedido);
@@ -37,10 +42,14 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
     @Query("SELECT p FROM Pedido p WHERE p.id_sucursal.id_sucursal = :id_sucursal AND p.fecha_pedido BETWEEN :fechaInicio AND :fechaFin ORDER BY p.fecha_pedido DESC")
     List<Pedido> pedidosPorSucursalYFechas(@Param("id_sucursal") Integer id_sucursal, @Param("fechaInicio") LocalDateTime fechaInicio, @Param("fechaFin") LocalDateTime fechaFin);
 }
-=======
 
+
+>>>>>>> 7b5c11b640779154c64e5a2a1b93ec86433d57f9
     List<Pedido> findByEstadoPedido(String estado);
     List<Pedido> findByIdSucursal(Integer idSucursal);
 }
 
->>>>>>> 786491ebf00f4033710da2dfdb753b9d86f79148
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7b5c11b640779154c64e5a2a1b93ec86433d57f9

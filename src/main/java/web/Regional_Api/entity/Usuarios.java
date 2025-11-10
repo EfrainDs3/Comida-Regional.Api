@@ -3,6 +3,7 @@ package web.Regional_Api.entity;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -31,6 +32,9 @@ public class Usuarios {
     @Column(name = "id_perfil")
     private Integer rolId; // mapeado a id_perfil en la nueva tabla
 
+    @Column(name = "id_sucursal")
+    private Integer idSucursal; // nullable en la BD
+
     @Column(name = "nombre_usuario")
     private String nombreUsuario;
 
@@ -56,11 +60,18 @@ public class Usuarios {
     @Transient
     private String accessToken;
 
+    @Column(name = "fecha_creacion", insertable = false, updatable = false)
+    private LocalDateTime fechaCreacion;
+
+    @Column(name = "ultimo_login")
+    private LocalDateTime ultimoLogin;
+
     public Usuarios(){
     }
     
     public Usuarios(Integer idUsuario, String nombreUsuario, String apellidos, String dniUsuario, String telefono,
-            String contraseña, Integer estado, int rolId, String nombreUsuarioLogin, String accessToken) {
+            String contraseña, Integer estado, int rolId, String nombreUsuarioLogin, String accessToken,
+            Integer idSucursal, LocalDateTime fechaCreacion, LocalDateTime ultimoLogin) {
         this.idUsuario = idUsuario;
         this.nombreUsuario = nombreUsuario;
         this.apellidos = apellidos;
@@ -71,6 +82,9 @@ public class Usuarios {
         this.estado = estado;
         this.rolId = rolId;
         this.nombreUsuarioLogin = nombreUsuarioLogin;
+        this.idSucursal = idSucursal;
+        this.fechaCreacion = fechaCreacion;
+        this.ultimoLogin = ultimoLogin;
     }
 
     public Integer getIdUsuario() {
@@ -155,6 +169,30 @@ public class Usuarios {
 
     public void setRolId(int rolId) {
         this.rolId = rolId;
+    }
+
+    public Integer getIdSucursal() {
+        return idSucursal;
+    }
+
+    public void setIdSucursal(Integer idSucursal) {
+        this.idSucursal = idSucursal;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public LocalDateTime getUltimoLogin() {
+        return ultimoLogin;
+    }
+
+    public void setUltimoLogin(LocalDateTime ultimoLogin) {
+        this.ultimoLogin = ultimoLogin;
     }
 
     public String getAccessToken() {

@@ -1,10 +1,8 @@
 package web.Regional_Api.repository;
+package web.Regional_Api.repository;
 
-import java.math.BigDecimal;
-import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import web.Regional_Api.entity.DetallePedido;
@@ -13,6 +11,9 @@ import web.Regional_Api.entity.DetallePedido;
 public interface DetallePedidoRepository extends JpaRepository<DetallePedido, Integer> {
 
 <<<<<<< HEAD
+}
+=======
+
     // Los métodos usan consultas explícitas para evitar ambigüedades en rutas de propiedades.
     @Query("SELECT dp FROM DetallePedido dp WHERE dp.id_pedido.id_pedido = :id_pedido")
     List<DetallePedido> detallesPorPedido(@Param("id_pedido") Integer id_pedido);
@@ -23,6 +24,7 @@ public interface DetallePedidoRepository extends JpaRepository<DetallePedido, In
     @Query("SELECT SUM(dp.subtotal) FROM DetallePedido dp WHERE dp.id_pedido.id_pedido = :id_pedido")
     BigDecimal calcularTotalPedido(@Param("id_pedido") Integer id_pedido);
 }
-=======
+
 }
->>>>>>> 786491ebf00f4033710da2dfdb753b9d86f79148
+
+>>>>>>> 7b5c11b640779154c64e5a2a1b93ec86433d57f9

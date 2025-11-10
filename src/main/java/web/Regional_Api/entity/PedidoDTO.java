@@ -7,7 +7,7 @@ public class PedidoDTO {
     private Integer id_sucursal;
     private Integer id_mesa;
     private Integer id_usuario_mozo;
-    
+
     private List<DetallePedidoDTO> detalles;
 
     public Integer getId_sucursal() { return id_sucursal; }

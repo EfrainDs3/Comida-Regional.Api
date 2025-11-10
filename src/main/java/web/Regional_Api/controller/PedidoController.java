@@ -10,14 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import web.Regional_Api.entity.PedidoDTO;
-import web.Regional_Api.entity.DetallePedidoDTO;
-
 import web.Regional_Api.entity.*; 
 import web.Regional_Api.service.IPedidoService;
-import web.Regional_Api.entity.Mesas;
-import web.Regional_Api.entity.Usuarios;
-
 import web.Regional_Api.repository.SucursalRepository;
 import web.Regional_Api.repository.MesasRepository;
 import web.Regional_Api.repository.UsuarioRepository;
@@ -53,27 +47,24 @@ public class PedidoController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
-    // 3. POST (Crear Pedido y sus Detalles)
     @PostMapping
-    public ResponseEntity<?> crearPedido(@RequestBody PedidoDTO dto) {
+    public ResponseEntity<?> crearPedido(@RequestBody PedidoDTO dto) { // Asumo que usas PedidoDTO
         
         Optional<Sucursal> suc = sucursalRepo.findById(dto.getId_sucursal());
         Optional<Mesas> mes = mesaRepo.findById(dto.getId_mesa());
+        
+        // ✅ LÓGICA CORREGIDA
         Optional<Usuarios> moz = usuarioRepo.findById(dto.getId_usuario_mozo());
         
         if (suc.isEmpty() || mes.isEmpty() || moz.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Sucursal, Mesa o Mozo no encontrado.");
+                    .body("Sucursal, Mesa o Mozo no encontrado.");
         }
         
-    
         Pedido pedido = new Pedido();
         pedido.setSucursal(suc.get());
-        pedido.setMesa((Mesas)mes.get());
-        pedido.setUsuarioMozo((Usuarios)moz.get());
-        
-   
+        pedido.setMesa(mes.get());
+        pedido.setUsuarioMozo(moz.get()); 
         
         BigDecimal totalGeneral = BigDecimal.ZERO;
         List<DetallePedido> detallesEntidad = new ArrayList<>();
@@ -97,21 +88,17 @@ public class PedidoController {
             
             totalGeneral = totalGeneral.add(subtotal);
             
-            // --- 4. Enlace Bidireccional (Clave de JPA) ---
             detalle.setPedido(pedido);
             detallesEntidad.add(detalle);
         }
         
-        // --- 5. Asignar Hijos y Total al Padre ---
         pedido.setDetalles(detallesEntidad); 
         pedido.setTotal_pedido(totalGeneral);
         
-        // --- 6. Guardar ---
         Pedido nuevoPedido = pedidoService.guardar(pedido);
         
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoPedido);
     }
-
     // 4. PUT (Actualizar ESTADO de Pedido)
 
     @PutMapping("/{id}/estado")
