@@ -32,11 +32,9 @@ public class Plato {
     @JoinColumn(name = "id_categoria")
     private Categoria categoria;
 
-    // Constructor por defecto
     public Plato() {
     }
-    
-    // Getters y setters
+
     public Integer getId_plato() {
         return id_plato;
     }

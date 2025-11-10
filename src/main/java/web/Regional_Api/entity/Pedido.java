@@ -20,11 +20,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
-import web.Regional_Api.entity.DetallePedido;
-import web.Regional_Api.entity.Mesa;
-import web.Regional_Api.entity.Sucursal;
-import web.Regional_Api.entity.Usuario;
-
 @Entity
 @Table(name = "pedidos")
 @DynamicInsert
@@ -41,25 +36,24 @@ public class Pedido {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_mesa")
-    private Mesa mesa;
+    private Mesas mesa;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario_mozo")
-    private Usuario usuarioMozo; // El .sql lo llama id_usuario_mozo
-    // ---------------------------------------------------------------
+    private Usuarios usuarioMozo; 
 
-    @CreationTimestamp // Fiel al .sql (DEFAULT current_timestamp())
+
+    @CreationTimestamp 
     @Column(nullable = false, updatable = false)
     private LocalDateTime fecha_hora_pedido; 
 
     @Column(length = 20, nullable = false)
-    @ColumnDefault("'Pendiente'") // Fiel al .sql (DEFAULT 'Pendiente')
+    @ColumnDefault("'Pendiente'") 
     private String estado_pedido;
 
-    @Column(precision = 10, scale = 2) // Fiel al .sql (decimal(10,2))
+    @Column(precision = 10, scale = 2)
     private BigDecimal total_pedido;
     
-    // Un Pedido tiene muchos Detalles.
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetallePedido> detalles;
 
@@ -79,19 +73,19 @@ public class Pedido {
         this.sucursal = sucursal;
     }
 
-    public Mesa getMesa() {
+    public Mesas getMesa() {
         return mesa;
     }
 
-    public void setMesa(Mesa mesa) {
+    public void setMesa(Mesas mesa) {
         this.mesa = mesa;
     }
 
-    public Usuario getUsuarioMozo() {
+    public Usuarios getUsuarioMozo() {
         return usuarioMozo;
     }
 
-    public void setUsuarioMozo(Usuario usuarioMozo) {
+    public void setUsuarioMozo(Usuarios usuarioMozo) {
         this.usuarioMozo = usuarioMozo;
     }
 
