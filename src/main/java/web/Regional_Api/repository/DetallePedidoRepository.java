@@ -1,5 +1,8 @@
 package web.Regional_Api.repository;
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -9,6 +12,7 @@ import web.Regional_Api.entity.DetallePedido;
 @Repository
 public interface DetallePedidoRepository extends JpaRepository<DetallePedido, Integer> {
 
+<<<<<<< Updated upstream
 
     // Los métodos usan consultas explícitas para evitar ambigüedades en rutas de propiedades.
     @Query("SELECT dp FROM DetallePedido dp WHERE dp.id_pedido.id_pedido = :id_pedido")
@@ -23,3 +27,6 @@ public interface DetallePedidoRepository extends JpaRepository<DetallePedido, In
 
 }
 
+=======
+}
+>>>>>>> Stashed changes
