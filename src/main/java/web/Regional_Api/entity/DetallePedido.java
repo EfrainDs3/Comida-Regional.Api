@@ -1,6 +1,7 @@
 package web.Regional_Api.entity;
 
 import java.math.BigDecimal;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,7 +12,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-import web.Regional_Api.entity.Plato;
 
 @Entity
 @Table(name = "detalle_pedido")
@@ -21,17 +21,13 @@ public class DetallePedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_detalle;
 
-    // --- Relación Fiel a FOREIGN KEY (con Pedido) ---
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_pedido", nullable = false)
     private Pedido pedido;
-    // ------------------------------------------------
 
-    // --- Relación Fiel a FOREIGN KEY (Módulo de compañero) ---
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_plato", nullable = false)
     private Plato plato;
-    // -----------------------------------------------------
 
     @Column(nullable = false)
     private Integer cantidad;
@@ -42,7 +38,7 @@ public class DetallePedido {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
 
-    @Column(columnDefinition = "text") // Fiel al .sql (text)
+    @Column(columnDefinition = "text")
     private String observaciones;
 
     public Integer getId_detalle() {

@@ -12,7 +12,7 @@ import web.Regional_Api.entity.PagoSuscripcionDTO;
 import web.Regional_Api.entity.PagoSuscripcion;
 import web.Regional_Api.entity.Restaurante;
 import web.Regional_Api.service.IPagoSuscripcionService;
-import web.Regional_Api.service.IRestauranteService; // Necesario para la FK
+import web.Regional_Api.service.IRestauranteService;
 
 @RestController
 @RequestMapping("/api/pagos")
@@ -22,7 +22,7 @@ public class PagoSuscripcionController {
     @Autowired
     private IPagoSuscripcionService pagoService;
     
-    // Inyectamos el servicio de Restaurante para validar la FK
+    
     @Autowired
     private IRestauranteService restauranteService;
 
@@ -56,7 +56,6 @@ public class PagoSuscripcionController {
     @PostMapping
     public ResponseEntity<?> crear(@RequestBody PagoSuscripcionDTO dto) {
         
-        // Verificación de FK: El restaurante debe existir
         Optional<Restaurante> optRestaurante = restauranteService.buscarId(dto.getId_restaurante());
         if (optRestaurante.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -88,7 +87,6 @@ public class PagoSuscripcionController {
             return ResponseEntity.notFound().build();
         }
         
-        // Verificación de FK: El restaurante debe existir
         Optional<Restaurante> optRestaurante = restauranteService.buscarId(dto.getId_restaurante());
         if (optRestaurante.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
