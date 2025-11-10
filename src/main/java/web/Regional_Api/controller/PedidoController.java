@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import web.Regional_Api.entity.*; 
 import web.Regional_Api.service.IPedidoService;
-import web.Regional_Api.repository.SucursalRepository;
+import web.Regional_Api.repository.SucursalesRepository;
 import web.Regional_Api.repository.MesasRepository;
 import web.Regional_Api.repository.UsuarioRepository;
 import web.Regional_Api.repository.PlatoRepository;
@@ -26,7 +26,7 @@ public class PedidoController {
     private IPedidoService pedidoService;
 
     @Autowired
-    private SucursalRepository sucursalRepo;
+    private SucursalesRepository sucursalRepo;
     @Autowired
     private MesasRepository mesaRepo;
     @Autowired
@@ -50,7 +50,7 @@ public class PedidoController {
     @PostMapping
     public ResponseEntity<?> crearPedido(@RequestBody PedidoDTO dto) { // Asumo que usas PedidoDTO
         
-        Optional<Sucursal> suc = sucursalRepo.findById(dto.getId_sucursal());
+        Optional<Sucursales> suc = sucursalRepo.findById(dto.getId_sucursal());
         Optional<Mesas> mes = mesaRepo.findById(dto.getId_mesa());
         
         // ✅ LÓGICA CORREGIDA

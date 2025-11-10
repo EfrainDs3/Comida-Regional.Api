@@ -32,7 +32,7 @@ public class Pedido {
     // --- Relaciones Fieles a FOREIGN KEYs (Módulos de compañeros) ---
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_sucursal", nullable = false)
-    private Sucursal sucursal;
+    private Sucursales sucursal;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_mesa")
@@ -65,11 +65,11 @@ public class Pedido {
         this.id_pedido = id_pedido;
     }
 
-    public Sucursal getSucursal() {
+    public Sucursales getSucursal() {
         return sucursal;
     }
 
-    public void setSucursal(Sucursal sucursal) {
+    public void setSucursal(Sucursales sucursal) {
         this.sucursal = sucursal;
     }
 
