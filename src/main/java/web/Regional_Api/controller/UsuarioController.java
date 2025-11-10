@@ -117,11 +117,11 @@ public class UsuarioController {
         try {
             String token = null;
             
-            // Intentar obtener el token del header Authorization
+         
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 token = authHeader.substring(7);
             }
-            // Si no está en el header, intentar obtenerlo del body
+            
             else if (body != null && body.containsKey("token")) {
                 token = body.get("token");
             }
@@ -132,7 +132,7 @@ public class UsuarioController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
             
-            // Validar el token
+           
             Usuarios usuario = usuarioService.validarToken(token);
             
             response.put("success", true);

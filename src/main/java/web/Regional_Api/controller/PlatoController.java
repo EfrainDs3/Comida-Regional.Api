@@ -2,7 +2,7 @@ package web.Regional_Api.controller;
 
 import java.util.List;
 import java.util.Optional;
-//holaaaaaaaa
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import web.Regional_Api.entity.Categoria;
 import web.Regional_Api.entity.Plato;
 import web.Regional_Api.entity.PlatoDTO;
-import web.Regional_Api.entity.Sucursal;
+import web.Regional_Api.entity.Sucursales;
 import web.Regional_Api.repository.CategoriaRepository;
 import web.Regional_Api.repository.PlatoRepository;
-import web.Regional_Api.repository.SucursalRepository;
+import web.Regional_Api.repository.SucursalesRepository;
 
 @RestController
 @RequestMapping("/api/platos")
@@ -28,7 +28,7 @@ public class PlatoController {
     private CategoriaRepository categoriaRepository;
 
     @Autowired
-    private SucursalRepository sucursalRepository;
+    private SucursalesRepository sucursalesRepository; // ahora coincide con la llamada
 
     // Obtener todos los platos
     @GetMapping
@@ -56,16 +56,16 @@ public class PlatoController {
         return ResponseEntity.ok(platoRepository.platosDisponiblesPorCategoria(id_categoria));
     }
 
-    // Obtener platos por sucursal (queda intacto)
+    // Obtener platos por sucursales (queda intacto)
     @GetMapping("/sucursal/{id_sucursal}")
-    public ResponseEntity<List<Plato>> obtenerPorSucursal(@PathVariable Integer id_sucursal) {
-        return ResponseEntity.ok(platoRepository.findByIdSucursal_Id_sucursal(id_sucursal));
+    public ResponseEntity<List<Plato>> obtenerPorSucursales(@PathVariable Integer id_sucursal) {
+        return ResponseEntity.ok(platoRepository.findBySucursales_Id_sucursal(id_sucursal));
     }
 
-    // Obtener platos disponibles por sucursal (queda intacto)
+    // Obtener platos disponibles por sucursales (queda intacto)
     @GetMapping("/sucursal/{id_sucursal}/disponibles")
-    public ResponseEntity<List<Plato>> obtenerDisponiblesPorSucursal(@PathVariable Integer id_sucursal) {
-        return ResponseEntity.ok(platoRepository.platosDisponiblesPorSucursal(id_sucursal));
+    public ResponseEntity<List<Plato>> obtenerDisponiblesPorSucursales(@PathVariable Integer id_sucursal) {
+        return ResponseEntity.ok(platoRepository.platosDisponiblesPorSucursales(id_sucursal));
     }
 
     // Buscar platos por nombre
@@ -83,7 +83,7 @@ public class PlatoController {
             }
 
             Optional<Categoria> categoriaOpt = categoriaRepository.findById(platoDTO.getId_categoria());
-            Optional<Sucursal> sucursalOpt = sucursalRepository.findById(platoDTO.getId_sucursal());
+            Optional<Sucursales> sucursalOpt = sucursalesRepository.findById(platoDTO.getId_sucursal());
 
             if (categoriaOpt.isEmpty() || sucursalOpt.isEmpty()) {
                 return ResponseEntity.badRequest().build();
@@ -95,7 +95,7 @@ public class PlatoController {
             plato.setPrecio(platoDTO.getPrecio());
             plato.setImagen(platoDTO.getImagen_url());
             plato.setCategoria(categoriaOpt.get());
-            // sucursal queda intacta
+            // sucursales queda intacta
             plato.setEstado(1);
 
             Plato guardado = platoRepository.save(plato);

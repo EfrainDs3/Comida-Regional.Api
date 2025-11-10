@@ -38,42 +38,49 @@ public class PlatoService implements IPlatoService {
 
     @Override
     public void eliminar(Integer id) {
-        repoPlato.deleteById(id);
+        // Soft delete: cambiar estado a 0
+        Optional<Plato> optional = repoPlato.findById(id);
+        optional.ifPresent(p -> {
+            p.setEstado(0);
+            repoPlato.save(p);
+        });
     }
 
     @Override
     public List<Plato> buscarPorCategoria(Integer idCategoria) {
-        return repoPlato.buscarPorCategoria(idCategoria); // Usamos el método definido en PlatoRepository
-    }
-
-    @Override
-    public List<Plato> buscarPorNombre(String nombre) {
-        return repoPlato.buscarPorNombre(nombre); // Método del repository
-    }
-
-    @Override
-    public List<Plato> buscar(String search) {
-        return repoPlato.buscarPorNombre(search); // Reutilizamos la búsqueda por nombre
-    }
-
-    @Override
-    public List<Plato> buscarPorDisponibilidad(Integer disponible) {
-        return repoPlato.findByDisponible(disponible); // Si existe este método en tu repository
-    }
-
-    // MÉTODOS DE SUCURSAL QUEDAN IGUALES
-    @Override
-    public List<Plato> buscarPorSucursal(Integer idSucursal) {
-        return repoPlato.findByIdSucursal_Id_sucursal(idSucursal);
-    }
-
-    @Override
-    public List<Plato> buscarDisponiblesPorSucursal(Integer idSucursal) {
-        return repoPlato.platosDisponiblesPorSucursal(idSucursal);
+        return repoPlato.buscarPorCategoria(idCategoria);
     }
 
     @Override
     public List<Plato> buscarDisponiblesPorCategoria(Integer idCategoria) {
         return repoPlato.platosDisponiblesPorCategoria(idCategoria);
+    }
+
+    @Override
+    public List<Plato> buscarPorNombre(String nombre) {
+        return repoPlato.buscarPorNombre(nombre);
+    }
+
+    @Override
+    public List<Plato> buscar(String search) {
+        // Reutilizamos la búsqueda por nombre
+        return repoPlato.buscarPorNombre(search);
+    }
+
+    @Override
+    public List<Plato> buscarPorDisponibilidad(Integer disponible) {
+        // Usa el método findByEstado del repository
+        return repoPlato.findByEstado(disponible);
+    }
+
+    // MÉTODOS DE SUCURSAL QUEDAN IGUALES
+    @Override
+    public List<Plato> buscarPorSucursal(Integer idSucursal) {
+        return repoPlato.findBySucursales_Id_sucursal(idSucursal);
+    }
+
+    @Override
+    public List<Plato> buscarDisponiblesPorSucursal(Integer idSucursal) {
+        return repoPlato.platosDisponiblesPorSucursales(idSucursal);
     }
 }

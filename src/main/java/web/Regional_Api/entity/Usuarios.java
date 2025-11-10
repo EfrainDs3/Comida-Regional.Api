@@ -51,12 +51,12 @@ public class Usuarios {
     private String nombreUsuarioLogin;
 
     @Column(name = "contraseña_usuario")
-    private String contraseña; // mantenemos getter/setter getContraseña/setContraseña
+    private String contraseña; 
 
     @Column(name = "estado")
-    private Integer estado = 1; // 1 = activo por defecto
+    private Integer estado = 1;
 
-    // Campo transient para devolver token JWT al cliente sin persistirlo en la BD
+ 
     @Transient
     private String accessToken;
 
@@ -121,7 +121,6 @@ public class Usuarios {
         this.dniUsuario = dniUsuario;
     }
 
-    // Nota: los campos direccion y email fueron removidos en la nueva estructura de la tabla
 
     public String getTelefono() {
         return telefono;
