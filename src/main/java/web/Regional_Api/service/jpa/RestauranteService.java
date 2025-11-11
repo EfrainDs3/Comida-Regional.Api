@@ -18,21 +18,27 @@ public class RestauranteService implements IRestauranteService {
 
     @Override
     public List<Restaurante> buscarTodos() {
+        // Lógica simple: solo llama al repositorio
         return repoRestaurante.findAll();
     }
 
     @Override
     public Optional<Restaurante> buscarId(Integer id) {
+        // Lógica simple: solo llama al repositorio
         return repoRestaurante.findById(id);
     }
 
     @Override
     public Restaurante guardar(Restaurante restaurante) {
+        // Lógica simple: solo llama al repositorio
+        // (Aquí irían validaciones en el futuro)
         return repoRestaurante.save(restaurante);
     }
 
     @Override
     public void eliminar(Integer id) {
+        // Lógica simple: solo llama al repositorio
+        // (El @SQLDelete de la entidad hará el soft-delete)
         repoRestaurante.deleteById(id);
     }
 }
