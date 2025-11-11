@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import web.Regional_Api.entity.Categoria;
 import web.Regional_Api.entity.Plato;
 import web.Regional_Api.entity.PlatoDTO;
-// Sucursales relation removed from Plato entity; imports removed
 import web.Regional_Api.repository.CategoriaRepository;
 import web.Regional_Api.repository.PlatoRepository;
 
@@ -63,9 +62,6 @@ public class PlatoController {
         return ResponseEntity.ok(platos);
     }
 
-    // NOTE: The Plato entity does not have a sucursales relation.
-    // Endpoints that filtered by sucursal were removed to match the entity model.
-
     // Buscar platos por nombre
     @GetMapping("/buscar")
     public ResponseEntity<List<PlatoDTO>> buscar(@RequestParam String nombre) {
@@ -78,31 +74,25 @@ public class PlatoController {
     // Crear plato
     @PostMapping
     public ResponseEntity<PlatoDTO> crear(@RequestBody PlatoDTO platoDTO) {
-        try {
-            if (platoDTO.getId_categoria() == null) {
-                return ResponseEntity.badRequest().body(null);
-            }
-
-            Optional<Categoria> categoriaOpt = categoriaRepository.findById(platoDTO.getId_categoria());
-
-            if (categoriaOpt.isEmpty()) {
-                return ResponseEntity.badRequest().build();
-            }
-
-            Plato plato = new Plato();
-            plato.setNombre(platoDTO.getNombre());
-            plato.setDescripcion(platoDTO.getDescripcion());
-            plato.setPrecio(platoDTO.getPrecio());
-            plato.setImagen(platoDTO.getImagen_url());
-            plato.setCategoria(categoriaOpt.get());
-            // Note: Plato does not reference Sucursales in the current model
-            plato.setEstado(1);
-
-            Plato guardado = platoRepository.save(plato);
-            return ResponseEntity.status(HttpStatus.CREATED).body(convertirADTO(guardado));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        if (platoDTO.getId_categoria() == null) {
+            return ResponseEntity.badRequest().body(null);
         }
+
+        Optional<Categoria> categoriaOpt = categoriaRepository.findById(platoDTO.getId_categoria());
+        if (categoriaOpt.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Plato plato = new Plato();
+        plato.setNombre(platoDTO.getNombre());
+        plato.setDescripcion(platoDTO.getDescripcion());
+        plato.setPrecio(platoDTO.getPrecio());
+        plato.setImagen(platoDTO.getImagen_url());
+        plato.setCategoria(categoriaOpt.get());
+        plato.setEstado(1);
+
+        Plato guardado = platoRepository.save(plato);
+        return ResponseEntity.status(HttpStatus.CREATED).body(convertirADTO(guardado));
     }
 
     // Actualizar plato
@@ -117,8 +107,8 @@ public class PlatoController {
         if (platoDTO.getPrecio() != null) plato.setPrecio(platoDTO.getPrecio());
         if (platoDTO.getImagen_url() != null) plato.setImagen(platoDTO.getImagen_url());
 
-    Plato actualizado = platoRepository.save(plato);
-    return ResponseEntity.ok(convertirADTO(actualizado));
+        Plato actualizado = platoRepository.save(plato);
+        return ResponseEntity.ok(convertirADTO(actualizado));
     }
 
     // Eliminar plato (soft delete)
