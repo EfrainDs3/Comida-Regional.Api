@@ -1,7 +1,11 @@
 package web.Regional_Api.controller;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +21,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import web.Regional_Api.entity.Mesas;
+import web.Regional_Api.entity.MesasDTO;
+import web.Regional_Api.entity.Sucursales;
+import web.Regional_Api.repository.SucursalesRepository;
 import web.Regional_Api.service.IMesasService;
 
 @RestController
@@ -27,19 +34,24 @@ public class MesasController {
     @Autowired
     private IMesasService mesasService;
 
+    @Autowired
+    private SucursalesRepository sucursalesRepository;
+
     // GET - Obtener todas las mesas
     @GetMapping
-    public ResponseEntity<List<Mesas>> listarMesas() {
-        List<Mesas> mesas = mesasService.buscarTodos();
+    public ResponseEntity<List<MesasDTO>> listarMesas() {
+        List<MesasDTO> mesas = mesasService.buscarTodos().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
         return new ResponseEntity<>(mesas, HttpStatus.OK);
     }
 
     // GET - Obtener mesa por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Mesas> obtenerMesaPorId(@PathVariable Integer id) {
+    public ResponseEntity<MesasDTO> obtenerMesaPorId(@PathVariable Integer id) {
         Optional<Mesas> mesa = mesasService.buscarId(id);
         if (mesa.isPresent()) {
-            return new ResponseEntity<>(mesa.get(), HttpStatus.OK);
+            return new ResponseEntity<>(convertToDto(mesa.get()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -47,26 +59,78 @@ public class MesasController {
 
     // POST - Crear nueva mesa
     @PostMapping
-    public ResponseEntity<Mesas> crearMesa(@RequestBody Mesas mesa) {
-        try {
-            Mesas nuevaMesa = mesasService.guardar(mesa);
-            return new ResponseEntity<>(nuevaMesa, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<?> crearMesa(@RequestBody MesasDTO mesaDTO) {
+        Map<String, Object> response = new HashMap<>();
+
+        if (mesaDTO == null || mesaDTO.getId_sucursal() == null || mesaDTO.getNumero_mesa() == null
+                || mesaDTO.getCapacidad() == null || mesaDTO.getEstado_mesa() == null) {
+            response.put("message", "id_sucursal, numero_mesa, capacidad y estado_mesa son obligatorios");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
+
+        Optional<Sucursales> sucursalOpt = sucursalesRepository.findById(mesaDTO.getId_sucursal());
+        if (sucursalOpt.isEmpty()) {
+            response.put("message", "La sucursal indicada no existe");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        Optional<Mesas.EstadoMesa> estadoOpt = parseEstadoMesa(mesaDTO.getEstado_mesa());
+        if (estadoOpt.isEmpty()) {
+            response.put("message", "Estado de mesa inválido. Valores permitidos: "
+                    + Arrays.toString(Mesas.EstadoMesa.values()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        Mesas mesa = new Mesas();
+        mesa.setId_sucursal(sucursalOpt.get());
+        mesa.setNumero_mesa(mesaDTO.getNumero_mesa());
+        mesa.setCapacidad(mesaDTO.getCapacidad());
+        mesa.setEstado_mesa(estadoOpt.get());
+
+    Mesas nuevaMesa = mesasService.guardar(mesa);
+    return ResponseEntity.status(HttpStatus.CREATED).body(convertToDto(nuevaMesa));
     }
 
     // PUT - Actualizar mesa existente
     @PutMapping("/{id}")
-    public ResponseEntity<Mesas> actualizarMesa(@PathVariable Integer id, @RequestBody Mesas mesa) {
+    public ResponseEntity<?> actualizarMesa(@PathVariable Integer id, @RequestBody MesasDTO mesaDTO) {
         Optional<Mesas> mesaExistente = mesasService.buscarId(id);
-        if (mesaExistente.isPresent()) {
-            mesa.setId_mesa(id); // Asegurar que se actualice el registro correcto
-            Mesas mesaActualizada = mesasService.modificar(mesa);
-            return new ResponseEntity<>(mesaActualizada, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (mesaExistente.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+
+        Mesas mesa = mesaExistente.get();
+        Map<String, Object> response = new HashMap<>();
+
+        if (mesaDTO.getId_sucursal() != null) {
+            Optional<Sucursales> sucursalOpt = sucursalesRepository.findById(mesaDTO.getId_sucursal());
+            if (sucursalOpt.isEmpty()) {
+                response.put("message", "La sucursal indicada no existe");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+            mesa.setId_sucursal(sucursalOpt.get());
+        }
+
+        if (mesaDTO.getNumero_mesa() != null) {
+            mesa.setNumero_mesa(mesaDTO.getNumero_mesa());
+        }
+
+        if (mesaDTO.getCapacidad() != null) {
+            mesa.setCapacidad(mesaDTO.getCapacidad());
+        }
+
+        if (mesaDTO.getEstado_mesa() != null) {
+            Optional<Mesas.EstadoMesa> estadoOpt = parseEstadoMesa(mesaDTO.getEstado_mesa());
+            if (estadoOpt.isEmpty()) {
+                response.put("message", "Estado de mesa inválido. Valores permitidos: "
+                        + Arrays.toString(Mesas.EstadoMesa.values()));
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+            mesa.setEstado_mesa(estadoOpt.get());
+        }
+
+    Mesas mesaActualizada = mesasService.modificar(mesa);
+    return ResponseEntity.ok(convertToDto(mesaActualizada));
     }
 
     // DELETE - Eliminar mesa (soft delete por el @SQLDelete)
@@ -83,19 +147,41 @@ public class MesasController {
 
     // GET - Buscar mesas por sucursal
     @GetMapping("/sucursal/{idSucursal}")
-    public ResponseEntity<List<Mesas>> listarMesasPorSucursal(@PathVariable Integer idSucursal) {
-        // Este método requeriría un servicio adicional en IMesasService
-        // Por ahora retornamos todas las mesas
-        List<Mesas> mesas = mesasService.buscarTodos();
+    public ResponseEntity<List<MesasDTO>> listarMesasPorSucursal(@PathVariable Integer idSucursal) {
+        List<MesasDTO> mesas = mesasService.buscarTodos().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
         return new ResponseEntity<>(mesas, HttpStatus.OK);
     }
 
     // GET - Buscar mesas por estado
     @GetMapping("/estado/{estado}")
-    public ResponseEntity<List<Mesas>> listarMesasPorEstado(@PathVariable String estado) {
-        // Este método requeriría un servicio adicional en IMesasService
-        // Por ahora retornamos todas las mesas
-        List<Mesas> mesas = mesasService.buscarTodos();
+    public ResponseEntity<List<MesasDTO>> listarMesasPorEstado(@PathVariable String estado) {
+        List<MesasDTO> mesas = mesasService.buscarTodos().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
         return new ResponseEntity<>(mesas, HttpStatus.OK);
+    }
+
+    private Optional<Mesas.EstadoMesa> parseEstadoMesa(String estado) {
+        if (estado == null) {
+            return Optional.empty();
+        }
+        return Arrays.stream(Mesas.EstadoMesa.values())
+                .filter(e -> e.name().equalsIgnoreCase(estado))
+                .findFirst();
+    }
+
+    private MesasDTO convertToDto(Mesas mesa) {
+        MesasDTO dto = new MesasDTO();
+        dto.setId_mesa(mesa.getId_mesa());
+        Sucursales sucursal = mesa.getId_sucursal();
+        if (sucursal != null) {
+            dto.setId_sucursal(sucursal.getIdSucursal());
+        }
+        dto.setNumero_mesa(mesa.getNumero_mesa());
+        dto.setCapacidad(mesa.getCapacidad());
+        dto.setEstado_mesa(mesa.getEstado_mesa() != null ? mesa.getEstado_mesa().name() : null);
+        return dto;
     }
 }

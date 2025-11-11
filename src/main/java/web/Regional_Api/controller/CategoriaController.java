@@ -2,6 +2,7 @@ package web.Regional_Api.controller;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,25 +36,28 @@ public class CategoriaController {
     
     // Obtener todas las categorías
     @GetMapping
-    public ResponseEntity<List<Categoria>> obtenerTodas() {
-        // Ahora llamas al servicio
-        List<Categoria> categorias = categoriaService.buscarTodos(); 
+    public ResponseEntity<List<CategoriaDTO>> obtenerTodas() {
+        List<CategoriaDTO> categorias = categoriaService.buscarTodos().stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList()); 
         return ResponseEntity.ok(categorias);
     }
     
     // Obtener categorías activas
     @GetMapping("/activas")
-    public ResponseEntity<List<Categoria>> obtenerActivas() {
-        // Tu servicio ya tiene este método
-        List<Categoria> categorias = categoriaService.buscarActivas();
+    public ResponseEntity<List<CategoriaDTO>> obtenerActivas() {
+        List<CategoriaDTO> categorias = categoriaService.buscarActivas().stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(categorias);
     }
     
     // Obtener categoría por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Categoria> obtenerPorId(@PathVariable Integer id) {
+    public ResponseEntity<CategoriaDTO> obtenerPorId(@PathVariable Integer id) {
         // La lógica del Optional se maneja mejor en el servicio
         return categoriaService.buscarId(id)
+                .map(this::convertirADTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -74,12 +78,12 @@ public class CategoriaController {
         // El estado por defecto es 1 (definido en tu Entidad)
         
         Categoria guardada = categoriaService.guardar(categoria);
-        return ResponseEntity.status(HttpStatus.CREATED).body(guardada);
+        return ResponseEntity.status(HttpStatus.CREATED).body(convertirADTO(guardada));
     }
     
     // Actualizar categoría
     @PutMapping("/{id}")
-    public ResponseEntity<Categoria> actualizar(@PathVariable Integer id, @RequestBody CategoriaDTO categoriaDTO) {
+    public ResponseEntity<CategoriaDTO> actualizar(@PathVariable Integer id, @RequestBody CategoriaDTO categoriaDTO) {
         Optional<Categoria> optional = categoriaService.buscarId(id);
         if (optional.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -90,7 +94,7 @@ public class CategoriaController {
         if (categoriaDTO.getDescripcion() != null) categoria.setDescripcion(categoriaDTO.getDescripcion());
         
         Categoria actualizada = categoriaService.modificar(categoria);
-        return ResponseEntity.ok(actualizada);
+        return ResponseEntity.ok(convertirADTO(actualizada));
     }
     
     // Eliminar categoría (soft delete)
@@ -103,5 +107,14 @@ public class CategoriaController {
         categoriaService.eliminar(id);
         
         return ResponseEntity.noContent().build();
+    }
+
+    private CategoriaDTO convertirADTO(Categoria entidad) {
+        CategoriaDTO dto = new CategoriaDTO();
+        dto.setId_categoria(entidad.getId_categoria());
+        dto.setNombre(entidad.getNombre());
+        dto.setDescripcion(entidad.getDescripcion());
+        dto.setEstado(entidad.getEstado());
+        return dto;
     }
 }

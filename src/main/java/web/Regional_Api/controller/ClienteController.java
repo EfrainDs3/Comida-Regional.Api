@@ -2,6 +2,7 @@ package web.Regional_Api.controller;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,18 +30,21 @@ public class ClienteController {
     private IClienteService clienteService;
 
     @GetMapping
-    public ResponseEntity<List<Cliente>> listarTodos() {
-        return ResponseEntity.ok(clienteService.buscarTodos());
+    public ResponseEntity<List<ClienteDTO>> listarTodos() {
+        List<ClienteDTO> clientes = clienteService.buscarTodos().stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(clientes);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Cliente> obtenerPorId(@PathVariable Integer id) {
+    public ResponseEntity<ClienteDTO> obtenerPorId(@PathVariable Integer id) {
         Optional<Cliente> opt = clienteService.buscarId(id);
-        return opt.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return opt.map(this::convertirADTO).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Cliente> crear(@RequestBody ClienteDTO dto) {
+    public ResponseEntity<ClienteDTO> crear(@RequestBody ClienteDTO dto) {
         Cliente c = new Cliente();
         c.setIdRestaurante(dto.getIdRestaurante());
         c.setTipoCliente(dto.getTipoCliente());
@@ -52,11 +56,11 @@ public class ClienteController {
         if (dto.getEstado() != null) c.setEstado(dto.getEstado());
 
         Cliente guardado = clienteService.guardar(c);
-        return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
+        return ResponseEntity.status(HttpStatus.CREATED).body(convertirADTO(guardado));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Cliente> actualizar(@PathVariable Integer id, @RequestBody ClienteDTO dto) {
+    public ResponseEntity<ClienteDTO> actualizar(@PathVariable Integer id, @RequestBody ClienteDTO dto) {
         Optional<Cliente> opt = clienteService.buscarId(id);
         if (opt.isEmpty()) return ResponseEntity.notFound().build();
 
@@ -71,7 +75,7 @@ public class ClienteController {
         if (dto.getEstado() != null) c.setEstado(dto.getEstado());
 
         Cliente actualizado = clienteService.modificar(c);
-        return ResponseEntity.ok(actualizado);
+        return ResponseEntity.ok(convertirADTO(actualizado));
     }
 
     @DeleteMapping("/{id}")
@@ -86,12 +90,33 @@ public class ClienteController {
     }
 
     @GetMapping("/restaurante/{idRestaurante}")
-    public ResponseEntity<List<Cliente>> porRestaurante(@PathVariable Integer idRestaurante) {
-        return ResponseEntity.ok(clienteService.buscarPorRestaurante(idRestaurante));
+    public ResponseEntity<List<ClienteDTO>> porRestaurante(@PathVariable Integer idRestaurante) {
+        List<ClienteDTO> clientes = clienteService.buscarPorRestaurante(idRestaurante).stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(clientes);
     }
 
     @GetMapping("/estado/{estado}")
-    public ResponseEntity<List<Cliente>> porEstado(@PathVariable Integer estado) {
-        return ResponseEntity.ok(clienteService.buscarPorEstado(estado));
+    public ResponseEntity<List<ClienteDTO>> porEstado(@PathVariable Integer estado) {
+        List<ClienteDTO> clientes = clienteService.buscarPorEstado(estado).stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(clientes);
+    }
+
+    private ClienteDTO convertirADTO(Cliente entidad) {
+        ClienteDTO dto = new ClienteDTO();
+        dto.setIdCliente(entidad.getIdCliente());
+        dto.setIdRestaurante(entidad.getIdRestaurante());
+        dto.setTipoCliente(entidad.getTipoCliente());
+        dto.setNombreRazonSocial(entidad.getNombreRazonSocial());
+        dto.setDocumento(entidad.getDocumento());
+        dto.setEmail(entidad.getEmail());
+        dto.setTelefono(entidad.getTelefono());
+        dto.setDireccion(entidad.getDireccion());
+        dto.setEstado(entidad.getEstado());
+        dto.setFechaRegistro(entidad.getFechaRegistro());
+        return dto;
     }
 }

@@ -5,12 +5,21 @@ package web.Regional_Api.entity;
 import java.math.BigDecimal;
 
 public class DetallePedidoDTO {
+    private Integer id_detalle;
     private Integer id_pedido;
     private Integer id_plato;
     private Integer cantidad;
     private String observaciones;
     private BigDecimal precio_unitario;
     private BigDecimal subtotal;
+    
+    public Integer getId_detalle() {
+        return id_detalle;
+    }
+
+    public void setId_detalle(Integer id_detalle) {
+        this.id_detalle = id_detalle;
+    }
     
     public Integer getId_plato() {
         return id_plato;

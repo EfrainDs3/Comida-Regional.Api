@@ -14,6 +14,7 @@ public class RestauranteDTO {
     private String simbolo_moneda;
     private BigDecimal tasa_igv;
     private Integer estado;
+    private String email;
     private LocalDateTime fecha_creacion;
 
     public Integer getId_restaurante() {
@@ -69,6 +70,12 @@ public class RestauranteDTO {
     }
     public void setEstado(Integer estado) {
         this.estado = estado;
+    }
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
     }
     public LocalDateTime getFecha_creacion() {
         return fecha_creacion;

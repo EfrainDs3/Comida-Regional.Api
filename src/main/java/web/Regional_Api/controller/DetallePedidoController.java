@@ -3,6 +3,7 @@ package web.Regional_Api.controller;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,23 +41,28 @@ public class DetallePedidoController {
     private PlatoRepository platoRepository;
     
     @GetMapping
-    public ResponseEntity<List<DetallePedido>> obtenerTodos() {
-        List<DetallePedido> detalles = detallePedidoRepository.findAll();
+    public ResponseEntity<List<DetallePedidoDTO>> obtenerTodos() {
+        List<DetallePedidoDTO> detalles = detallePedidoRepository.findAll().stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(detalles);
     }
     @GetMapping("/pedido/{id_pedido}")
-    public ResponseEntity<List<DetallePedido>> obtenerPorPedido(@PathVariable Integer id_pedido) {
-        List<DetallePedido> detalles = detallePedidoRepository.detallesPorPedido(id_pedido);
+    public ResponseEntity<List<DetallePedidoDTO>> obtenerPorPedido(@PathVariable Integer id_pedido) {
+        List<DetallePedidoDTO> detalles = detallePedidoRepository.detallesPorPedido(id_pedido).stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(detalles);
     }
     @GetMapping("/{id}")
-    public ResponseEntity<DetallePedido> obtenerPorId(@PathVariable Integer id) {
+    public ResponseEntity<DetallePedidoDTO> obtenerPorId(@PathVariable Integer id) {
         Optional<DetallePedido> detalle = detallePedidoRepository.findById(id);
-        return detalle.map(ResponseEntity::ok)
+        return detalle.map(this::convertirADTO)
+                      .map(ResponseEntity::ok)
                       .orElseGet(() -> ResponseEntity.notFound().build());
     }
     @PostMapping
-    public ResponseEntity<DetallePedido> crear(@RequestBody DetallePedidoDTO detalleDTO) {
+    public ResponseEntity<DetallePedidoDTO> crear(@RequestBody DetallePedidoDTO detalleDTO) {
         try {
             // Validaciones básicas
             if (detalleDTO.getId_pedido() == null || detalleDTO.getId_plato() == null || 
@@ -86,14 +92,14 @@ public class DetallePedidoController {
             detalle.setPlato(plato.get());
             
             DetallePedido guardado = detallePedidoRepository.save(detalle);
-            return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
+            return ResponseEntity.status(HttpStatus.CREATED).body(convertirADTO(guardado));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<DetallePedido> actualizar(@PathVariable Integer id, @RequestBody DetallePedidoDTO detalleDTO) {
+    public ResponseEntity<DetallePedidoDTO> actualizar(@PathVariable Integer id, @RequestBody DetallePedidoDTO detalleDTO) {
         Optional<DetallePedido> optional = detallePedidoRepository.findById(id);
         if (optional.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -105,8 +111,8 @@ public class DetallePedidoController {
         if (detalleDTO.getSubtotal() != null) detalle.setSubtotal(detalleDTO.getSubtotal());
         if (detalleDTO.getObservaciones() != null) detalle.setObservaciones(detalleDTO.getObservaciones());
         
-        DetallePedido actualizado = detallePedidoRepository.save(detalle);
-        return ResponseEntity.ok(actualizado);
+    DetallePedido actualizado = detallePedidoRepository.save(detalle);
+    return ResponseEntity.ok(convertirADTO(actualizado));
     }
     
     @DeleteMapping("/{id}")
@@ -118,5 +124,17 @@ public class DetallePedidoController {
         DetallePedido detalle = optional.get();
         detallePedidoRepository.delete(detalle);
         return ResponseEntity.noContent().build();
+    }
+
+    private DetallePedidoDTO convertirADTO(DetallePedido entidad) {
+        DetallePedidoDTO dto = new DetallePedidoDTO();
+        dto.setId_detalle(entidad.getId_detalle());
+        dto.setId_pedido(entidad.getPedido() != null ? entidad.getPedido().getId_pedido() : null);
+        dto.setId_plato(entidad.getPlato() != null ? entidad.getPlato().getId_plato() : null);
+        dto.setCantidad(entidad.getCantidad());
+        dto.setPrecio_unitario(entidad.getPrecio_unitario());
+        dto.setSubtotal(entidad.getSubtotal());
+        dto.setObservaciones(entidad.getObservaciones());
+        return dto;
     }
 }

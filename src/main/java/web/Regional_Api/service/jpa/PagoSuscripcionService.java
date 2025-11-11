@@ -18,7 +18,7 @@ public class PagoSuscripcionService implements IPagoSuscripcionService {
 
     @Override
     public List<PagoSuscripcion> buscarTodos() {
-        return repoPago.findAll();
+        return repoPago.findAllWithRestaurante();
     }
 
     @Override
