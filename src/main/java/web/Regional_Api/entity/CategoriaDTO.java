@@ -1,12 +1,14 @@
 package web.Regional_Api.entity;
 
 public class CategoriaDTO {
+
     private Integer id_categoria;
     private String nombre;
     private String descripcion;
     private Integer estado;
 
-    public CategoriaDTO() {}
+    public CategoriaDTO() {
+    }
 
     public CategoriaDTO(Integer id_categoria, String nombre, String descripcion, Integer estado) {
         this.id_categoria = id_categoria;
@@ -15,6 +17,7 @@ public class CategoriaDTO {
         this.estado = estado;
     }
 
+    // Getters y Setters
     public Integer getId_categoria() {
         return id_categoria;
     }
@@ -49,6 +52,7 @@ public class CategoriaDTO {
 
     @Override
     public String toString() {
-        return "CategoriaDTO [id_categoria=" + id_categoria + ", nombre=" + nombre + "]";
+        return "CategoriaDTO [id_categoria=" + id_categoria + ", nombre=" + nombre 
+                + ", descripcion=" + descripcion + ", estado=" + estado + "]";
     }
 }

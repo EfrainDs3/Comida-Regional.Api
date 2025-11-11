@@ -21,16 +21,14 @@ public class RestauranteController {
     @Autowired
     private IRestauranteService restauranteService;
 
-    // 1. GET (Todos)
     @GetMapping
     public ResponseEntity<List<RestauranteDTO>> obtenerTodos() {
-        List<RestauranteDTO> restaurantes = restauranteService.buscarTodos().stream()
+        List<RestauranteDTO> lista = restauranteService.buscarTodos().stream()
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(restaurantes);
+        return ResponseEntity.ok(lista);
     }
 
-    // 2. GET (Por ID)
     @GetMapping("/{id}")
     public ResponseEntity<RestauranteDTO> obtenerPorId(@PathVariable Integer id) {
         return restauranteService.buscarId(id)
@@ -39,74 +37,67 @@ public class RestauranteController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // 3. POST (Crear)
     @PostMapping
-    public ResponseEntity<RestauranteDTO> crear(@RequestBody RestauranteDTO dto) {
-        // Mapeo simple de DTO a Entidad
-        Restaurante restaurante = new Restaurante();
-        restaurante.setRazon_social(dto.getRazon_social());
-        restaurante.setRuc(dto.getRuc());
-        restaurante.setDireccion_principal(dto.getDireccion_principal());
-        restaurante.setLogo_url(dto.getLogo_url());
-        restaurante.setEmail(dto.getEmail());
-        restaurante.setMoneda(dto.getMoneda());
-        restaurante.setSimbolo_moneda(dto.getSimbolo_moneda());
-        restaurante.setTasa_igv(dto.getTasa_igv());
-
-        Restaurante nuevoRestaurante = restauranteService.guardar(restaurante);
-        return ResponseEntity.status(HttpStatus.CREATED).body(convertirADTO(nuevoRestaurante));
-    }
-
-    // 4. PUT (Actualizar)
-    @PutMapping("/{id}")
-    public ResponseEntity<RestauranteDTO> actualizar(@PathVariable Integer id, @RequestBody RestauranteDTO dto) {
-        
-        Optional<Restaurante> opt = restauranteService.buscarId(id);
-        if (opt.isEmpty()) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<?> crear(@RequestBody RestauranteDTO dto) {
+        if (dto.getRazon_social() == null || dto.getRazon_social().isBlank() ||
+            dto.getRuc() == null || dto.getRuc().isBlank() ||
+            dto.getEmail() == null || dto.getEmail().isBlank()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Razon social, RUC y Email son obligatorios.");
         }
 
-        Restaurante restaurante = opt.get();
-        
-        // Mapeo simple de DTO a Entidad
-        if (dto.getRazon_social() != null) restaurante.setRazon_social(dto.getRazon_social());
-        if (dto.getRuc() != null) restaurante.setRuc(dto.getRuc());
-        if (dto.getDireccion_principal() != null) restaurante.setDireccion_principal(dto.getDireccion_principal());
-        if (dto.getLogo_url() != null) restaurante.setLogo_url(dto.getLogo_url());
-        if (dto.getEmail() != null) restaurante.setEmail(dto.getEmail());
-        if (dto.getMoneda() != null) restaurante.setMoneda(dto.getMoneda());
-        if (dto.getSimbolo_moneda() != null) restaurante.setSimbolo_moneda(dto.getSimbolo_moneda());
-        if (dto.getTasa_igv() != null) restaurante.setTasa_igv(dto.getTasa_igv());
-        if (dto.getEstado() != null) restaurante.setEstado(dto.getEstado());
-        
-        Restaurante actualizado = restauranteService.guardar(restaurante);
+        Restaurante r = new Restaurante();
+        r.setRazon_social(dto.getRazon_social());
+        r.setRuc(dto.getRuc());
+        r.setDireccion_principal(dto.getDireccion_principal());
+        r.setLogo_url(dto.getLogo_url());
+        r.setMoneda(dto.getMoneda());
+        r.setSimbolo_moneda(dto.getSimbolo_moneda());
+        r.setTasa_igv(dto.getTasa_igv());
+        r.setEmail(dto.getEmail());
+
+        Restaurante guardado = restauranteService.guardar(r);
+        return ResponseEntity.status(HttpStatus.CREATED).body(convertirADTO(guardado));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> actualizar(@PathVariable Integer id, @RequestBody RestauranteDTO dto) {
+        Optional<Restaurante> opt = restauranteService.buscarId(id);
+        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+
+        Restaurante r = opt.get();
+        if (dto.getRazon_social() != null) r.setRazon_social(dto.getRazon_social());
+        if (dto.getRuc() != null) r.setRuc(dto.getRuc());
+        if (dto.getDireccion_principal() != null) r.setDireccion_principal(dto.getDireccion_principal());
+        if (dto.getLogo_url() != null) r.setLogo_url(dto.getLogo_url());
+        if (dto.getMoneda() != null) r.setMoneda(dto.getMoneda());
+        if (dto.getSimbolo_moneda() != null) r.setSimbolo_moneda(dto.getSimbolo_moneda());
+        if (dto.getTasa_igv() != null) r.setTasa_igv(dto.getTasa_igv());
+        if (dto.getEmail() != null) r.setEmail(dto.getEmail());
+
+        Restaurante actualizado = restauranteService.guardar(r);
         return ResponseEntity.ok(convertirADTO(actualizado));
     }
 
-    // 5. DELETE (Borrado Lógico)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
-        if (restauranteService.buscarId(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        
-        restauranteService.eliminar(id); 
+        Optional<Restaurante> opt = restauranteService.buscarId(id);
+        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+
+        restauranteService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
 
-    private RestauranteDTO convertirADTO(Restaurante entidad) {
+    private RestauranteDTO convertirADTO(Restaurante r) {
         RestauranteDTO dto = new RestauranteDTO();
-        dto.setId_restaurante(entidad.getId_restaurante());
-        dto.setRazon_social(entidad.getRazon_social());
-        dto.setRuc(entidad.getRuc());
-        dto.setDireccion_principal(entidad.getDireccion_principal());
-        dto.setLogo_url(entidad.getLogo_url());
-        dto.setMoneda(entidad.getMoneda());
-        dto.setSimbolo_moneda(entidad.getSimbolo_moneda());
-        dto.setTasa_igv(entidad.getTasa_igv());
-        dto.setEstado(entidad.getEstado());
-        dto.setEmail(entidad.getEmail());
-        dto.setFecha_creacion(entidad.getFecha_creacion());
+        dto.setRazon_social(r.getRazon_social());
+        dto.setRuc(r.getRuc());
+        dto.setDireccion_principal(r.getDireccion_principal());
+        dto.setLogo_url(r.getLogo_url());
+        dto.setMoneda(r.getMoneda());
+        dto.setSimbolo_moneda(r.getSimbolo_moneda());
+        dto.setTasa_igv(r.getTasa_igv());
+        dto.setEmail(r.getEmail());
         return dto;
     }
 }
