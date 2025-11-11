@@ -57,7 +57,7 @@ public class SecurityConfig {
                     "/perfiles", "/perfiles/**",
                     "/accesos", "/accesos/**"
                 ).permitAll()
-                .anyRequest().authenticated()
+                    .anyRequest().permitAll()  // Permite temporalmente todos los endpoints sin autenticación
             )
             
             // 5. Añadir el filtro JWT
