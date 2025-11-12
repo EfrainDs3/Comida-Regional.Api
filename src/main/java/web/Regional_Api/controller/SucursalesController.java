@@ -1,6 +1,5 @@
 package web.Regional_Api.controller;
 
-
 import java.util.List;
 import java.util.Optional;
 
@@ -13,9 +12,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import web.Regional_Api.entity.Sucursales;
 import web.Regional_Api.service.ISucursalesService;
+// web.Regional_Api.service.jpa.UsuarioService ya no es necesario aquí en modo prueba
+import web.Regional_Api.service.jpa.UsuarioService; 
 
 import jakarta.persistence.EntityNotFoundException; 
 
@@ -25,89 +25,79 @@ public class SucursalesController {
 
     @Autowired
     private ISucursalesService serviceSucursales;
+    
+    // El UsuarioService se mantiene, pero no es usado en modo de prueba.
+    @Autowired
+    private UsuarioService usuarioService; 
 
-    // Método auxiliar para simular la extracción del idRestaurante (del JWT/Security Context)
-    private Integer getIdRestauranteFromSecurityContext(String authorizationHeader) {
-        try {
-            return Integer.parseInt(authorizationHeader); 
-        } catch (NumberFormatException e) {
-            throw new RuntimeException("Error de Autenticación: ID de Restaurante inválido o ausente.");
-        }
+    // Bloque Multi-Tenant (COMENTADO PARA PRUEBAS)
+    /*
+    private Integer getIdRestauranteFromSecurityContext() {
+        // ... Lógica Multi-Tenant original
+    }
+    */
+    
+    // --------------------------------------------------------------------------------------
+    // GET: /restful/sucursales/todos (BUSCAR TODOS - SIN FILTRO)
+    // --------------------------------------------------------------------------------------
+    @GetMapping("/sucursales/todos") 
+    public List<Sucursales> buscarTodasSinFiltro() { 
+        return serviceSucursales.buscarTodos(); 
     }
 
-
     // --------------------------------------------------------------------------------------
-    // GET: /restful/sucursales (BUSCAR TODOS - Multi-Tenant)
+    // GET: /restful/sucursales (Filtrado - OBSOLETO, mantenido para evitar error de compilación)
     // --------------------------------------------------------------------------------------
     @GetMapping("/sucursales")
-    public List<Sucursales> buscarTodos(
-        @RequestHeader("X-Restaurante-ID") String idRestauranteHeader) { 
-        
-        Integer idRestaurante = getIdRestauranteFromSecurityContext(idRestauranteHeader);
-        return serviceSucursales.buscarTodosPorRestaurante(idRestaurante);
+    public List<Sucursales> buscarTodosFiltradoPorRestaurante() { 
+        // ⚠️ USANDO ID FIJO PARA COMPILAR, PERO DEBES USAR /todos
+        Integer idRestauranteFijo = 1; 
+        return serviceSucursales.buscarTodosPorRestaurante(idRestauranteFijo);
     }
     
     // --------------------------------------------------------------------------------------
-    // GET: /restful/sucursales/{id} (BUSCAR POR ID - Multi-Tenant)
+    // GET: /restful/sucursales/{id} (BUSCAR POR ID - Simplificado)
     // --------------------------------------------------------------------------------------
     @GetMapping("/sucursales/{id}")
     public Optional<Sucursales> buscarId(
-            @PathVariable("id") Integer idSucursal,
-            @RequestHeader("X-Restaurante-ID") String idRestauranteHeader) { 
+            @PathVariable("id") Integer idSucursal) { 
         
-        Integer idRestaurante = getIdRestauranteFromSecurityContext(idRestauranteHeader);
-        
-        // El servicio realiza la búsqueda y valida la pertenencia
-        return serviceSucursales.buscarIdYRestaurante(idSucursal, idRestaurante);
+        // 🌟 CORRECCIÓN: Llamamos al método simple de búsqueda por ID
+        return serviceSucursales.buscarId(idSucursal); 
     }
     
     // --------------------------------------------------------------------------------------
-    // POST: /restful/sucursales (GUARDAR - Asigna el restaurante automáticamente)
+    // POST: /restful/sucursales (GUARDAR - SIN ASIGNACIÓN DE ID FIJO)
     // --------------------------------------------------------------------------------------
     @PostMapping("/sucursales")
-    public Sucursales guardar(@RequestBody Sucursales sucursal,
-                              @RequestHeader("X-Restaurante-ID") String idRestauranteHeader) {
+    public Sucursales guardar(@RequestBody Sucursales sucursal) {
         
-        Integer idRestaurante = getIdRestauranteFromSecurityContext(idRestauranteHeader);
-        serviceSucursales.guardar(sucursal, idRestaurante); // Asigna el idRestaurante desde el token
+        // 🌟 CORRECCIÓN: Llamamos al método sin el idRestaurante
+        serviceSucursales.guardar(sucursal); 
         
         return sucursal; 
     }
 
     // --------------------------------------------------------------------------------------
-    // PUT: /restful/sucursales (MODIFICAR - Con validación Multi-Tenant)
+    // PUT: /restful/sucursales (MODIFICAR - SIN VALIDACIÓN MULTI-TENANT)
     // --------------------------------------------------------------------------------------
     @PutMapping("/sucursales")
-    public Sucursales modificar(@RequestBody Sucursales sucursalActualizada,
-                                @RequestHeader("X-Restaurante-ID") String idRestauranteHeader) {
+    public Sucursales modificar(@RequestBody Sucursales sucursalActualizada) {
         
-        Integer idRestaurante = getIdRestauranteFromSecurityContext(idRestauranteHeader);
-        
-        // 1. Validamos la pertenencia (Control de acceso Multi-Tenant)
-        serviceSucursales.buscarIdYRestaurante(sucursalActualizada.getIdSucursal(), idRestaurante)
-            .orElseThrow(() -> new EntityNotFoundException("Sucursal no encontrada o acceso denegado para modificar."));
-        
-        // 2. Ejecutamos la modificación
-        serviceSucursales.modificar(sucursalActualizada, idRestaurante);
+        // 🌟 CORRECCIÓN: Llamamos al método sin validación de ID
+        serviceSucursales.modificar(sucursalActualizada);
         
         return sucursalActualizada;
     }
 
     // --------------------------------------------------------------------------------------
-    // DELETE: /restful/sucursales/{id} (ELIMINAR LÓGICO - Con validación Multi-Tenant)
+    // DELETE: /restful/sucursales/{id} (ELIMINAR - SIN VALIDACIÓN MULTI-TENANT)
     // --------------------------------------------------------------------------------------
     @DeleteMapping("/sucursales/{id}")
-    public String eliminar(@PathVariable Integer id,
-                           @RequestHeader("X-Restaurante-ID") String idRestauranteHeader) {
+    public String eliminar(@PathVariable Integer id) {
         
-        Integer idRestaurante = getIdRestauranteFromSecurityContext(idRestauranteHeader);
-        
-        // 1. Validamos la pertenencia del recurso
-        serviceSucursales.buscarIdYRestaurante(id, idRestaurante)
-            .orElseThrow(() -> new EntityNotFoundException("Sucursal no encontrada o acceso denegado para eliminar."));
-            
-    // 2. Eliminamos (Soft Delete)
-    serviceSucursales.eliminar(id, idRestaurante);
+        // 🌟 CORRECCIÓN: Llamamos al método sin validación de ID
+        serviceSucursales.eliminar(id);
         
         return "Sucursal eliminada"; 
     }

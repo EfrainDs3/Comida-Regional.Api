@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,6 +24,10 @@ public class SesionesCajaController {
     @Autowired
     private ISesionesCajaService serviceSesiones;
 
+    // -----------------------------------------------------------------------
+    // Bloques de Seguridad Multi-Tenant (COMENTADOS)
+    // -----------------------------------------------------------------------
+    /*
     private Integer getIdSucursalFromSecurityContext(String idSucursalHeader) {
         try {
             return Integer.parseInt(idSucursalHeader);
@@ -40,61 +43,67 @@ public class SesionesCajaController {
             throw new RuntimeException("Error de Seguridad: ID de Usuario inválido o ausente.");
         }
     }
-
-    @GetMapping("/caja")
-    public List<SesionesCaja> buscarTodas(
-        @RequestHeader("X-Sucursal-ID") String idSucursalHeader) { 
-        
-        Integer idSucursal = getIdSucursalFromSecurityContext(idSucursalHeader);
-        return serviceSesiones.buscarTodasPorSucursal(idSucursal);
+    */
+    // -----------------------------------------------------------------------
+    
+    // 🌟 GET: /restful/caja/todos - NUEVO ENDPOINT PARA VER TODAS LAS SESIONES
+    @GetMapping("/caja/todos")
+    public List<SesionesCaja> buscarTodasSinFiltro() {
+        return serviceSesiones.buscarTodas(); 
     }
     
+    // -----------------------------------------------------------------------
+    // GET: /restful/caja (ANTERIORMENTE BUSCABA POR SUCURSAL - AHORA ASUMIMOS ID FIJO 1)
+    // -----------------------------------------------------------------------
+    @GetMapping("/caja")
+    public List<SesionesCaja> buscarTodas() { 
+        // ⚠️ Modo de Prueba Rápida: Usamos ID 1 fijo.
+        Integer idSucursalFijo = 1;
+        return serviceSesiones.buscarTodasPorSucursal(idSucursalFijo);
+    }
+    
+    // -----------------------------------------------------------------------
+    // GET: /restful/caja/abierta (ANTERIORMENTE BUSCABA POR SUCURSAL - AHORA ASUMIMOS ID FIJO 1)
+    // -----------------------------------------------------------------------
     @GetMapping("/caja/abierta")
-    public Optional<SesionesCaja> buscarAbierta(
-            @RequestHeader("X-Sucursal-ID") String idSucursalHeader) { 
-            
-        Integer idSucursal = getIdSucursalFromSecurityContext(idSucursalHeader);
-        return serviceSesiones.buscarSesionAbiertaPorSucursal(idSucursal);
+    public Optional<SesionesCaja> buscarAbierta() {
+        // ⚠️ Modo de Prueba Rápida: Usamos ID 1 fijo.
+        Integer idSucursalFijo = 1;
+        return serviceSesiones.buscarSesionAbiertaPorSucursal(idSucursalFijo);
     }
 
+    // -----------------------------------------------------------------------
+    // POST: /restful/caja (ABRIR CAJA - ASUME ID de Sucursal/Usuario en el JSON o valores fijos)
+    // -----------------------------------------------------------------------
     @PostMapping("/caja")
-    public SesionesCaja abrirCaja(@RequestBody SesionesCaja sesion,
-                                  @RequestHeader("X-Sucursal-ID") String idSucursalHeader,
-                                  @RequestHeader("X-Usuario-ID") String idUsuarioHeader) { // Simulación de Usuario logueado
+    public SesionesCaja abrirCaja(@RequestBody SesionesCaja sesion) {
         
-        Integer idSucursal = getIdSucursalFromSecurityContext(idSucursalHeader);
-        Integer idUsuario = getIdUsuarioFromSecurityContext(idUsuarioHeader);
-
-        serviceSesiones.abrirCaja(sesion, idSucursal, idUsuario);
+        // 🌟 Se asume que el objeto 'sesion' YA INCLUYE idSucursal e idUsuarioApertura.
+        serviceSesiones.abrirCaja(sesion);
         
         return sesion; 
     }
 
+    // -----------------------------------------------------------------------
+    // PUT: /restful/caja (CERRAR CAJA - ASUME ID de Sucursal/Usuario en el JSON)
+    // -----------------------------------------------------------------------
     @PutMapping("/caja")
-    public SesionesCaja cerrarCaja(@RequestBody SesionesCaja sesionCierre,
-                                   @RequestHeader("X-Sucursal-ID") String idSucursalHeader,
-                                   @RequestHeader("X-Usuario-ID") String idUsuarioHeader) {
+    public SesionesCaja cerrarCaja(@RequestBody SesionesCaja sesionCierre) {
         
-        Integer idSucursal = getIdSucursalFromSecurityContext(idSucursalHeader);
-        Integer idUsuario = getIdUsuarioFromSecurityContext(idUsuarioHeader);
-        
-        serviceSesiones.cerrarCaja(sesionCierre, idSucursal, idUsuario);
+        // 🌟 Se asume que el objeto 'sesionCierre' YA INCLUYE idSucursal, idUsuarioCierre y idSesion.
+        serviceSesiones.cerrarCaja(sesionCierre);
         
         return sesionCierre; 
     }
 
+    // -----------------------------------------------------------------------
+    // DELETE: /restful/caja/{id} (ELIMINAR)
+    // -----------------------------------------------------------------------
     @DeleteMapping("/caja/{id}")
-    public String eliminar(@PathVariable Integer id,
-                           @RequestHeader("X-Sucursal-ID") String idSucursalHeader) {
+    public String eliminar(@PathVariable Integer id) {
         
-        Integer idSucursal = getIdSucursalFromSecurityContext(idSucursalHeader);
-        
-        // 1. Validar que la sesión exista y pertenezca
-        serviceSesiones.buscarIdYSucursal(id, idSucursal)
-            .orElseThrow(() -> new EntityNotFoundException("Sesión no encontrada o acceso denegado."));
-            
-        // 2. Ejecutar Soft Delete
-        serviceSesiones.eliminar(id, idSucursal);
+        // 🌟 Simplificación: Ya no valida Multi-Tenant.
+        serviceSesiones.eliminar(id);
         
         return "Sesión eliminada"; 
     }

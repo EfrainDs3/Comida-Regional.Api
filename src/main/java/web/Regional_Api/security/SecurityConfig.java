@@ -23,6 +23,7 @@ public class SecurityConfig {
                 .requestMatchers("/modulos", "/modulos/**",
                     "/perfiles", "/perfiles/**",
                     "/accesos", "/accesos/**").permitAll()  // Otras rutas públicas
+                   .requestMatchers("/restful/**").permitAll() // <-- ¡Añadir esta línea!
                 .anyRequest().authenticated())  // Requiere autenticación para el resto
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class); // Filtro JWT
 

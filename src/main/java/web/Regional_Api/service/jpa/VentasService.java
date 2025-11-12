@@ -25,24 +25,31 @@ public class VentasService implements IVentasService {
     private ISesionesCajaService serviceSesiones;
     
     // ----------------------------------------------------
-    // 1. Registrar Venta (Lógica CRÍTICA)
+    // 🌟 IMPLEMENTACIÓN NUEVA: Buscar Todas
     // ----------------------------------------------------
     @Override
-    public Ventas registrarVenta(Ventas venta, Integer idSesion, Integer idCliente) {
+    public List<Ventas> buscarTodas() {
+        return repoVentas.findAll();
+    }
+    
+    // ----------------------------------------------------
+    // 1. Registrar Venta (Lógica CRÍTICA - SIMPLIFICADA)
+    // ----------------------------------------------------
+    @Override
+    public Ventas registrarVenta(Ventas venta) {
         
+        // 🌟 SIMPLIFICACIÓN: Se usa el idSesion que viene en el objeto 'venta'
         // Paso 1: Validar que la Sesión de Caja esté ABIERTA
-        serviceSesiones.buscarIdYSucursal(idSesion, /* Necesitamos el idSucursal del pedido */ 1) // Asumimos idSucursal 1 para simplificar
-            .filter(s -> s.getEstado() == 1) // 1 = Abierta
-            .orElseThrow(() -> new RuntimeException("No se puede registrar la venta. La sesión de caja está cerrada o no existe."));
+        // ⚠️ Nota: Esta validación Multi-Tenant está incompleta/simplificada, asumiendo que 
+        // buscarId() existe y que getEstado() es 1 (Abierta).
+        serviceSesiones.buscarId(venta.getIdSesion()) 
+             .filter(s -> s.getEstado() == 1) 
+             .orElseThrow(() -> new RuntimeException("No se puede registrar la venta. La sesión de caja está cerrada o no existe."));
 
-        // Paso 2: Asignar IDs de contexto
-        venta.setIdSesion(idSesion);
-        venta.setIdCliente(idCliente);
+        // Paso 2: Asignar datos de contexto (solo la fecha/hora)
+        // ⚠️ Se asume que venta.getIdSesion() y venta.getIdCliente() ya fueron establecidos por Jackson.
         venta.setFechaVenta(LocalDateTime.now());
         
-        // *En un sistema real, aquí se generaría el número de comprobante único*
-        // *Y se actualizaría el estado del Pedido a "Pagado"*
-
         return repoVentas.save(venta);
     }
     
@@ -69,10 +76,19 @@ public class VentasService implements IVentasService {
     public void anularVenta(Integer idVenta) {
         Ventas venta = repoVentas.findById(idVenta)
             .orElseThrow(() -> new EntityNotFoundException("Venta no encontrada."));
-        
+            
         // Aquí se usaría el método deleteById() de JPA para activar el Soft Delete
         repoVentas.deleteById(venta.getIdVenta());
-        
-        // *En un sistema real, se requeriría más lógica: revertir el movimiento de caja, etc.*
     }
+
+    @Override
+public Ventas modificarVenta(Ventas ventaActualizada) {
+    
+    // 1. Validar que la venta exista (esencial para una modificación)
+    repoVentas.findById(ventaActualizada.getIdVenta())
+        .orElseThrow(() -> new EntityNotFoundException("Venta no encontrada para modificar."));
+        
+    // 2. Guardar la actualización. Spring Data JPA detecta el ID existente y ejecuta un UPDATE.
+    return repoVentas.save(ventaActualizada);
+}
 }
