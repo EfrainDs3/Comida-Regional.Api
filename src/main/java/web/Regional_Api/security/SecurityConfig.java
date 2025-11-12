@@ -1,5 +1,6 @@
 package web.Regional_Api.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -8,24 +9,59 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    @Value("${security.mode:prod}")
+    private String securityMode;
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowCredentials(true);
+        configuration.addAllowedOriginPattern("*");
+        configuration.addAllowedHeader("*");
+        configuration.addAllowedMethod("*");
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())  // Desactiva CSRF para servicios RESTful
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sin estado
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/usuarios/registro", "/usuarios/login", "/actuator/**").permitAll() // Endpoints públicos
-                .requestMatchers("/modulos", "/modulos/**",
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        if ("dev".equalsIgnoreCase(securityMode)) {
+            // Modo desarrollo: todo permitido
+            http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+        } else {
+            // Modo producción: rutas públicas y protegidas
+            http.authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    "/usuarios/registro",
+                    "/usuarios/login",
+                    "/usuarios/validar-token",
+                    "/actuator/**",
+                    "/modulos", "/modulos/**",
                     "/perfiles", "/perfiles/**",
-                    "/accesos", "/accesos/**").permitAll()  // Otras rutas públicas
-                   .requestMatchers("/restful/**").permitAll() // <-- ¡Añadir esta línea!
-                .anyRequest().authenticated())  // Requiere autenticación para el resto
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class); // Filtro JWT
+                    "/accesos", "/accesos/**",
+                    "/restful/**" // ← línea que tú añadiste
+                ).permitAll()
+                .anyRequest().authenticated()
+            );
+
+            // Filtro JWT antes de UsernamePasswordAuthenticationFilter
+            http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        }
 
         return http.build();
     }

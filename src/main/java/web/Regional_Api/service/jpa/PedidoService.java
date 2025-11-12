@@ -28,8 +28,6 @@ public class PedidoService implements IPedidoService {
 
     @Override
     public Pedido guardar(Pedido pedido) {
-        // Guarda el pedido y, gracias a CascadeType.ALL,
-        // también guarda todos los DetallePedido asociados.
         return repoPedido.save(pedido);
     }
 }

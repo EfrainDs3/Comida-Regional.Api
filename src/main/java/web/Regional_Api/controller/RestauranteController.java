@@ -6,10 +6,18 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import web.Regional_Api.entity.RestauranteDTO;
 import web.Regional_Api.entity.Restaurante;
+import web.Regional_Api.entity.RestauranteDTO;
 import web.Regional_Api.service.IRestauranteService;
 
 @RestController
@@ -44,6 +52,9 @@ public class RestauranteController {
         restaurante.setRuc(dto.getRuc());
         restaurante.setDireccion_principal(dto.getDireccion_principal());
         restaurante.setLogo_url(dto.getLogo_url());
+        
+        // Los campos con DEFAULT (moneda, igv, estado) se asignan solos
+        // gracias a @DynamicInsert en la Entidad.
 
         Restaurante nuevoRestaurante = restauranteService.guardar(restaurante);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoRestaurante);
@@ -80,7 +91,7 @@ public class RestauranteController {
             return ResponseEntity.notFound().build();
         }
         
-        restauranteService.eliminar(id); 
+        restauranteService.eliminar(id); // Esto activa el @SQLDelete
         return ResponseEntity.noContent().build();
     }
 }

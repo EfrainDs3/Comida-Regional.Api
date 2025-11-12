@@ -2,6 +2,7 @@ package web.Regional_Api.controller;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,81 +19,91 @@ import org.springframework.web.bind.annotation.RestController;
 
 import web.Regional_Api.entity.Categoria;
 import web.Regional_Api.entity.CategoriaDTO;
-import web.Regional_Api.service.ICategoriaService; 
+import web.Regional_Api.entity.Restaurante;
+import web.Regional_Api.service.ICategoriaService;
 
 @RestController
 @RequestMapping("/api/categorias")
 @CrossOrigin(origins = "*")
 public class CategoriaController {
-    
-    // ❌ SE REEMPLAZA ESTA LÍNEA
-    // @Autowired
-    // private CategoriaRepository categoriaRepository;
-    
-    // ✅ POR ESTA LÍNEA
+
     @Autowired
     private ICategoriaService categoriaService;
+    @Autowired
+    private web.Regional_Api.repository.CategoriaRepository categoriaRepository;
+    @Autowired
+    private web.Regional_Api.repository.RestauranteRepository restauranteRepository;
     
+
     // Obtener todas las categorías
     @GetMapping
-    public ResponseEntity<List<Categoria>> obtenerTodas() {
-        // Ahora llamas al servicio
-        List<Categoria> categorias = categoriaService.buscarTodos(); 
+    public ResponseEntity<List<CategoriaDTO>> obtenerTodas() {
+        List<CategoriaDTO> categorias = categoriaService.buscarTodos().stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(categorias);
     }
-    
+
     // Obtener categorías activas
     @GetMapping("/activas")
-    public ResponseEntity<List<Categoria>> obtenerActivas() {
-        // Tu servicio ya tiene este método
-        List<Categoria> categorias = categoriaService.buscarActivas();
+    public ResponseEntity<List<CategoriaDTO>> obtenerActivas() {
+        List<CategoriaDTO> categorias = categoriaService.buscarActivas().stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(categorias);
     }
-    
+
     // Obtener categoría por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Categoria> obtenerPorId(@PathVariable Integer id) {
-        // La lógica del Optional se maneja mejor en el servicio
+    public ResponseEntity<CategoriaDTO> obtenerPorId(@PathVariable Integer id) {
         return categoriaService.buscarId(id)
+                .map(this::convertirADTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
-    // Crear categoría
+  
     @PostMapping
     public ResponseEntity<?> crear(@RequestBody CategoriaDTO categoriaDTO) {
-        // Validamos si ya existe (lógica de negocio que SÍ va aquí)
-        if (categoriaService.buscarPorNombre(categoriaDTO.getNombre()).isPresent()) {
+        
+        // 1. Validar que el "padre" (Restaurante) existe
+        Optional<Restaurante> optRestaurante = restauranteRepository.findById(categoriaDTO.getId_restaurante());
+        if (optRestaurante.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                   .body("Error: La categoría '" + categoriaDTO.getNombre() + "' ya existe.");
+                   .body("Error: El restaurante con ID " + categoriaDTO.getId_restaurante() + " no existe.");
         }
         
-        // Mapeo DTO a Entidad
+        // 2. Mapear DTO a Entidad
         Categoria categoria = new Categoria();
+        categoria.setRestaurante(optRestaurante.get()); // <-- Asignar el padre
         categoria.setNombre(categoriaDTO.getNombre());
         categoria.setDescripcion(categoriaDTO.getDescripcion());
-        // El estado por defecto es 1 (definido en tu Entidad)
-        
-        Categoria guardada = categoriaService.guardar(categoria);
-        return ResponseEntity.status(HttpStatus.CREATED).body(guardada);
+        // El estado '1' se asigna por defecto en la entidad
+
+        try {
+            Categoria guardada = categoriaRepository.save(categoria);
+            return ResponseEntity.status(HttpStatus.CREATED).body(guardada);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                   .body("Error al guardar: " + e.getMessage());
+        }
     }
     
     // Actualizar categoría
     @PutMapping("/{id}")
-    public ResponseEntity<Categoria> actualizar(@PathVariable Integer id, @RequestBody CategoriaDTO categoriaDTO) {
+    public ResponseEntity<CategoriaDTO> actualizar(@PathVariable Integer id, @RequestBody CategoriaDTO categoriaDTO) {
         Optional<Categoria> optional = categoriaService.buscarId(id);
         if (optional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        
+
         Categoria categoria = optional.get();
         if (categoriaDTO.getNombre() != null) categoria.setNombre(categoriaDTO.getNombre());
         if (categoriaDTO.getDescripcion() != null) categoria.setDescripcion(categoriaDTO.getDescripcion());
-        
+
         Categoria actualizada = categoriaService.modificar(categoria);
-        return ResponseEntity.ok(actualizada);
+        return ResponseEntity.ok(convertirADTO(actualizada));
     }
-    
+
     // Eliminar categoría (soft delete)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
@@ -100,8 +111,18 @@ public class CategoriaController {
         if (optional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+
         categoriaService.eliminar(id);
-        
         return ResponseEntity.noContent().build();
+    }
+
+    // Conversión Entidad -> DTO
+    private CategoriaDTO convertirADTO(Categoria entidad) {
+        CategoriaDTO dto = new CategoriaDTO();
+        dto.setId_categoria(entidad.getId_categoria());
+        dto.setNombre(entidad.getNombre());
+        dto.setDescripcion(entidad.getDescripcion());
+        dto.setEstado(entidad.getEstado());
+        return dto;
     }
 }

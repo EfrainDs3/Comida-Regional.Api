@@ -1,12 +1,13 @@
 package web.Regional_Api.entity;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -23,110 +24,58 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "pedidos")
 @DynamicInsert
+// Fiel a la nueva columna 'estado':
+@SQLDelete(sql = "UPDATE pedidos SET estado = 0 WHERE id_pedido = ?")
+@Where(clause = "estado = 1")
 public class Pedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_pedido;
 
-    // --- Relaciones Fieles a FOREIGN KEYs (Módulos de compañeros) ---
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_sucursal", nullable = false)
-    private Sucursales sucursal;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_mesa")
+    // --- Relaciones Fieles a FKs (Ahora son NOT NULL) ---
+    @ManyToOne
+    @JoinColumn(name = "id_mesa", nullable = false)
     private Mesas mesa;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_usuario_mozo")
-    private Usuarios usuarioMozo; 
-
-
-    @CreationTimestamp 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime fecha_hora_pedido; 
-
-    @Column(length = 20, nullable = false)
-    @ColumnDefault("'Pendiente'") 
-    private String estado_pedido;
-
-    @Column(precision = 10, scale = 2)
-    private BigDecimal total_pedido;
+    @ManyToOne
+    @JoinColumn(name = "id_usuario", nullable = false) // Fiel al nuevo nombre
+    private Usuarios usuario; // Cambiado de 'usuarioMozo'
     
-    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false, name = "fecha_hora") // Fiel al nuevo nombre
+    private LocalDateTime fecha_hora; 
+    
+    @Column(nullable = false, length = 20) // Fiel al enum
+    private String estado_pedido; 
+    
+    @Column(columnDefinition = "TEXT")
+    private String notas; // ¡Nuevo campo!
+    
+    @Column(nullable = false)
+    @ColumnDefault("1")
+    private Integer estado = 1; 
+
+    // --- Relación Inversa ---
+   @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<DetallePedido> detalles;
 
-    public Integer getId_pedido() {
-        return id_pedido;
-    }
-
-    public void setId_pedido(Integer id_pedido) {
-        this.id_pedido = id_pedido;
-    }
-
-    public Sucursales getSucursal() {
-        return sucursal;
-    }
-
-    public void setSucursal(Sucursales sucursal) {
-        this.sucursal = sucursal;
-    }
-
-    public Mesas getMesa() {
-        return mesa;
-    }
-
-    public void setMesa(Mesas mesa) {
-        this.mesa = mesa;
-    }
-
-    public Usuarios getUsuarioMozo() {
-        return usuarioMozo;
-    }
-
-    public void setUsuarioMozo(Usuarios usuarioMozo) {
-        this.usuarioMozo = usuarioMozo;
-    }
-
-    public LocalDateTime getFecha_hora_pedido() {
-        return fecha_hora_pedido;
-    }
-
-    public void setFecha_hora_pedido(LocalDateTime fecha_hora_pedido) {
-        this.fecha_hora_pedido = fecha_hora_pedido;
-    }
-
-    public String getEstado_pedido() {
-        return estado_pedido;
-    }
-
-    public void setEstado_pedido(String estado_pedido) {
-        this.estado_pedido = estado_pedido;
-    }
-
-    public BigDecimal getTotal_pedido() {
-        return total_pedido;
-    }
-
-    public void setTotal_pedido(BigDecimal total_pedido) {
-        this.total_pedido = total_pedido;
-    }
-
-    public List<DetallePedido> getDetalles() {
-        return detalles;
-    }
-
-    public void setDetalles(List<DetallePedido> detalles) {
-        this.detalles = detalles;
-    }
-
-    @Override
-    public String toString() {
-        return "Pedido [id_pedido=" + id_pedido + ", sucursal=" + sucursal + ", mesa=" + mesa + ", usuarioMozo="
-                + usuarioMozo + ", fecha_hora_pedido=" + fecha_hora_pedido + ", estado_pedido=" + estado_pedido
-                + ", total_pedido=" + total_pedido + ", detalles=" + detalles + "]";
-    }
-
-   
+    
+    public Integer getId_pedido() { return id_pedido; }
+    public void setId_pedido(Integer id_pedido) { this.id_pedido = id_pedido; }
+    public Mesas getMesa() { return mesa; }
+    public void setMesa(Mesas mesa) { this.mesa = mesa; }
+    public Usuarios getUsuario() { return usuario; }
+    public void setUsuario(Usuarios usuario) { this.usuario = usuario; }
+    public LocalDateTime getFecha_hora() { return fecha_hora; }
+    public void setFecha_hora(LocalDateTime fecha_hora) { this.fecha_hora = fecha_hora; }
+    public String getEstado_pedido() { return estado_pedido; }
+    public void setEstado_pedido(String estado_pedido) { this.estado_pedido = estado_pedido; }
+    public String getNotas() { return notas; }
+    public void setNotas(String notas) { this.notas = notas; }
+    public Integer getEstado() { return estado; }
+    public void setEstado(Integer estado) { this.estado = estado; }
+    public List<DetallePedido> getDetalles() { return detalles; }
+    public void setDetalles(List<DetallePedido> detalles) { this.detalles = detalles; }
 }

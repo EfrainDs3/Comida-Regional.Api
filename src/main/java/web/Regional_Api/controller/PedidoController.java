@@ -8,16 +8,26 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping; // <-- El DTO actualizado
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping; // Importa todas tus entidades
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-
-import web.Regional_Api.entity.*; 
-import web.Regional_Api.service.IPedidoService;
-
-import web.Regional_Api.repository.SucursalesRepository;
+import web.Regional_Api.entity.DetallePedido;
+import web.Regional_Api.entity.DetallePedidoDTO;
+import web.Regional_Api.entity.Mesas;
+import web.Regional_Api.entity.Pedido;
+import web.Regional_Api.entity.PedidoDTO;
+import web.Regional_Api.entity.Plato;
+import web.Regional_Api.entity.Usuarios;
 import web.Regional_Api.repository.MesasRepository;
-import web.Regional_Api.repository.UsuarioRepository;
 import web.Regional_Api.repository.PlatoRepository;
+import web.Regional_Api.repository.UsuarioRepository;
+import web.Regional_Api.service.IPedidoService;
 
 @RestController
 @RequestMapping("/api/pedidos")
@@ -28,49 +38,49 @@ public class PedidoController {
     private IPedidoService pedidoService;
 
     @Autowired
-    private SucursalesRepository sucursalRepo;
-    @Autowired
     private MesasRepository mesaRepo;
     @Autowired
-    private UsuarioRepository usuarioRepo;
+    private UsuarioRepository usuarioRepo; 
     @Autowired
     private PlatoRepository platoRepo;
 
-    // 1. GET (Todos)
     @GetMapping
     public ResponseEntity<List<Pedido>> obtenerTodos() {
         return ResponseEntity.ok(pedidoService.buscarTodos());
     }
 
-    // 2. GET (Por ID)
     @GetMapping("/{id}")
     public ResponseEntity<Pedido> obtenerPorId(@PathVariable Integer id) {
         return pedidoService.buscarId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+
+    // 3. POST (Crear Pedido y sus Detalles) - Lógica actualizada
     @PostMapping
-    public ResponseEntity<?> crearPedido(@RequestBody PedidoDTO dto) { // Asumo que usas PedidoDTO
+    public ResponseEntity<?> crearPedido(@RequestBody PedidoDTO dto) {
         
-        Optional<Sucursales> suc = sucursalRepo.findById(dto.getId_sucursal());
+        // --- 1. Buscar Objetos para FK (Fidelidad) ---
         Optional<Mesas> mes = mesaRepo.findById(dto.getId_mesa());
+        Optional<Usuarios> usu = usuarioRepo.findById(dto.getId_usuario()); // Fiel al nuevo nombre
         
-        // ✅ LÓGICA CORREGIDA
-        Optional<Usuarios> moz = usuarioRepo.findById(dto.getId_usuario_mozo());
-        
-        if (suc.isEmpty() || mes.isEmpty() || moz.isEmpty()) {
+        if (mes.isEmpty() || usu.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Sucursal, Mesa o Mozo no encontrado.");
+                .body("Mesa o Usuario no encontrado.");
         }
         
+        // --- 2. Mapear DTO a Entidad "Padre" (Pedido) ---
         Pedido pedido = new Pedido();
-        pedido.setSucursal(suc.get());
         pedido.setMesa(mes.get());
-        pedido.setUsuarioMozo(moz.get()); 
+        pedido.setUsuario(usu.get()); // Fiel al nuevo nombre
+        pedido.setNotas(dto.getNotas()); // Asignar nuevo campo
         
-        BigDecimal totalGeneral = BigDecimal.ZERO;
+        // Fiel al enum: Asignamos el estado inicial
+        pedido.setEstado_pedido("En preparación"); 
         List<DetallePedido> detallesEntidad = new ArrayList<>();
         
+        // --- 3. Mapear DTOs "Hijos" (Detalles) ---
         for (DetallePedidoDTO detDto : dto.getDetalles()) {
             Optional<Plato> pla = platoRepo.findById(detDto.getId_plato());
             if (pla.isEmpty()) {
@@ -81,32 +91,28 @@ public class PedidoController {
             DetallePedido detalle = new DetallePedido();
             detalle.setPlato(pla.get());
             detalle.setCantidad(detDto.getCantidad());
-            detalle.setPrecio_unitario(detDto.getPrecio_unitario());
-            detalle.setObservaciones(detDto.getObservaciones());
             
+            // Asumimos que detalle_pedido AÚN TIENE estos campos
+            detalle.setPrecio_unitario(detDto.getPrecio_unitario()); 
             BigDecimal subtotal = detDto.getPrecio_unitario()
                                     .multiply(new BigDecimal(detDto.getCantidad()));
             detalle.setSubtotal(subtotal);
-            
-            totalGeneral = totalGeneral.add(subtotal);
             
             detalle.setPedido(pedido);
             detallesEntidad.add(detalle);
         }
         
-        pedido.setDetalles(detallesEntidad); 
-        pedido.setTotal_pedido(totalGeneral);
-        
+        pedido.setDetalles(detallesEntidad);
         Pedido nuevoPedido = pedidoService.guardar(pedido);
         
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoPedido);
     }
-    // 4. PUT (Actualizar ESTADO de Pedido)
 
+    // 4. PUT (Actualizar ESTADO de Pedido) - Fiel al Enum
     @PutMapping("/{id}/estado")
     public ResponseEntity<Pedido> actualizarEstado(
             @PathVariable Integer id, 
-            @RequestBody String nuevoEstado) { 
+            @RequestBody String nuevoEstado) { // Ejs: "Listo", "Entregado", "Cancelado"
         
         Optional<Pedido> opt = pedidoService.buscarId(id);
         if (opt.isEmpty()) {
@@ -114,14 +120,9 @@ public class PedidoController {
         }
         
         Pedido pedido = opt.get();
-        
         pedido.setEstado_pedido(nuevoEstado); 
         
         Pedido actualizado = pedidoService.guardar(pedido);
         return ResponseEntity.ok(actualizado);
     }
-    
-    // 5. DELETE (No implementado)
-    // no podemos borrar físicamente.
-
 }

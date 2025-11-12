@@ -32,24 +32,18 @@ public class PagoSuscripcion {
     @Column(columnDefinition = "date") 
     private LocalDate fecha_pago;
 
-    @Column(nullable = false, precision = 10, scale = 2) 
-    private BigDecimal monto_pagado;
+    @Column(name = "monto", nullable = false, precision = 10, scale = 2)
+    private BigDecimal monto;
 
-    @Column(length = 50)
-    private String tipo_suscripcion;
+    @Column(name = "periodo_cubierto_inicio", columnDefinition = "date")
+    private LocalDate periodoCubiertoInicio;
 
-    @Column(columnDefinition = "date")
-    private LocalDate fecha_inicio_suscripcion;
-    
-    @Column(columnDefinition = "date")
-    private LocalDate fecha_fin_suscripcion;
-
-    @Column(length = 50)
-    private String metodo_pago;
+    @Column(name = "periodo_cubierto_fin", columnDefinition = "date")
+    private LocalDate periodoCubiertoFin;
 
     @Column(nullable = false) 
     @ColumnDefault("1")
-    private Integer estado_pago;
+    private Integer estado_pago=1;
     
     public Integer getId_pago() {
         return id_pago;
@@ -69,35 +63,23 @@ public class PagoSuscripcion {
     public void setFecha_pago(LocalDate fecha_pago) {
         this.fecha_pago = fecha_pago;
     }
-    public BigDecimal getMonto_pagado() {
-        return monto_pagado;
+    public BigDecimal getMonto() {
+        return monto;
     }
-    public void setMonto_pagado(BigDecimal monto_pagado) {
-        this.monto_pagado = monto_pagado;
+    public void setMonto(BigDecimal monto) {
+        this.monto = monto;
     }
-    public String getTipo_suscripcion() {
-        return tipo_suscripcion;
+    public LocalDate getPeriodoCubiertoInicio() {
+        return periodoCubiertoInicio;
     }
-    public void setTipo_suscripcion(String tipo_suscripcion) {
-        this.tipo_suscripcion = tipo_suscripcion;
+    public void setPeriodoCubiertoInicio(LocalDate periodoCubiertoInicio) {
+        this.periodoCubiertoInicio = periodoCubiertoInicio;
     }
-    public LocalDate getFecha_inicio_suscripcion() {
-        return fecha_inicio_suscripcion;
+    public LocalDate getPeriodoCubiertoFin() {
+        return periodoCubiertoFin;
     }
-    public void setFecha_inicio_suscripcion(LocalDate fecha_inicio_suscripcion) {
-        this.fecha_inicio_suscripcion = fecha_inicio_suscripcion;
-    }
-    public LocalDate getFecha_fin_suscripcion() {
-        return fecha_fin_suscripcion;
-    }
-    public void setFecha_fin_suscripcion(LocalDate fecha_fin_suscripcion) {
-        this.fecha_fin_suscripcion = fecha_fin_suscripcion;
-    }
-    public String getMetodo_pago() {
-        return metodo_pago;
-    }
-    public void setMetodo_pago(String metodo_pago) {
-        this.metodo_pago = metodo_pago;
+    public void setPeriodoCubiertoFin(LocalDate periodoCubiertoFin) {
+        this.periodoCubiertoFin = periodoCubiertoFin;
     }
     public Integer getEstado_pago() {
         return estado_pago;

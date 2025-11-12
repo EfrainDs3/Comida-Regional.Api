@@ -3,6 +3,7 @@ package web.Regional_Api.controller;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.Map; 
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,16 +48,26 @@ public class ProveedoresController {
                 .orElse(ResponseEntity.notFound().build()); 
     }
 
-    @PostMapping
-    public ResponseEntity<ProveedoresDTO> guardar(@RequestBody ProveedoresDTO dto) {
-        try {
-            Proveedores entidad = convertirAEntidad(dto);
-            Proveedores entidadGuardada = serviceProveedores.guardar(entidad);
-            return ResponseEntity.status(HttpStatus.CREATED).body(convertirADTO(entidadGuardada));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build(); 
-        }
+    // En tu ProveedoresController.java, cambia el @PostMapping
+
+// Importa esto al inicio de tu controlador:
+
+// ...
+
+@PostMapping
+public ResponseEntity<?> guardar(@RequestBody ProveedoresDTO dto) { // Cambia a ResponseEntity<?>
+    try {
+        Proveedores entidad = convertirAEntidad(dto);
+        Proveedores entidadGuardada = serviceProveedores.guardar(entidad);
+        return ResponseEntity.status(HttpStatus.CREATED).body(convertirADTO(entidadGuardada));
+    
+    // --- ¡ESTA ES LA MEJORA! ---
+    } catch (RuntimeException e) {
+        // Ahora nos devolverá un JSON con el mensaje de error real
+        Map<String, String> error = Map.of("success", "false", "message", e.getMessage());
+        return ResponseEntity.badRequest().body(error); 
     }
+}
     @PutMapping("/{id}")
     public ResponseEntity<ProveedoresDTO> modificar(@PathVariable Integer id, @RequestBody ProveedoresDTO dto) {
         

@@ -2,6 +2,7 @@ package web.Regional_Api.controller;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,27 +29,32 @@ public class PagoSuscripcionController {
 
     // 1. GET (Todos)
     @GetMapping
-    public ResponseEntity<List<PagoSuscripcion>> obtenerTodos() {
-        List<PagoSuscripcion> pagos = pagoService.buscarTodos();
+    public ResponseEntity<List<PagoSuscripcionDTO>> obtenerTodos() {
+        List<PagoSuscripcionDTO> pagos = pagoService.buscarTodos().stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(pagos);
     }
 
     // 2. GET (Por ID)
     @GetMapping("/{id}")
-    public ResponseEntity<PagoSuscripcion> obtenerPorId(@PathVariable Integer id) {
+    public ResponseEntity<PagoSuscripcionDTO> obtenerPorId(@PathVariable Integer id) {
         return pagoService.buscarId(id)
+                .map(this::convertirADTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
     
     // 3. GET (Historial por Restaurante - RF10)
     @GetMapping("/restaurante/{idRestaurante}")
-    public ResponseEntity<List<PagoSuscripcion>> obtenerPagosPorRestaurante(@PathVariable Integer idRestaurante) {
+    public ResponseEntity<List<PagoSuscripcionDTO>> obtenerPagosPorRestaurante(@PathVariable Integer idRestaurante) {
         // (Opcional) Verificar si el restaurante existe
         if (restauranteService.buscarId(idRestaurante).isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        List<PagoSuscripcion> pagos = pagoService.buscarPorIdRestaurante(idRestaurante);
+        List<PagoSuscripcionDTO> pagos = pagoService.buscarPorIdRestaurante(idRestaurante).stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(pagos);
     }
 
@@ -67,15 +73,13 @@ public class PagoSuscripcionController {
         pago.setRestaurante(optRestaurante.get()); // Asignamos el objeto
         
         pago.setFecha_pago(dto.getFecha_pago());
-        pago.setMonto_pagado(dto.getMonto_pagado());
-        pago.setTipo_suscripcion(dto.getTipo_suscripcion());
-        pago.setFecha_inicio_suscripcion(dto.getFecha_inicio_suscripcion());
-        pago.setFecha_fin_suscripcion(dto.getFecha_fin_suscripcion());
-        pago.setMetodo_pago(dto.getMetodo_pago());
+        pago.setMonto(dto.getMonto());
+        pago.setPeriodoCubiertoInicio(dto.getPeriodo_cubierto_inicio());
+        pago.setPeriodoCubiertoFin(dto.getPeriodo_cubierto_fin());
         
 
-        PagoSuscripcion nuevoPago = pagoService.guardar(pago);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoPago);
+    PagoSuscripcion nuevoPago = pagoService.guardar(pago);
+    return ResponseEntity.status(HttpStatus.CREATED).body(convertirADTO(nuevoPago));
     }
 
     // 5. PUT (Actualizar)
@@ -98,15 +102,13 @@ public class PagoSuscripcionController {
         pago.setRestaurante(optRestaurante.get()); // Asignamos el objeto
         
         pago.setFecha_pago(dto.getFecha_pago());
-        pago.setMonto_pagado(dto.getMonto_pagado());
-        pago.setTipo_suscripcion(dto.getTipo_suscripcion());
-        pago.setFecha_inicio_suscripcion(dto.getFecha_inicio_suscripcion());
-        pago.setFecha_fin_suscripcion(dto.getFecha_fin_suscripcion());
-        pago.setMetodo_pago(dto.getMetodo_pago());
+        pago.setMonto(dto.getMonto());
+        pago.setPeriodoCubiertoInicio(dto.getPeriodo_cubierto_inicio());
+        pago.setPeriodoCubiertoFin(dto.getPeriodo_cubierto_fin());
         pago.setEstado_pago(dto.getEstado_pago());
 
-        PagoSuscripcion actualizado = pagoService.guardar(pago);
-        return ResponseEntity.ok(actualizado);
+    PagoSuscripcion actualizado = pagoService.guardar(pago);
+    return ResponseEntity.ok(convertirADTO(actualizado));
     }
 
     // 6. DELETE (Borrado Físico porque no hay 'estado ctmre')
@@ -118,5 +120,17 @@ public class PagoSuscripcionController {
         
         pagoService.eliminar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private PagoSuscripcionDTO convertirADTO(PagoSuscripcion entidad) {
+        PagoSuscripcionDTO dto = new PagoSuscripcionDTO();
+        dto.setId_pago(entidad.getId_pago());
+        dto.setId_restaurante(entidad.getRestaurante() != null ? entidad.getRestaurante().getId_restaurante() : null);
+        dto.setFecha_pago(entidad.getFecha_pago());
+        dto.setMonto(entidad.getMonto());
+        dto.setPeriodo_cubierto_inicio(entidad.getPeriodoCubiertoInicio());
+        dto.setPeriodo_cubierto_fin(entidad.getPeriodoCubiertoFin());
+        dto.setEstado_pago(entidad.getEstado_pago());
+        return dto;
     }
 }

@@ -18,11 +18,13 @@ public class RestauranteService implements IRestauranteService {
 
     @Override
     public List<Restaurante> buscarTodos() {
+        // Lógica simple: solo llama al repositorio
         return repoRestaurante.findAll();
     }
 
     @Override
     public Optional<Restaurante> buscarId(Integer id) {
+        // Lógica simple: solo llama al repositorio
         return repoRestaurante.findById(id);
     }
 
