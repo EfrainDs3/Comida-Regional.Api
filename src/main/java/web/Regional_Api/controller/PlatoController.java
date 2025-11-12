@@ -7,7 +7,16 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import web.Regional_Api.entity.Categoria;
 import web.Regional_Api.entity.Plato;
@@ -87,7 +96,6 @@ public class PlatoController {
         plato.setNombre(platoDTO.getNombre());
         plato.setDescripcion(platoDTO.getDescripcion());
         plato.setPrecio(platoDTO.getPrecio());
-        plato.setImagen(platoDTO.getImagen_url());
         plato.setCategoria(categoriaOpt.get());
         plato.setEstado(1);
 
@@ -105,7 +113,6 @@ public class PlatoController {
         if (platoDTO.getNombre() != null) plato.setNombre(platoDTO.getNombre());
         if (platoDTO.getDescripcion() != null) plato.setDescripcion(platoDTO.getDescripcion());
         if (platoDTO.getPrecio() != null) plato.setPrecio(platoDTO.getPrecio());
-        if (platoDTO.getImagen_url() != null) plato.setImagen(platoDTO.getImagen_url());
 
         Plato actualizado = platoRepository.save(plato);
         return ResponseEntity.ok(convertirADTO(actualizado));
@@ -129,7 +136,6 @@ public class PlatoController {
         dto.setNombre(entidad.getNombre());
         dto.setDescripcion(entidad.getDescripcion());
         dto.setPrecio(entidad.getPrecio());
-        dto.setImagen_url(entidad.getImagen());
         dto.setEstado(entidad.getEstado());
         if (entidad.getCategoria() != null) {
             dto.setId_categoria(entidad.getCategoria().getId_categoria());

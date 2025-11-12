@@ -7,10 +7,19 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import web.Regional_Api.entity.Categoria;
 import web.Regional_Api.entity.CategoriaDTO;
+import web.Regional_Api.entity.Restaurante;
 import web.Regional_Api.service.ICategoriaService;
 
 @RestController
@@ -20,6 +29,11 @@ public class CategoriaController {
 
     @Autowired
     private ICategoriaService categoriaService;
+    @Autowired
+    private web.Regional_Api.repository.CategoriaRepository categoriaRepository;
+    @Autowired
+    private web.Regional_Api.repository.RestauranteRepository restauranteRepository;
+    
 
     // Obtener todas las categorías
     @GetMapping
@@ -47,23 +61,33 @@ public class CategoriaController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
-    // Crear categoría
+  
     @PostMapping
     public ResponseEntity<?> crear(@RequestBody CategoriaDTO categoriaDTO) {
-        if (categoriaService.buscarPorNombre(categoriaDTO.getNombre()).isPresent()) {
+        
+        // 1. Validar que el "padre" (Restaurante) existe
+        Optional<Restaurante> optRestaurante = restauranteRepository.findById(categoriaDTO.getId_restaurante());
+        if (optRestaurante.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Error: La categoría '" + categoriaDTO.getNombre() + "' ya existe.");
+                   .body("Error: El restaurante con ID " + categoriaDTO.getId_restaurante() + " no existe.");
         }
-
+        
+        // 2. Mapear DTO a Entidad
         Categoria categoria = new Categoria();
+        categoria.setRestaurante(optRestaurante.get()); // <-- Asignar el padre
         categoria.setNombre(categoriaDTO.getNombre());
         categoria.setDescripcion(categoriaDTO.getDescripcion());
+        // El estado '1' se asigna por defecto en la entidad
 
-        Categoria guardada = categoriaService.guardar(categoria);
-        return ResponseEntity.status(HttpStatus.CREATED).body(convertirADTO(guardada));
+        try {
+            Categoria guardada = categoriaRepository.save(categoria);
+            return ResponseEntity.status(HttpStatus.CREATED).body(guardada);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                   .body("Error al guardar: " + e.getMessage());
+        }
     }
-
+    
     // Actualizar categoría
     @PutMapping("/{id}")
     public ResponseEntity<CategoriaDTO> actualizar(@PathVariable Integer id, @RequestBody CategoriaDTO categoriaDTO) {

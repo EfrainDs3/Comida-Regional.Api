@@ -16,9 +16,6 @@ public class RestauranteDTO {
     private Integer estado;
     private LocalDateTime fecha_creacion;
 
-    // --- Getters y Setters ---
-    // (Asegúrate de tener todos los Getters y Setters)
-    
     public Integer getId_restaurante() {
         return id_restaurante;
     }

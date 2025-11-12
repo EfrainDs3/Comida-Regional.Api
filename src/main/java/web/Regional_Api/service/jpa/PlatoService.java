@@ -72,7 +72,4 @@ public class PlatoService implements IPlatoService {
         // Usa el método findByEstado del repository
         return repoPlato.findByEstado(disponible);
     }
-
-    // Note: Plato entity does not reference Sucursales in the current model.
-    // Sucursal-related service methods were removed to match repository changes.
 }

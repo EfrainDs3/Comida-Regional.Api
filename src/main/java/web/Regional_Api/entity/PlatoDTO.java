@@ -7,19 +7,16 @@ public class PlatoDTO {
     private String nombre;
     private String descripcion;
     private BigDecimal precio;
-    private String imagen_url;
     private Integer id_categoria;
     private Integer estado;
 
     public PlatoDTO() {}
 
-    public PlatoDTO(Integer id_plato, String nombre, String descripcion, BigDecimal precio,
-                    String imagen_url, Integer id_categoria, Integer estado) {
+    public PlatoDTO(Integer id_plato, String nombre, String descripcion, BigDecimal precio, Integer id_categoria, Integer estado) {
         this.id_plato = id_plato;
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.precio = precio;
-        this.imagen_url = imagen_url;
         this.id_categoria = id_categoria;
         this.estado = estado;
     }
@@ -54,14 +51,6 @@ public class PlatoDTO {
 
     public void setPrecio(BigDecimal precio) {
         this.precio = precio;
-    }
-
-    public String getImagen_url() {
-        return imagen_url;
-    }
-
-    public void setImagen_url(String imagen_url) {
-        this.imagen_url = imagen_url;
     }
 
     public Integer getId_categoria() {

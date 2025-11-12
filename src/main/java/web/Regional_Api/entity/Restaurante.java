@@ -59,9 +59,6 @@ public class Restaurante {
     @Column(nullable = false, updatable = false)
     private LocalDateTime fecha_creacion;
 
-    // --- Getters y Setters ---
-    // (Asegúrate de tener todos los Getters y Setters)
-    
     public Integer getId_restaurante() {
         return id_restaurante;
     }

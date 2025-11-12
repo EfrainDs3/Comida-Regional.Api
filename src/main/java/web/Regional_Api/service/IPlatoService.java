@@ -22,10 +22,6 @@ public interface IPlatoService {
     // Método para obtener platos de una categoría
     
     List<Plato> buscarDisponiblesPorCategoria(Integer idCategoria);
-    // Método para obtener platos disponibles (no desactivados)
-    
-    // NOTE: The Plato entity has no sucursal relation in the current model,
-    // so sucursal-related service methods were removed.
     
     List<Plato> buscarPorNombre(String nombre);
     // Método para buscar platos por nombre

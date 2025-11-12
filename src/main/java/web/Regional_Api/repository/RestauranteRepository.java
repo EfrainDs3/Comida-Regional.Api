@@ -7,5 +7,5 @@ import web.Regional_Api.entity.Restaurante;
 
 @Repository
 public interface RestauranteRepository extends JpaRepository<Restaurante, Integer> {
-    // Fiel a "sin validaciones": No añadimos findByRuc ni nada.
+    
 }

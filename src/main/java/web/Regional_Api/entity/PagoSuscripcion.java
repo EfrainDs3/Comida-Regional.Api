@@ -43,7 +43,7 @@ public class PagoSuscripcion {
 
     @Column(nullable = false) 
     @ColumnDefault("1")
-    private Integer estado_pago;
+    private Integer estado_pago=1;
     
     public Integer getId_pago() {
         return id_pago;

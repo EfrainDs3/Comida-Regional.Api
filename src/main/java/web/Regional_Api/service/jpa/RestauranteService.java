@@ -30,15 +30,11 @@ public class RestauranteService implements IRestauranteService {
 
     @Override
     public Restaurante guardar(Restaurante restaurante) {
-        // Lógica simple: solo llama al repositorio
-        // (Aquí irían validaciones en el futuro)
         return repoRestaurante.save(restaurante);
     }
 
     @Override
     public void eliminar(Integer id) {
-        // Lógica simple: solo llama al repositorio
-        // (El @SQLDelete de la entidad hará el soft-delete)
         repoRestaurante.deleteById(id);
     }
 }
