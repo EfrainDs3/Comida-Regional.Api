@@ -37,6 +37,11 @@ public class AuthorizationService {
 		Usuarios usuario = usuarioOpt.get();
 		Modulo modulo = moduloOpt.get();
 
-		return accesoRepository.existsByIdModuloAndIdPerfilAndEstado(modulo.getIdModulo(), usuario.getRolId(), 1);
+		Integer rolId = usuario.getRolId();
+		if (rolId == null) {
+			return false;
+		}
+
+		return accesoRepository.existsByIdModuloAndIdPerfilAndEstado(modulo.getIdModulo(), rolId, 1);
 	}
 }

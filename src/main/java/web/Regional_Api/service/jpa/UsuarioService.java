@@ -131,4 +131,63 @@ public class UsuarioService implements IUsuarioService {
     public Optional<Usuarios> getUsuarioByLogin(String nombreUsuarioLogin) {
         return usuarioRepository.findByNombreUsuarioLogin(nombreUsuarioLogin);
     }
+
+    @Override
+    public Optional<Usuarios> updateUsuario(Integer id, Usuarios usuario) {
+        return usuarioRepository.findById(id).map(existing -> {
+            if (usuario.getNombreUsuarioLogin() != null
+                    && !usuario.getNombreUsuarioLogin().equals(existing.getNombreUsuarioLogin())) {
+                if (usuarioRepository.existsByNombreUsuarioLogin(usuario.getNombreUsuarioLogin())) {
+                    throw new RuntimeException("El nombre de usuario de login ya está registrado en el sistema");
+                }
+                existing.setNombreUsuarioLogin(usuario.getNombreUsuarioLogin());
+            }
+
+            if (usuario.getNombreUsuario() != null) {
+                existing.setNombreUsuario(usuario.getNombreUsuario());
+            }
+
+            if (usuario.getApellidos() != null) {
+                existing.setApellidos(usuario.getApellidos());
+            }
+
+            if (usuario.getDniUsuario() != null) {
+                existing.setDniUsuario(usuario.getDniUsuario());
+            }
+
+            if (usuario.getTelefono() != null) {
+                existing.setTelefono(usuario.getTelefono());
+            }
+
+            if (usuario.getContrasena() != null) {
+                existing.setContrasena(usuario.getContrasena());
+            }
+
+            if (usuario.getRolId() != null) {
+                existing.setRolId(usuario.getRolId());
+            }
+
+            if (usuario.getIdSucursal() != null) {
+                existing.setIdSucursal(usuario.getIdSucursal());
+            }
+
+            if (usuario.getEstado() != null) {
+                existing.setEstado(usuario.getEstado());
+            }
+
+            if (usuario.getUltimoLogin() != null) {
+                existing.setUltimoLogin(usuario.getUltimoLogin());
+            }
+
+            return usuarioRepository.save(existing);
+        });
+    }
+
+    @Override
+    public void deleteUsuario(Integer id) {
+        if (!usuarioRepository.existsById(id)) {
+            throw new RuntimeException("Usuario no encontrado");
+        }
+        usuarioRepository.deleteById(id);
+    }
 }

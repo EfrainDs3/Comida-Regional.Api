@@ -17,4 +17,8 @@ public interface IUsuarioService {
     Optional<Usuarios> getUsuarioById(Integer id);
 
     Optional<Usuarios> getUsuarioByLogin(String nombreUsuarioLogin);
+
+    Optional<Usuarios> updateUsuario(Integer id, Usuarios usuario);
+
+    void deleteUsuario(Integer id);
 }

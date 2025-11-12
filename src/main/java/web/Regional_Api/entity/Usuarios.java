@@ -69,8 +69,8 @@ public class Usuarios {
     public Usuarios(){
     }
     
-    public Usuarios(Integer idUsuario, String nombreUsuario, String apellidos, String dniUsuario, String telefono,
-            String contrasena, Integer estado, int rolId, String nombreUsuarioLogin, String accessToken,
+        public Usuarios(Integer idUsuario, String nombreUsuario, String apellidos, String dniUsuario, String telefono,
+            String contrasena, Integer estado, Integer rolId, String nombreUsuarioLogin, String accessToken,
             Integer idSucursal, LocalDateTime fechaCreacion, LocalDateTime ultimoLogin) {
         this.idUsuario = idUsuario;
         this.nombreUsuario = nombreUsuario;
@@ -135,21 +135,28 @@ public class Usuarios {
     }
 
     public void setContrasena(String contrasena) {
-        if (contrasena != null && !contrasena.isEmpty()) {
-            try{
-                MessageDigest md = MessageDigest.getInstance("SHA-256");
-                md.update(contrasena.getBytes());
-                byte[] digest = md.digest();
-                String result = new BigInteger(1, digest).toString(16).toUpperCase();
+        if (contrasena == null || contrasena.isEmpty()) {
+            return;
+        }
 
-                while (result.length() < 64) {
-                    result = "0" + result;
-                }
+        if (contrasena.matches("^[0-9A-Fa-f]{64}$")) {
+            this.contrasena = contrasena.toUpperCase();
+            return;
+        }
 
-                this.contrasena = result;
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException("Error al encriptar la contrasena", e);
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(contrasena.getBytes());
+            byte[] digest = md.digest();
+            String result = new BigInteger(1, digest).toString(16).toUpperCase();
+
+            while (result.length() < 64) {
+                result = "0" + result;
             }
+
+            this.contrasena = result;
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error al encriptar la contrasena", e);
         }
     }
 
@@ -162,11 +169,11 @@ public class Usuarios {
     }
 
 
-    public int getRolId() {
+    public Integer getRolId() {
         return rolId;
     }
 
-    public void setRolId(int rolId) {
+    public void setRolId(Integer rolId) {
         this.rolId = rolId;
     }
 
