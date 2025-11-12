@@ -36,26 +36,30 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         if ("dev".equalsIgnoreCase(securityMode)) {
+            // Modo desarrollo: todo permitido
             http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         } else {
+            // Modo producción: rutas públicas y protegidas
             http.authorizeHttpRequests(auth -> auth
-                    .requestMatchers(
-                            "/usuarios/registro",
-                            "/usuarios/login",
-                            "/usuarios/validar-token",
-                            "/actuator/**",
-                            "/modulos", "/modulos/**",
-                            "/perfiles", "/perfiles/**",
-                            "/accesos", "/accesos/**"
-                    ).permitAll()
-                    .anyRequest().authenticated()
+                .requestMatchers(
+                    "/usuarios/registro",
+                    "/usuarios/login",
+                    "/usuarios/validar-token",
+                    "/actuator/**",
+                    "/modulos", "/modulos/**",
+                    "/perfiles", "/perfiles/**",
+                    "/accesos", "/accesos/**",
+                    "/restful/**" // ← línea que tú añadiste
+                ).permitAll()
+                .anyRequest().authenticated()
             );
 
+            // Filtro JWT antes de UsernamePasswordAuthenticationFilter
             http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         }
 

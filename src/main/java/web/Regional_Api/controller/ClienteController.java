@@ -22,7 +22,7 @@ import web.Regional_Api.entity.ClienteDTO;
 import web.Regional_Api.service.IClienteService;
 
 @RestController
-@RequestMapping("/api/clientes")
+@RequestMapping("/restful/clientes")
 @CrossOrigin(origins = "*")
 public class ClienteController {
 

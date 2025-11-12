@@ -24,8 +24,8 @@ public class SesionesCaja {
     @Column(name = "id_sucursal", nullable = false)
     private Integer idSucursal;
 
-    @Column(name = "id_usuario_apertura", nullable = false)
-    private Integer idUsuarioApertura;
+    @Column(name = "id_usuario", nullable = false)
+    private Integer idUsuario;
 
     @Column(name = "monto_inicial", nullable = false, precision = 10, scale = 2)
     private BigDecimal montoInicial;
@@ -58,8 +58,8 @@ public class SesionesCaja {
     public void setIdSesion(Integer idSesion) { this.idSesion = idSesion; }
     public Integer getIdSucursal() { return idSucursal; }
     public void setIdSucursal(Integer idSucursal) { this.idSucursal = idSucursal; }
-    public Integer getIdUsuarioApertura() { return idUsuarioApertura; }
-    public void setIdUsuarioApertura(Integer idUsuarioApertura) { this.idUsuarioApertura = idUsuarioApertura; }
+    public Integer getIdUsuario() { return idUsuario; }
+    public void setIdUsuario(Integer idUsuario) { this.idUsuario = idUsuario; }
     public BigDecimal getMontoInicial() { return montoInicial; }
     public void setMontoInicial(BigDecimal montoInicial) { this.montoInicial = montoInicial; }
     public LocalDateTime getFechaApertura() { return fechaApertura; }
