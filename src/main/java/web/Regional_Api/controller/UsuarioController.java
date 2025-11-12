@@ -57,6 +57,7 @@ public class UsuarioController {
             ));
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
+            e.printStackTrace();
             response.put("success", false);
             response.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -74,16 +75,16 @@ public class UsuarioController {
             if (nombreLogin == null) {
                 nombreLogin = credentials.get("email");
             }
-            String contraseña = credentials.get("contraseña");
+            String contrasena = credentials.get("contrasena");
 
-            if (nombreLogin == null || contraseña == null) {
+            if (nombreLogin == null || contrasena == null) {
                 response.put("success", false);
-                response.put("message", "Nombre de usuario (nombre_usuario_login) y contraseña son requeridos");
+                response.put("message", "Nombre de usuario (nombre_usuario_login) y contrasena son requeridos");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
             // Realizar login (por nombre de usuario de login)
-            Usuarios usuario = usuarioService.login(nombreLogin, contraseña);
+            Usuarios usuario = usuarioService.login(nombreLogin, contrasena);
             
             response.put("success", true);
             response.put("message", "Login exitoso");

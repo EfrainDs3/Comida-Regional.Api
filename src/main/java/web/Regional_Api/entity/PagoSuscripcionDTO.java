@@ -10,11 +10,9 @@ public class PagoSuscripcionDTO {
     private Integer id_restaurante; 
     
     private LocalDate fecha_pago;
-    private BigDecimal monto_pagado;
-    private String tipo_suscripcion;
-    private LocalDate fecha_inicio_suscripcion;
-    private LocalDate fecha_fin_suscripcion;
-    private String metodo_pago;
+    private BigDecimal monto;
+    private LocalDate periodo_cubierto_inicio;
+    private LocalDate periodo_cubierto_fin;
     private Integer estado_pago;
     
     public Integer getId_pago() {
@@ -35,35 +33,23 @@ public class PagoSuscripcionDTO {
     public void setFecha_pago(LocalDate fecha_pago) {
         this.fecha_pago = fecha_pago;
     }
-    public BigDecimal getMonto_pagado() {
-        return monto_pagado;
+    public BigDecimal getMonto() {
+        return monto;
     }
-    public void setMonto_pagado(BigDecimal monto_pagado) {
-        this.monto_pagado = monto_pagado;
+    public void setMonto(BigDecimal monto) {
+        this.monto = monto;
     }
-    public String getTipo_suscripcion() {
-        return tipo_suscripcion;
+    public LocalDate getPeriodo_cubierto_inicio() {
+        return periodo_cubierto_inicio;
     }
-    public void setTipo_suscripcion(String tipo_suscripcion) {
-        this.tipo_suscripcion = tipo_suscripcion;
+    public void setPeriodo_cubierto_inicio(LocalDate periodo_cubierto_inicio) {
+        this.periodo_cubierto_inicio = periodo_cubierto_inicio;
     }
-    public LocalDate getFecha_inicio_suscripcion() {
-        return fecha_inicio_suscripcion;
+    public LocalDate getPeriodo_cubierto_fin() {
+        return periodo_cubierto_fin;
     }
-    public void setFecha_inicio_suscripcion(LocalDate fecha_inicio_suscripcion) {
-        this.fecha_inicio_suscripcion = fecha_inicio_suscripcion;
-    }
-    public LocalDate getFecha_fin_suscripcion() {
-        return fecha_fin_suscripcion;
-    }
-    public void setFecha_fin_suscripcion(LocalDate fecha_fin_suscripcion) {
-        this.fecha_fin_suscripcion = fecha_fin_suscripcion;
-    }
-    public String getMetodo_pago() {
-        return metodo_pago;
-    }
-    public void setMetodo_pago(String metodo_pago) {
-        this.metodo_pago = metodo_pago;
+    public void setPeriodo_cubierto_fin(LocalDate periodo_cubierto_fin) {
+        this.periodo_cubierto_fin = periodo_cubierto_fin;
     }
     public Integer getEstado_pago() {
         return estado_pago;

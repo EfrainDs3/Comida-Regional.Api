@@ -15,7 +15,4 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
     @Query("SELECT p FROM Pedido p WHERE p.estado_pedido = :estado")
     List<Pedido> findByEstadoPedido(@Param("estado") String estado);
 
-    @Query("SELECT p FROM Pedido p WHERE p.sucursal.idSucursal = :idSucursal")
-    List<Pedido> findBySucursalId(@Param("idSucursal") Integer idSucursal);
-
 }

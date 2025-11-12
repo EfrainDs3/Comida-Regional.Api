@@ -25,7 +25,6 @@ public class Plato {
     private String nombre;
     private String descripcion;
     private BigDecimal precio;
-    private String imagen;
     private Integer estado;
     
     @ManyToOne
@@ -65,14 +64,6 @@ public class Plato {
 
     public void setPrecio(BigDecimal precio) {
         this.precio = precio;
-    }
-
-    public String getImagen() {
-        return imagen;
-    }
-
-    public void setImagen(String imagen) {
-        this.imagen = imagen;
     }
 
     public Integer getEstado() {

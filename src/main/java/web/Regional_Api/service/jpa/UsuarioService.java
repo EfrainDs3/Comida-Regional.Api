@@ -49,29 +49,29 @@ public class UsuarioService implements IUsuarioService {
     /**
      * Realiza el login de un usuario
      * @param email
-     * @param contraseña 
+     * @param contrasena 
      * @return 
      * @throws RuntimeException 
      */
     @Override
-    public Usuarios login(String nombreUsuarioLogin, String contraseña) {
+    public Usuarios login(String nombreUsuarioLogin, String contrasena) {
         // Buscar el usuario por su nombre de usuario de login
         Optional<Usuarios> usuarioOpt = usuarioRepository.findByNombreUsuarioLogin(nombreUsuarioLogin);
 
         if (usuarioOpt.isEmpty()) {
-            throw new RuntimeException("Usuario o contraseña incorrectos");
+            throw new RuntimeException("Usuario o contrasena incorrectos");
         }
 
         Usuarios usuario = usuarioOpt.get();
 
-        // Cifrar la contraseña ingresada para compararla
+        // Cifrar la contrasena ingresada para compararla
         Usuarios temp = new Usuarios();
-        temp.setContraseña(contraseña);
-        String contraseñaCifrada = temp.getContraseña();
+        temp.setContrasena(contrasena);
+        String contrasenaCifrada = temp.getContrasena();
 
-        // Verificar si la contraseña coincide
-        if (!usuario.getContraseña().equals(contraseñaCifrada)) {
-            throw new RuntimeException("Usuario o contraseña incorrectos");
+        // Verificar si la contrasena coincide
+        if (!usuario.getContrasena().equals(contrasenaCifrada)) {
+            throw new RuntimeException("Usuario o contrasena incorrectos");
         }
 
         // Generar token JWT y asignarlo de forma transient (no se persiste)

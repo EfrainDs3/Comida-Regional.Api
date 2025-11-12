@@ -25,7 +25,7 @@ public class Mesas {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_mesa;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_sucursal")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Sucursales id_sucursal;

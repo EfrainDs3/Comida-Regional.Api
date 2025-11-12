@@ -50,8 +50,8 @@ public class Usuarios {
     @Column(name = "nombre_usuario_login")
     private String nombreUsuarioLogin;
 
-    @Column(name = "contraseña_usuario")
-    private String contraseña; 
+    @Column(name = "contrasena_usuario")
+    private String contrasena; 
 
     @Column(name = "estado")
     private Integer estado = 1;
@@ -70,14 +70,14 @@ public class Usuarios {
     }
     
     public Usuarios(Integer idUsuario, String nombreUsuario, String apellidos, String dniUsuario, String telefono,
-            String contraseña, Integer estado, int rolId, String nombreUsuarioLogin, String accessToken,
+            String contrasena, Integer estado, int rolId, String nombreUsuarioLogin, String accessToken,
             Integer idSucursal, LocalDateTime fechaCreacion, LocalDateTime ultimoLogin) {
         this.idUsuario = idUsuario;
         this.nombreUsuario = nombreUsuario;
         this.apellidos = apellidos;
         this.dniUsuario = dniUsuario;
         this.telefono = telefono;
-        this.setContraseña(contraseña);
+        this.setContrasena(contrasena);
         this.accessToken = accessToken;
         this.estado = estado;
         this.rolId = rolId;
@@ -130,15 +130,15 @@ public class Usuarios {
         this.telefono = telefono;
     }
 
-    public String getContraseña() {
-        return contraseña;
+    public String getContrasena() {
+        return contrasena;
     }
 
-    public void setContraseña(String contraseña) {
-        if (contraseña != null && !contraseña.isEmpty()) {
+    public void setContrasena(String contrasena) {
+        if (contrasena != null && !contrasena.isEmpty()) {
             try{
                 MessageDigest md = MessageDigest.getInstance("SHA-256");
-                md.update(contraseña.getBytes());
+                md.update(contrasena.getBytes());
                 byte[] digest = md.digest();
                 String result = new BigInteger(1, digest).toString(16).toUpperCase();
 
@@ -146,9 +146,9 @@ public class Usuarios {
                     result = "0" + result;
                 }
 
-                this.contraseña = result;
+                this.contrasena = result;
             } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException("Error al encriptar la contraseña", e);
+                throw new RuntimeException("Error al encriptar la contrasena", e);
             }
         }
     }
@@ -213,8 +213,8 @@ public class Usuarios {
     @Override
     public String toString() {
     return "Usuarios [idUsuario=" + idUsuario + ", nombreUsuario=" + nombreUsuario + ", apellidos=" + apellidos
-        + ", dniUsuario=" + dniUsuario + ", telefono=" + telefono + ", contraseña="
-        + contraseña + ", estado=" + estado + ", rolId=" + rolId + ", nombreUsuarioLogin=" + nombreUsuarioLogin + ", accessToken=" + accessToken + "]";
+        + ", dniUsuario=" + dniUsuario + ", telefono=" + telefono + ", contrasena="
+        + contrasena + ", estado=" + estado + ", rolId=" + rolId + ", nombreUsuarioLogin=" + nombreUsuarioLogin + ", accessToken=" + accessToken + "]";
     }
     
 }

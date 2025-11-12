@@ -10,7 +10,7 @@ public interface IUsuarioService {
 
     Usuarios registrarUsuario(Usuarios usuario);
 
-    Usuarios login(String nombreUsuarioLogin, String contraseña);
+    Usuarios login(String nombreUsuarioLogin, String contrasena);
 
     Usuarios validarToken(String token);
 
