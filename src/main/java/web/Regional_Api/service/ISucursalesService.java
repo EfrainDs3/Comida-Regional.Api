@@ -5,8 +5,6 @@ import java.util.Optional;
 
 import web.Regional_Api.entity.Sucursales;
 
-
-
 public interface ISucursalesService {
     
     // READ: Obtener todas las sucursales de un restaurante específico (Multi-tenant)
@@ -15,12 +13,17 @@ public interface ISucursalesService {
     // READ: Obtener una sucursal por ID con validación Multi-tenant
     Optional<Sucursales> buscarIdYRestaurante(Integer idSucursal, Integer idRestaurante);
 
-    // CREATE: Guardar una nueva sucursal (necesita el idRestaurante para asignación)
-    void guardar(Sucursales sucursal, Integer idRestaurante);
+    Optional<Sucursales> buscarId(Integer id);
 
-    // UPDATE: Modificar una sucursal existente (necesita el idRestaurante para validación)
-    void modificar(Sucursales sucursalActualizada, Integer idRestaurante);
+    // 🌟 NUEVO: Obtener todas las sucursales sin filtro (para pruebas)
+    List<Sucursales> buscarTodos(); 
 
-    // DELETE (Soft Delete): Eliminar lógicamente (necesita el idRestaurante para validación)
-    void eliminar(Integer idSucursal, Integer idRestaurante);
+    // 🌟 CREATE: Guardar una nueva sucursal (ya no asigna idRestaurante)
+    void guardar(Sucursales sucursal);
+
+    // 🌟 UPDATE: Modificar una sucursal existente (sin validación Multi-tenant)
+    void modificar(Sucursales sucursalActualizada);
+
+    // 🌟 DELETE (Soft Delete): Eliminar lógicamente (sin validación Multi-tenant)
+    void eliminar(Integer idSucursal);
 }

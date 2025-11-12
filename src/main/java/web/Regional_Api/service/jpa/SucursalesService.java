@@ -16,23 +16,40 @@ public class SucursalesService implements ISucursalesService {
 
     @Autowired
     private SucursalesRepository repoSucursales;
-
+    
+    // -----------------------------------------------------------
+    // 🌟 IMPLEMENTACIÓN AÑADIDA: Buscar por ID (sin filtro)
+    // -----------------------------------------------------------
+    @Override
+    public Optional<Sucursales> buscarId(Integer id) {
+        // Usa el método estándar de JPA para buscar por la clave primaria
+        return repoSucursales.findById(id); 
+    }
+    
+    // -----------------------------------------------------------
+    // IMPLEMENTACIONES EXISTENTES
+    // -----------------------------------------------------------
+    @Override
+    public List<Sucursales> buscarTodos() {
+        return repoSucursales.findAll();
+    }
+    
     @Override
     public List<Sucursales> buscarTodosPorRestaurante(Integer idRestaurante) {
         return repoSucursales.findByIdRestaurante(idRestaurante);
     }
 
     @Override
-    public void guardar(Sucursales sucursal, Integer idRestaurante) {
-        sucursal.setIdRestaurante(idRestaurante);
+    public void guardar(Sucursales sucursal) {
         repoSucursales.save(sucursal);
     }
 
     @Override
-    public void modificar(Sucursales sucursalActualizada, Integer idRestaurante) {
-        buscarIdYRestaurante(sucursalActualizada.getIdSucursal(), idRestaurante)
-                .orElseThrow(() -> new EntityNotFoundException("Sucursal no encontrada o acceso denegado para modificar."));
-
+    public void modificar(Sucursales sucursalActualizada) {
+        // Validación de existencia simple (no Multi-Tenant)
+        repoSucursales.findById(sucursalActualizada.getIdSucursal())
+             .orElseThrow(() -> new EntityNotFoundException("Sucursal no encontrada para modificar."));
+             
         repoSucursales.save(sucursalActualizada);
     }
 
@@ -42,9 +59,10 @@ public class SucursalesService implements ISucursalesService {
     }
 
     @Override
-    public void eliminar(Integer idSucursal, Integer idRestaurante) {
-        buscarIdYRestaurante(idSucursal, idRestaurante)
-                .orElseThrow(() -> new EntityNotFoundException("Sucursal no encontrada o acceso denegado para eliminar."));
+    public void eliminar(Integer idSucursal) {
+        // Validación de existencia simple (no Multi-Tenant)
+        repoSucursales.findById(idSucursal)
+             .orElseThrow(() -> new EntityNotFoundException("Sucursal no encontrada para eliminar."));
 
         repoSucursales.deleteById(idSucursal);
     }
