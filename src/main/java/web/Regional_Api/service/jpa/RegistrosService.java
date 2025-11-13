@@ -11,7 +11,7 @@ import web.Regional_Api.repository.RegistrosRepository;
 import web.Regional_Api.service.IRegistrosService;
 
 @Service
-public class RegistrosService implements IRegistrosService {
+public class RegistrosService implements  IRegistrosService {
 
     @Autowired
     private RegistrosRepository repoRegistros; 
@@ -32,15 +32,9 @@ public class RegistrosService implements IRegistrosService {
     public void eliminar(Integer id){
         repoRegistros.deleteById(id);
     }
-    @Override
-    public Optional<Registros> buscarPorClienteId(String clienteId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'buscarPorClienteId'");
-    }
 
 
 
 
 
 }
-
