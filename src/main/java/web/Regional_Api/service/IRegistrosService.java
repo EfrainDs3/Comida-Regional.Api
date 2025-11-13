@@ -22,4 +22,6 @@ public interface IRegistrosService {
 
     void eliminar(Integer id);
     // Método para eliminar un registro
+
+    Optional<Registros> buscarPorClienteId(String clienteId);
 }

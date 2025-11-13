@@ -29,5 +29,10 @@ public class RegistrosService implements IRegistrosService{
     public void eliminar(Integer id){
         repoRegistros.deleteById(id);
     }
+
+    @Override
+    public Optional<Registros> buscarPorClienteId(String clienteId) {
+        return repoRegistros.findByClienteId(clienteId);
+    }
 }
 

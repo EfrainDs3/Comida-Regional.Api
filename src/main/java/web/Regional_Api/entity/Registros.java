@@ -6,7 +6,6 @@ import java.security.NoSuchAlgorithmException;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,6 +25,7 @@ import jakarta.persistence.Table;
 @Where(clause = "estado = 1")
 // Esto permite que se muestren solo los registros con estado = 1
 
+@SuppressWarnings("deprecation")
 public class Registros {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -73,6 +73,9 @@ public class Registros {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
+        if (md == null) {
+            throw new IllegalStateException("SHA-256 MessageDigest not available");
+        }
         md.update(datos.getBytes());
         byte[] digest = md.digest();
         String result = new BigInteger(1,digest).toString(16).toLowerCase();
@@ -83,8 +86,7 @@ public class Registros {
         return llave_secreta;
     }
     public void setLlave_secreta(String llave_secreta) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        this.llave_secreta = encoder.encode(llave_secreta);
+        this.llave_secreta = llave_secreta;
     }
     public Integer getEstado() {
         return estado;

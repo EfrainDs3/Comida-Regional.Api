@@ -1,86 +1,79 @@
 package web.Regional_Api.security;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtil {
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long EXPIRATION_TIME = 100L * 356 * 24 * 60 * 60 * 1000;
 
-    /**
-     * Genera un token JWT para un usuario basado en su email
-     * @param email Email del usuario
-     * @return Token JWT
-     */
-    public String generateToken(String email) {
+    private static final String TOKEN_TYPE_CLAIM = "token_type";
+    private final Key key;
+    private final long expirationMillis;
+
+    public JwtUtil(
+            @Value("${security.jwt.secret}") String secret,
+            @Value("${security.jwt.expiration-millis:86400000}") long expirationMillis) {
+        if (secret == null || secret.trim().length() < 32) {
+            throw new IllegalStateException("security.jwt.secret must be at least 32 characters long");
+        }
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.expirationMillis = expirationMillis;
+    }
+
+    public String generateToken(String subject) {
+        return generateToken(subject, "USER");
+    }
+
+    public String generateDeveloperToken(String subject) {
+        return generateToken(subject, "DEV");
+    }
+
+    private String generateToken(String subject, String tokenType) {
+        Date now = new Date();
         return Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(key)
+                .setSubject(subject)
+                .claim(TOKEN_TYPE_CLAIM, tokenType)
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + expirationMillis))
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    /**
-     * Valida si un token es válido
-     * @param token Token JWT a validar
-     * @return true si es válido, false si no
-     */
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token);
+            parseClaims(token);
             return true;
         } catch (Exception e) {
             return false;
         }
     }
 
-    /**
-     * Extrae el email (subject) del token
-     * @param token Token JWT
-     * @return Email del usuario
-     */
-    public String extractEmail(String token) {
+    public String extractSubject(String token) {
+        return parseClaims(token).getSubject();
+    }
+
+    public String extractTokenType(String token) {
+        return parseClaims(token).get(TOKEN_TYPE_CLAIM, String.class);
+    }
+
+    private Claims parseClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .getBody();
     }
 
-    public String generarToken(String clienteId){
-        return Jwts.builder()
-            .setSubject(clienteId)
-            .setIssuedAt(new Date())
-            .setExpiration(new Date(System.currentTimeMillis()
-                                +EXPIRATION_TIME))
-            .signWith(key).compact();  
-    }
-    public boolean validarToken(String token){
-        try {
-            Jwts.parserBuilder()
-                .setSigningKey(key).build()
-                .parseClaimsJws(token);
-            return true;
-        } catch (Exception e) {
-            return false;    
-        }
-    }
-    public String extraerClienteId(String token){
-        return Jwts.parserBuilder()
-                .setSigningKey(key).build()
-                .parseClaimsJws(token)
-                .getBody().getSubject();
+    public long getExpirationMillis() {
+        return expirationMillis;
     }
 }

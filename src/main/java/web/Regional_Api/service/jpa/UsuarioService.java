@@ -9,6 +9,7 @@ import web.Regional_Api.service.IUsuarioService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -100,7 +101,12 @@ public class UsuarioService implements IUsuarioService {
         
         // Extraer el email del token
         // En el token guardamos como subject el nombreUsuarioLogin
-        String nombreUsuarioLogin = jwtUtil.extractEmail(token);
+        String tokenType = Optional.ofNullable(jwtUtil.extractTokenType(token)).orElse("USER");
+        if (!"USER".equalsIgnoreCase(tokenType)) {
+            throw new RuntimeException("Token no corresponde a un usuario");
+        }
+
+        String nombreUsuarioLogin = jwtUtil.extractSubject(token);
 
         // Buscar el usuario en la base de datos por nombreUsuarioLogin
         Optional<Usuarios> usuarioOpt = usuarioRepository.findByNombreUsuarioLogin(nombreUsuarioLogin);
@@ -119,6 +125,7 @@ public class UsuarioService implements IUsuarioService {
      */
     @Override
     public Optional<Usuarios> getUsuarioById(Integer id) {
+        Objects.requireNonNull(id, "El id no puede ser nulo");
         return usuarioRepository.findById(id);
     }
 
@@ -133,58 +140,66 @@ public class UsuarioService implements IUsuarioService {
     }
 
     @Override
+    @SuppressWarnings("null")
     public Optional<Usuarios> updateUsuario(Integer id, Usuarios usuario) {
-        return usuarioRepository.findById(id).map(existing -> {
-            if (usuario.getNombreUsuarioLogin() != null
-                    && !usuario.getNombreUsuarioLogin().equals(existing.getNombreUsuarioLogin())) {
-                if (usuarioRepository.existsByNombreUsuarioLogin(usuario.getNombreUsuarioLogin())) {
-                    throw new RuntimeException("El nombre de usuario de login ya está registrado en el sistema");
-                }
-                existing.setNombreUsuarioLogin(usuario.getNombreUsuarioLogin());
-            }
+        Objects.requireNonNull(id, "El id no puede ser nulo");
+        Optional<Usuarios> existenteOpt = usuarioRepository.findById(id);
+        if (existenteOpt.isEmpty()) {
+            return Optional.empty();
+        }
 
-            if (usuario.getNombreUsuario() != null) {
-                existing.setNombreUsuario(usuario.getNombreUsuario());
-            }
+        Usuarios existente = existenteOpt.get();
 
-            if (usuario.getApellidos() != null) {
-                existing.setApellidos(usuario.getApellidos());
+        if (usuario.getNombreUsuarioLogin() != null
+                && !usuario.getNombreUsuarioLogin().equals(existente.getNombreUsuarioLogin())) {
+            if (usuarioRepository.existsByNombreUsuarioLogin(usuario.getNombreUsuarioLogin())) {
+                throw new RuntimeException("El nombre de usuario de login ya está registrado en el sistema");
             }
+            existente.setNombreUsuarioLogin(usuario.getNombreUsuarioLogin());
+        }
 
-            if (usuario.getDniUsuario() != null) {
-                existing.setDniUsuario(usuario.getDniUsuario());
-            }
+        if (usuario.getNombreUsuario() != null) {
+            existente.setNombreUsuario(usuario.getNombreUsuario());
+        }
 
-            if (usuario.getTelefono() != null) {
-                existing.setTelefono(usuario.getTelefono());
-            }
+        if (usuario.getApellidos() != null) {
+            existente.setApellidos(usuario.getApellidos());
+        }
 
-            if (usuario.getContrasena() != null) {
-                existing.setContrasena(usuario.getContrasena());
-            }
+        if (usuario.getDniUsuario() != null) {
+            existente.setDniUsuario(usuario.getDniUsuario());
+        }
 
-            if (usuario.getRolId() != null) {
-                existing.setRolId(usuario.getRolId());
-            }
+        if (usuario.getTelefono() != null) {
+            existente.setTelefono(usuario.getTelefono());
+        }
 
-            if (usuario.getIdSucursal() != null) {
-                existing.setIdSucursal(usuario.getIdSucursal());
-            }
+        if (usuario.getContrasena() != null) {
+            existente.setContrasena(usuario.getContrasena());
+        }
 
-            if (usuario.getEstado() != null) {
-                existing.setEstado(usuario.getEstado());
-            }
+        if (usuario.getRolId() != null) {
+            existente.setRolId(usuario.getRolId());
+        }
 
-            if (usuario.getUltimoLogin() != null) {
-                existing.setUltimoLogin(usuario.getUltimoLogin());
-            }
+        if (usuario.getIdSucursal() != null) {
+            existente.setIdSucursal(usuario.getIdSucursal());
+        }
 
-            return usuarioRepository.save(existing);
-        });
+        if (usuario.getEstado() != null) {
+            existente.setEstado(usuario.getEstado());
+        }
+
+        if (usuario.getUltimoLogin() != null) {
+            existente.setUltimoLogin(usuario.getUltimoLogin());
+        }
+
+        return Optional.ofNullable(usuarioRepository.save(existente));
     }
 
     @Override
     public void deleteUsuario(Integer id) {
+        Objects.requireNonNull(id, "El id no puede ser nulo");
         if (!usuarioRepository.existsById(id)) {
             throw new RuntimeException("Usuario no encontrado");
         }

@@ -3,6 +3,7 @@ package web.Regional_Api.security;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -50,12 +51,11 @@ public class SecurityConfig {
                     "/usuarios/registro",
                     "/usuarios/login",
                     "/usuarios/validar-token",
-                    "/actuator/**",
-                    "/modulos", "/modulos/**",
-                    "/perfiles", "/perfiles/**",
-                    "/accesos", "/accesos/**",
-                    "/restful/**" // ← línea que tú añadiste
+                    "/restful/token",
+                    "/actuator/**"
                 ).permitAll()
+                .requestMatchers(HttpMethod.POST, "/restful/registros").permitAll()
+                .requestMatchers("/restful/**").hasRole("DEV")
                 .anyRequest().authenticated()
             );
 

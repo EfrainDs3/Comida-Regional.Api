@@ -1,5 +1,4 @@
 package web.Regional_Api.controller;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,7 +42,7 @@ public class RegistrosController {
         registro.setCliente_id(null);
         String claveOriginal = registro.getEmail() + 
                     registro.getNombres() + registro.getApellidos();
-        registro.setLlave_secreta(claveOriginal);
+        registro.setLlave_secreta(passwordEncoder.encode(claveOriginal));
         serviceRegistros.guardar(registro);
         return registro;
     }
@@ -67,22 +66,20 @@ public class RegistrosController {
                             Map<String,String> credenciales) {
         String clienteId = credenciales.get("cliente_id");
         String llaveSecreta = credenciales.get("llave_secreta");
+        if (clienteId == null || llaveSecreta == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", "cliente_id y llave_secreta son requeridos"));
+        }
         
-        Optional<Registros> user = serviceRegistros
-            .buscarTodos()
-            .stream()
-            .filter(r -> r.getCliente_id().equals(clienteId))
-            .findFirst();
+        Optional<Registros> user = serviceRegistros.buscarPorClienteId(clienteId);
         if(user.isPresent() && passwordEncoder.matches(llaveSecreta,
                             user.get().getLlave_secreta())){
-            String token = jwtUtil.generarToken(clienteId);
-            
-            Registros registro = user.get();
-            registro.setAccess_token(token); // guardar en Registros.java
-            serviceRegistros.guardar(registro); // guarda en la BD
+            String token = jwtUtil.generateDeveloperToken(clienteId);
 
-            return ResponseEntity.ok(Collections
-                .singletonMap("token", token));
+            return ResponseEntity.ok(Map.of(
+                    "token", token,
+                    "tokenType", "DEV",
+                    "expiresInMillis", jwtUtil.getExpirationMillis()));
         } 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
             .body("Credenciales incorrectas");
