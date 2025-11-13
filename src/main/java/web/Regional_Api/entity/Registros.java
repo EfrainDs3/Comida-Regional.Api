@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,21 +15,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="registros")
+@Table(name= "registros")
 
-@SQLDelete(sql ="UPDATE registros SET estado=0 WHERE idregistro=?")
+@SQLDelete(sql = "UPDATE resgistro SET estado = 0 WHERE idregistro = ?")
+@Where(clause="estado = 1")
 
-/* Cuando el modelo reciba del controlador el método para eliminar
-   un registro, lo que hará el modelo será cambiar el valor de
-   el campo estado = 0 (borrado lógico :3) */
-
-@Where(clause = "estado = 1")
-// Esto permite que se muestren solo los registros con estado = 1
-
-@SuppressWarnings("deprecation")
 public class Registros {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue (strategy = GenerationType.IDENTITY)
     private Integer idregistro;
     private String nombres;
     private String apellidos;
@@ -37,7 +31,7 @@ public class Registros {
     private String llave_secreta;
     private String access_token;
     private Integer estado = 1;
-    
+
     public Integer getIdregistro() {
         return idregistro;
     }
@@ -71,12 +65,9 @@ public class Registros {
         try {
             md = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            e.printStackTrace() ;
         }
-        if (md == null) {
-            throw new IllegalStateException("SHA-256 MessageDigest not available");
-        }
-        md.update(datos.getBytes());
+        md.update (datos.getBytes());
         byte[] digest = md.digest();
         String result = new BigInteger(1,digest).toString(16).toLowerCase();
         cliente_id = result;
@@ -86,7 +77,8 @@ public class Registros {
         return llave_secreta;
     }
     public void setLlave_secreta(String llave_secreta) {
-        this.llave_secreta = llave_secreta;
+        BCryptPasswordEncoder encoder = new     BCryptPasswordEncoder();   
+        this.llave_secreta = encoder.encode(llave_secreta);
     }
     public Integer getEstado() {
         return estado;
@@ -94,9 +86,11 @@ public class Registros {
     public void setEstado(Integer estado) {
         this.estado = estado;
     }
+
     public String getAccess_token() {
         return access_token;
     }
+
     public void setAccess_token(String access_token) {
         this.access_token = access_token;
     }
@@ -106,7 +100,8 @@ public class Registros {
                 + email + ", cliente_id=" + cliente_id + ", llave_secreta=" + llave_secreta + ", access_token="
                 + access_token + ", estado=" + estado + "]";
     }
-    
-    
+
+
+
     
 }

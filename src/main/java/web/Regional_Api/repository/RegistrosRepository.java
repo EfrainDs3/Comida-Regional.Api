@@ -10,7 +10,5 @@ import web.Regional_Api.entity.Registros;
 
 public interface RegistrosRepository extends JpaRepository<Registros, Integer>{
 
-	@Query("SELECT r FROM Registros r WHERE r.cliente_id = :clienteId")
-	Optional<Registros> findByClienteId(@Param("clienteId") String clienteId);
+    
 }
-

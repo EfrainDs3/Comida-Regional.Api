@@ -11,28 +11,31 @@ import web.Regional_Api.repository.RegistrosRepository;
 import web.Regional_Api.service.IRegistrosService;
 
 @Service
-public class RegistrosService implements IRegistrosService{
+public class RegistrosService implements  IRegistrosService {
+
     @Autowired
-    private RegistrosRepository repoRegistros;
-    public List<Registros> buscarTodos(){
+    private RegistrosRepository repoRegistros; 
+    public List<Registros> buscarTodos () {
         return repoRegistros.findAll();
     }
     public void guardar(Registros registro){
         repoRegistros.save(registro);
     }
-    public void modificar(Registros registro){
+     public void modificar(Registros registro){
         repoRegistros.save(registro);
     }
-    public Optional<Registros> buscarId(Integer id){
+
+    public Optional<Registros> buscarId (Integer id){
         return repoRegistros.findById(id);
     }
+
     public void eliminar(Integer id){
         repoRegistros.deleteById(id);
     }
 
-    @Override
-    public Optional<Registros> buscarPorClienteId(String clienteId) {
-        return repoRegistros.findByClienteId(clienteId);
-    }
+
+
+
+
 }
 

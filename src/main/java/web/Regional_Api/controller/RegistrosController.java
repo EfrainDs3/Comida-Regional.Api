@@ -1,4 +1,5 @@
 package web.Regional_Api.controller;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -21,67 +22,72 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 
 
+
+
+
 @RestController
 @RequestMapping("/restful")
 public class RegistrosController {
-    @Autowired
-    private IRegistrosService serviceRegistros;
 
-    @Autowired
-    private JwtUtil jwtUtil;
+        @Autowired
+        private IRegistrosService serviceRegistro;
+        @Autowired
+        private JwtUtil jwtUtil;
 
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+        @Autowired
+        private BCryptPasswordEncoder passwordEncoder;
 
-    @GetMapping("/registros")
-    public List<Registros> buscartodos() {
-        return serviceRegistros.buscarTodos();
-    }
-    @PostMapping("/registros")
-    public Registros guardar(@RequestBody Registros registro) {
-        registro.setCliente_id(null);
-        String claveOriginal = registro.getEmail() + 
-                    registro.getNombres() + registro.getApellidos();
-        registro.setLlave_secreta(passwordEncoder.encode(claveOriginal));
-        serviceRegistros.guardar(registro);
-        return registro;
-    }
-    @PutMapping("/registros")
-    public Registros modificar(@RequestBody Registros registro) {
-        serviceRegistros.modificar(registro);
-        return registro;
-    }
-    @GetMapping("/registros/{id}")
-    public Optional<Registros> buscarId(@PathVariable("id") Integer id) {
-        return serviceRegistros.buscarId(id);
-    }
-    @DeleteMapping("/registros/{id}")
-    public String eliminar(@PathVariable Integer id){
-        serviceRegistros.eliminar(id);
-        return "Registro eliminado";
-    }
+        @GetMapping ("/registros")
+        public List<Registros> buscarTodos() {
+            return serviceRegistro.buscarTodos();
+        }
 
-    @PostMapping("/token")
-    public ResponseEntity<?> obtenerToken(@RequestBody 
-                            Map<String,String> credenciales) {
-        String clienteId = credenciales.get("cliente_id");
-        String llaveSecreta = credenciales.get("llave_secreta");
-        if (clienteId == null || llaveSecreta == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("message", "cliente_id y llave_secreta son requeridos"));
+        @PostMapping("/registros")
+        public Registros guardar(@RequestBody Registros registro) {
+            registro.setCliente_id(null); 
+            String claveOriginal = registro.getEmail() + registro.getNombres() +
+                registro.getApellidos();
+                registro.setLlave_secreta(claveOriginal);
+            serviceRegistro.guardar(registro);
+        
+            return registro;
         }
         
-        Optional<Registros> user = serviceRegistros.buscarPorClienteId(clienteId);
-        if(user.isPresent() && passwordEncoder.matches(llaveSecreta,
-                            user.get().getLlave_secreta())){
+        @PutMapping("/registros")
+        public Registros modificar(@RequestBody Registros registro) {            
+            serviceRegistro.modificar(registro);
+            
+            return registro;
+        }
+
+        @GetMapping("/registros/{id}")
+        public Optional<Registros> buscarId(@PathVariable("id") Integer id) {
+            return serviceRegistro.buscarId(id);
+        }
+
+        @DeleteMapping("/registros/{id}")
+        public String eliminar (@PathVariable Integer id){
+            serviceRegistro.eliminar(id);
+            return "Registro eliminado";
+        }
+        
+        @PostMapping("/token")
+        public ResponseEntity<?> obtenerToken(@RequestBody Map<String, String> credenciales) {
+        String clienteId = credenciales.get("cliente_id");
+        String llaveSecreta = credenciales.get("llave_secreta");
+        Optional<Registros> user = serviceRegistro.buscarTodos().stream()
+                    .filter(r -> r.getCliente_id().equals(clienteId))
+                    .findFirst();
+        if (user.isPresent() && passwordEncoder.matches(llaveSecreta, user.get().getLlave_secreta())){
             String token = jwtUtil.generateDeveloperToken(clienteId);
 
-            return ResponseEntity.ok(Map.of(
-                    "token", token,
-                    "tokenType", "DEV",
-                    "expiresInMillis", jwtUtil.getExpirationMillis()));
-        } 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body("Credenciales incorrectas");
-    }     
+            Registros registros = user.get();
+            registros.setAccess_token(token);
+            serviceRegistro.guardar(registros);
+            return ResponseEntity.ok(Collections.singletonMap("token", token));
+        }            
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales Incorrectas");
+        }
+        
+
 }

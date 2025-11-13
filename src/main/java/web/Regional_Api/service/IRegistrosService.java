@@ -6,22 +6,23 @@ import java.util.Optional;
 import web.Regional_Api.entity.Registros;
 
 public interface IRegistrosService {
-    // CRUD para el API de Registros
-    
-    List<Registros> buscarTodos();
-    // Método para listar todos los elementos de Registros
 
-    void guardar(Registros registro);
-    // Método para guardar registros
+        //CRUD para mis API de Registro
+        List<Registros> buscarTodos();
 
-    void modificar(Registros registro);
-    // Método para modificar registros
+        //Método para listar todos los elementos de Registros
+        void guardar(Registros registro);
+        //Metodo para guardar registros
+        void modificar(Registros regsitro);
+        //Metodo modificar registro
 
-    Optional<Registros> buscarId(Integer id);
-    // Método para listar un registro 
+        Optional<Registros> buscarId(Integer id);
+        //Método de listado de registro
 
-    void eliminar(Integer id);
-    // Método para eliminar un registro
+        void eliminar (Integer id);
+        //Método para eliminar un registro 
 
-    Optional<Registros> buscarPorClienteId(String clienteId);
+        Optional<Registros> buscarPorClienteId(String clienteId);
+
+
 }
