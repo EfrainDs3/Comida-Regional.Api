@@ -14,12 +14,11 @@ public class UsuariosDTO {
     private Integer estado;
     private LocalDateTime fechaCreacion;
     private LocalDateTime ultimoLogin;
-    private String accessToken; // opcional para respuestas después de login/registro
 
     public UsuariosDTO() {}
 
     public UsuariosDTO(Integer idUsuario, Integer rolId, Integer idSucursal, String nombreUsuario, String apellidos, String dniUsuario,
-                       String telefono, String nombreUsuarioLogin, Integer estado, LocalDateTime fechaCreacion, LocalDateTime ultimoLogin, String accessToken) {
+                       String telefono, String nombreUsuarioLogin, Integer estado, LocalDateTime fechaCreacion, LocalDateTime ultimoLogin) {
         this.idUsuario = idUsuario;
         this.rolId = rolId;
         this.idSucursal = idSucursal;
@@ -31,7 +30,6 @@ public class UsuariosDTO {
         this.estado = estado;
         this.fechaCreacion = fechaCreacion;
         this.ultimoLogin = ultimoLogin;
-        this.accessToken = accessToken;
     }
 
     public Integer getIdUsuario() {
@@ -120,14 +118,6 @@ public class UsuariosDTO {
 
     public void setUltimoLogin(LocalDateTime ultimoLogin) {
         this.ultimoLogin = ultimoLogin;
-    }
-
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
     }
 
     @Override

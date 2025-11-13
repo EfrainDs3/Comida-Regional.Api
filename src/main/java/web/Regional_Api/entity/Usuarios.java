@@ -14,12 +14,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "usuario")
 @SQLDelete(sql = "UPDATE usuario SET estado = 0 WHERE id_usuario = ?")
-@Where(clause = "estado = 1")
+// @Where(clause = "estado = 1")
 
 public class Usuarios {
 
@@ -57,9 +56,6 @@ public class Usuarios {
     private Integer estado = 1;
 
  
-    @Transient
-    private String accessToken;
-
     @Column(name = "fecha_creacion", insertable = false, updatable = false)
     private LocalDateTime fechaCreacion;
 
@@ -70,15 +66,13 @@ public class Usuarios {
     }
     
         public Usuarios(Integer idUsuario, String nombreUsuario, String apellidos, String dniUsuario, String telefono,
-            String contrasena, Integer estado, Integer rolId, String nombreUsuarioLogin, String accessToken,
-            Integer idSucursal, LocalDateTime fechaCreacion, LocalDateTime ultimoLogin) {
+            String contrasena, Integer estado, Integer rolId, String nombreUsuarioLogin, Integer idSucursal, LocalDateTime fechaCreacion, LocalDateTime ultimoLogin) {
         this.idUsuario = idUsuario;
         this.nombreUsuario = nombreUsuario;
         this.apellidos = apellidos;
         this.dniUsuario = dniUsuario;
         this.telefono = telefono;
         this.setContrasena(contrasena);
-        this.accessToken = accessToken;
         this.estado = estado;
         this.rolId = rolId;
         this.nombreUsuarioLogin = nombreUsuarioLogin;
@@ -201,27 +195,9 @@ public class Usuarios {
         this.ultimoLogin = ultimoLogin;
     }
 
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
-
-    public String getNombreUsuarioLogin() {
-        return nombreUsuarioLogin;
-    }
-
-    public void setNombreUsuarioLogin(String nombreUsuarioLogin) {
-        this.nombreUsuarioLogin = nombreUsuarioLogin;
-    }
-
     @Override
     public String toString() {
-    return "Usuarios [idUsuario=" + idUsuario + ", nombreUsuario=" + nombreUsuario + ", apellidos=" + apellidos
-        + ", dniUsuario=" + dniUsuario + ", telefono=" + telefono + ", contrasena="
-        + contrasena + ", estado=" + estado + ", rolId=" + rolId + ", nombreUsuarioLogin=" + nombreUsuarioLogin + ", accessToken=" + accessToken + "]";
+        return "Usuarios [idUsuario=" + idUsuario + ", nombreUsuario=" + nombreUsuario + ", apellidos=" + apellidos + ", dniUsuario=" + dniUsuario + ", telefono=" + telefono + ", contrasena=" + contrasena + ", estado=" + estado + ", rolId=" + rolId + ", nombreUsuarioLogin=" + nombreUsuarioLogin + "]";
     }
     
 }

@@ -9,12 +9,16 @@ import org.springframework.stereotype.Service;
 import web.Regional_Api.entity.Registros;
 import web.Regional_Api.repository.RegistrosRepository;
 import web.Regional_Api.service.IRegistrosService;
+import web.Regional_Api.security.JwtUtil;
 
 @Service
 public class RegistrosService implements  IRegistrosService {
 
     @Autowired
     private RegistrosRepository repoRegistros; 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     public List<Registros> buscarTodos () {
         return repoRegistros.findAll();
     }
@@ -32,9 +36,17 @@ public class RegistrosService implements  IRegistrosService {
     public void eliminar(Integer id){
         repoRegistros.deleteById(id);
     }
+    @Override
+    public Optional<Registros> buscarPorClienteId(String clienteId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'buscarPorClienteId'");
+    }
 
+    public String generarToken(String clienteId) {
+        return jwtUtil.generateToken(clienteId);
+    }
 
-
-
-
+    public boolean validarToken(String token) {
+        return jwtUtil.validateToken(token);
+    }
 }
