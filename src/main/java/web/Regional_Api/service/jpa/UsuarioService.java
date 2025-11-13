@@ -1,6 +1,7 @@
 package web.Regional_Api.service.jpa;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import web.Regional_Api.entity.Usuarios;
 import web.Regional_Api.repository.UsuarioRepository;
@@ -40,10 +41,15 @@ public class UsuarioService implements IUsuarioService {
             throw new RuntimeException("El nombre de usuario de login ya está registrado en el sistema");
         }
 
+        // Cifrar la contraseña antes de guardar
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
+
+        // Generar token JWT
         String token = jwtUtil.generateToken(usuario.getNombreUsuarioLogin());
         usuario.setAccessToken(token);
 
-        // Guardar el usuario en la base de datos (el accessToken es transient y no se persistirá)
+        // Guardar el usuario en la base de datos
         return usuarioRepository.save(usuario);
     }
 
