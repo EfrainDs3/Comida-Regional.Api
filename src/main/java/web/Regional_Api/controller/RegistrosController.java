@@ -46,22 +46,22 @@ public class RegistrosController {
 
     @PostMapping("/registros")
     public Registros guardar(@RequestBody Registros registro) {
-        // Si `usuario_id` viene como número, verificar existencia y asociar
-        String incoming = registro.getUsuario_id();
+        // Si `id_usuario` viene como número, verificar existencia y asociar
+        String incoming = registro.getId_usuario();
         if (incoming != null && incoming.matches("\\d+")) {
             try {
                 Integer usuarioId = Integer.valueOf(incoming);
                 var usuarioOpt = usuarioService.getUsuarioById(usuarioId);
                 if (usuarioOpt.isPresent()) {
-                    registro.setUsuario_id(String.valueOf(usuarioOpt.get().getIdUsuario()));
+                    registro.setId_usuario(String.valueOf(usuarioOpt.get().getIdUsuario()));
                 } else {
-                    registro.setUsuario_id(null);
+                    registro.setId_usuario(null);
                 }
             } catch (NumberFormatException ex) {
-                registro.setUsuario_id(null);
+                registro.setId_usuario(null);
             }
         } else {
-            registro.setUsuario_id(null);
+            registro.setId_usuario(null);
         }
 
         String claveOriginal = registro.getEmail() + registro.getNombres() + registro.getApellidos();
@@ -90,17 +90,17 @@ public class RegistrosController {
 
     @PostMapping("/token")
     public ResponseEntity<?> obtenerToken(@RequestBody Map<String, String> credenciales) {
-        // Aceptar únicamente `usuario_id` (no más compatibilidad con `id_usuario`)
-        String usuarioId = credenciales.get("usuario_id");
+        // Aceptar únicamente `id_usuario`
+        String idUsuario = credenciales.get("id_usuario");
 
-        if (usuarioId == null || usuarioId.isBlank()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Se requiere 'usuario_id'");
+        if (idUsuario == null || idUsuario.isBlank()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Se requiere 'id_usuario'");
         }
         String llaveSecreta = credenciales.get("llave_secreta");
 
-        Optional<Registros> user = serviceRegistro.buscarPorUsuarioId(usuarioId);
+        Optional<Registros> user = serviceRegistro.buscarPorIdUsuario(idUsuario);
         if (user.isPresent() && passwordEncoder.matches(llaveSecreta, user.get().getLlave_secreta())) {
-            String token = serviceRegistro.generarToken(usuarioId);
+            String token = serviceRegistro.generarToken(idUsuario);
             Registros registro = user.get();
             registro.setAccess_token(token);
             serviceRegistro.guardar(registro);

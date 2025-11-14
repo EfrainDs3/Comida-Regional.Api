@@ -37,8 +37,8 @@ public class RegistrosService implements  IRegistrosService {
         repoRegistros.deleteById(id);
     }
     @Override
-    public Optional<Registros> buscarPorUsuarioId(String usuarioId) {
-        return repoRegistros.findByUsuarioId(usuarioId);
+    public Optional<Registros> buscarPorIdUsuario(String idUsuario) {
+        return repoRegistros.findByIdUsuario(idUsuario);
     }
 
     @Override
@@ -47,8 +47,8 @@ public class RegistrosService implements  IRegistrosService {
     }
 
     @Override
-    public String generarToken(String usuarioId) {
-        return jwtUtil.generateDeveloperToken(usuarioId);
+    public String generarToken(String idUsuario) {
+        return jwtUtil.generateDeveloperToken(idUsuario);
     }
 
     public boolean validarToken(String token) {

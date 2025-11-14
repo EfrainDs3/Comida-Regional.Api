@@ -68,12 +68,12 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     private void authenticateDeveloper(String token) {
-        String usuarioId = jwtUtil.extractSubject(token);
+        String idUsuario = jwtUtil.extractSubject(token);
         Optional<Registros> registro = registrosService.buscarPorAccessToken(token);
-        if (registro.isPresent() && registro.get().getUsuario_id() != null
-                && registro.get().getUsuario_id().equals(usuarioId)
+        if (registro.isPresent() && registro.get().getId_usuario() != null
+                && registro.get().getId_usuario().equals(idUsuario)
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(usuarioId, null,
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(idUsuario, null,
                     List.of(new SimpleGrantedAuthority("ROLE_DEV")));
             SecurityContextHolder.getContext().setAuthentication(auth);
         }

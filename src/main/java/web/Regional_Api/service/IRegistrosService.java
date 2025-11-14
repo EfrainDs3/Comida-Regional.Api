@@ -22,11 +22,11 @@ public interface IRegistrosService {
         void eliminar (Integer id);
         //Método para eliminar un registro 
 
-        Optional<Registros> buscarPorUsuarioId(String usuarioId);
+        Optional<Registros> buscarPorIdUsuario(String idUsuario);
 
         Optional<Registros> buscarPorAccessToken(String accessToken);
 
-        String generarToken(String usuarioId);
+        String generarToken(String idUsuario);
 
         boolean validarToken(String token);
 

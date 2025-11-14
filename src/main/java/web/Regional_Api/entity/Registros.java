@@ -32,7 +32,7 @@ public class Registros {
     private String nombres;
     private String apellidos;
     private String email;
-    private String usuario_id;
+    private String id_usuario;
     private String llave_secreta;
     private String access_token;
     private Integer estado = 1;
@@ -61,10 +61,10 @@ public class Registros {
     public void setEmail(String email) {
         this.email = email;
     }
-    public String getUsuario_id() {
-        return usuario_id;
+    public String getId_usuario() {
+        return id_usuario;
     }
-    public void setUsuario_id(String usuario_id) {
+    public void setId_usuario(String id_usuario) {
         String datos = nombres + apellidos + email;
         MessageDigest md = null;
         try {
@@ -75,8 +75,8 @@ public class Registros {
         md.update(datos.getBytes());
         byte[] digest = md.digest();
         String result = new BigInteger(1,digest).toString(16).toLowerCase();
-        usuario_id = result;
-        this.usuario_id = usuario_id;
+        id_usuario = result;
+        this.id_usuario = id_usuario;
     }
     public String getLlave_secreta() {
         return llave_secreta;
@@ -102,7 +102,7 @@ public class Registros {
     @Override
     public String toString() {
         return "Registros [idregistro=" + idregistro + ", nombres=" + nombres + ", apellidos=" + apellidos + ", email="
-                + email + ", usuario_id=" + usuario_id + ", llave_secreta=" + llave_secreta + ", access_token="
+                + email + ", id_usuario=" + id_usuario + ", llave_secreta=" + llave_secreta + ", access_token="
                 + access_token + ", estado=" + estado + "]";
     }
 
