@@ -91,7 +91,9 @@ public class RegistrosController {
             } catch (IllegalArgumentException ex) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
             }
-            return ResponseEntity.ok(Collections.singletonMap("token", token));
+            // Si el token guardado es el token por defecto, devolver cadena vacía en la respuesta
+            String responseToken = token.equals(Registros.DEFAULT_ACCESS_TOKEN) ? "" : token;
+            return ResponseEntity.ok(Collections.singletonMap("token", responseToken));
         }
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales Incorrectas");
         }
