@@ -9,6 +9,10 @@ import org.springframework.data.repository.query.Param;
 import web.Regional_Api.entity.Registros;
 
 public interface RegistrosRepository extends JpaRepository<Registros, Integer>{
+	@Query("SELECT r FROM Registros r WHERE r.access_token = :token")
+	Optional<Registros> findByAccessToken(@Param("token") String token);
 
+	@Query("SELECT r FROM Registros r WHERE r.usuario_id = :usuarioId")
+	Optional<Registros> findByUsuarioId(@Param("usuarioId") String usuarioId);
     
 }

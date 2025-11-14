@@ -85,11 +85,16 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     private void authenticateDeveloper(String token) {
-        String clienteId = jwtUtil.extractSubject(token);
-        Optional<Registros> registro = registrosService.buscarPorClienteId(clienteId);
-        if (registro.isPresent() && SecurityContextHolder.getContext().getAuthentication() == null) {
+        // First, extract the subject from the token (should be the cliente/usuario identifier)
+        String usuarioId = jwtUtil.extractSubject(token);
+        // Then check that the token is still valid in DB (not revoked) by finding the record by access token
+        Optional<Registros> registro = registrosService.buscarPorAccessToken(token);
+        if (registro.isPresent()
+            && registro.get().getUsuario_id() != null
+            && registro.get().getUsuario_id().equals(usuarioId)
+            && SecurityContextHolder.getContext().getAuthentication() == null) {
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                    clienteId,
+                    usuarioId,
                     null,
                     List.of(new SimpleGrantedAuthority("ROLE_DEV")));
             SecurityContextHolder.getContext().setAuthentication(auth);

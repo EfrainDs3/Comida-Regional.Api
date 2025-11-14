@@ -16,9 +16,14 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name= "registros")
+@SQLDelete(sql ="UPDATE registros SET estado=0 WHERE idregistro=?")
 
-@SQLDelete(sql = "UPDATE resgistro SET estado = 0 WHERE idregistro = ?")
-@Where(clause="estado = 1")
+/* Cuando el modelo reciba del controlador el método para eliminar
+    un registro, lo que hará el modelo será cambiar el valor de
+    el campo estado = 0 (borrado lógico :3) */
+
+@Where(clause = "estado = 1")
+// Esto permite que se muestren solo los registros con estado = 1
 
 public class Registros {
     @Id
@@ -27,7 +32,7 @@ public class Registros {
     private String nombres;
     private String apellidos;
     private String email;
-    private String cliente_id;
+    private String usuario_id;
     private String llave_secreta;
     private String access_token;
     private Integer estado = 1;
@@ -56,28 +61,28 @@ public class Registros {
     public void setEmail(String email) {
         this.email = email;
     }
-    public String getCliente_id() {
-        return cliente_id;
+    public String getUsuario_id() {
+        return usuario_id;
     }
-    public void setCliente_id(String cliente_id) {
+    public void setUsuario_id(String usuario_id) {
         String datos = nombres + apellidos + email;
         MessageDigest md = null;
         try {
             md = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace() ;
+            e.printStackTrace();
         }
-        md.update (datos.getBytes());
+        md.update(datos.getBytes());
         byte[] digest = md.digest();
         String result = new BigInteger(1,digest).toString(16).toLowerCase();
-        cliente_id = result;
-        this.cliente_id = cliente_id;
+        usuario_id = result;
+        this.usuario_id = usuario_id;
     }
     public String getLlave_secreta() {
         return llave_secreta;
     }
     public void setLlave_secreta(String llave_secreta) {
-        BCryptPasswordEncoder encoder = new     BCryptPasswordEncoder();   
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         this.llave_secreta = encoder.encode(llave_secreta);
     }
     public Integer getEstado() {
@@ -97,7 +102,7 @@ public class Registros {
     @Override
     public String toString() {
         return "Registros [idregistro=" + idregistro + ", nombres=" + nombres + ", apellidos=" + apellidos + ", email="
-                + email + ", cliente_id=" + cliente_id + ", llave_secreta=" + llave_secreta + ", access_token="
+                + email + ", usuario_id=" + usuario_id + ", llave_secreta=" + llave_secreta + ", access_token="
                 + access_token + ", estado=" + estado + "]";
     }
 

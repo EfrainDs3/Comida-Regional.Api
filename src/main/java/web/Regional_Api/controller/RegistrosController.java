@@ -31,6 +31,8 @@ public class RegistrosController {
 
         @Autowired
         private BCryptPasswordEncoder passwordEncoder;
+        @Autowired
+        private web.Regional_Api.service.jpa.UsuarioService usuarioService;
 
         @GetMapping ("/registros")
         public List<Registros> buscarTodos() {
@@ -39,12 +41,31 @@ public class RegistrosController {
 
         @PostMapping("/registros")
         public Registros guardar(@RequestBody Registros registro) {
-            registro.setCliente_id(null); 
-            String claveOriginal = registro.getEmail() + registro.getNombres() +
-                registro.getApellidos();
-                registro.setLlave_secreta(claveOriginal);
+            // Si el cliente_id/usuario_id viene como número, se interpreta como id de Usuarios
+            String incomingCliente = registro.getUsuario_id();
+            if (incomingCliente != null && incomingCliente.matches("\\d+")) {
+                try {
+                    Integer usuarioId = Integer.valueOf(incomingCliente);
+                    var usuarioOpt = usuarioService.getUsuarioById(usuarioId);
+                    if (usuarioOpt.isPresent()) {
+                        // Asociar el registro al id_usuario (guardar como cadena)
+                        registro.setUsuario_id(String.valueOf(usuarioOpt.get().getIdUsuario()));
+                    } else {
+                        // Si no existe el usuario, generar el cliente_id tradicional
+                        registro.setUsuario_id(null);
+                    }
+                } catch (NumberFormatException ex) {
+                    registro.setUsuario_id(null);
+                }
+            } else {
+                // comportamiento por defecto: calcular cliente_id desde nombres/apellidos/email
+                registro.setUsuario_id(null);
+            }
+
+            String claveOriginal = registro.getEmail() + registro.getNombres() + registro.getApellidos();
+            registro.setLlave_secreta(claveOriginal);
             serviceRegistro.guardar(registro);
-        
+
             return registro;
         }
         
@@ -71,7 +92,7 @@ public class RegistrosController {
         String clienteId = credenciales.get("cliente_id");
         String llaveSecreta = credenciales.get("llave_secreta");
         Optional<Registros> user = serviceRegistro.buscarTodos().stream()
-                    .filter(r -> r.getCliente_id().equals(clienteId))
+                    .filter(r -> r.getUsuario_id().equals(clienteId))
                     .findFirst();
         if (user.isPresent() && passwordEncoder.matches(llaveSecreta, user.get().getLlave_secreta())){
             String token = jwtUtil.generateDeveloperToken(clienteId);

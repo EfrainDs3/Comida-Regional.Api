@@ -98,6 +98,14 @@ public class Usuarios {
         this.nombreUsuario = nombreUsuario;
     }
 
+    public String getNombreUsuarioLogin() {
+        return nombreUsuarioLogin;
+    }
+
+    public void setNombreUsuarioLogin(String nombreUsuarioLogin) {
+        this.nombreUsuarioLogin = nombreUsuarioLogin;
+    }
+
     
     public String getApellidos() {
         return apellidos;
