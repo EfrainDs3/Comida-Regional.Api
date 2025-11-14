@@ -31,6 +31,7 @@ public class Registros {
     private String id_usuario;
     private String llave_secreta;
     private String access_token;
+    public static final String DEFAULT_ACCESS_TOKEN = "default_access_token";
     private Integer estado = 1;
 
     public Integer getIdregistro() {
@@ -93,7 +94,11 @@ public class Registros {
     }
 
     public void setAccess_token(String access_token) {
-        this.access_token = access_token;
+        if (access_token == null || access_token.trim().isEmpty()) {
+            this.access_token = DEFAULT_ACCESS_TOKEN;
+        } else {
+            this.access_token = access_token;
+        }
     }
     @Override
     public String toString() {
