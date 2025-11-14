@@ -24,11 +24,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowCredentials(true);
-        configuration.addAllowedOriginPattern("*");
-        configuration.addAllowedHeader("*");
+        configuration.addAllowedOrigin("*"); // Permitir todos los orígenes temporalmente
         configuration.addAllowedMethod("*");
-
+        configuration.addAllowedHeader("*");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
@@ -51,9 +49,11 @@ public class SecurityConfig {
                     "/usuarios/registro",
                     "/usuarios/login",
                     "/usuarios/validar-token",
-                    "/restful/token",
-                    "/actuator/**"
+                    "/restful/token", // Permitir acceso sin autenticación
+                    "/actuator/**",
+                    "/vistatokenregional.php" // Se permite el acceso a este endpoint para GET
                 ).permitAll()
+                .requestMatchers(HttpMethod.GET, "/vistatokenregional.php").permitAll()
                 .requestMatchers(HttpMethod.POST, "/restful/registros").permitAll()
                 .requestMatchers("/restful/**").hasRole("DEV")
                 .anyRequest().authenticated()
