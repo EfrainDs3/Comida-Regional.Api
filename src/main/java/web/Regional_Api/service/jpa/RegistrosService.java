@@ -37,13 +37,16 @@ public class RegistrosService implements  IRegistrosService {
         repoRegistros.deleteById(id);
     }
     @Override
-    public Optional<Registros> buscarPorClienteId(String clienteId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'buscarPorClienteId'");
+    public Optional<Registros> buscarPorUsuarioId(String usuarioId) {
+        return repoRegistros.findAll()
+                .stream()
+                .filter(r -> usuarioId.equals(r.getUsuario_id()))
+                .findFirst();
     }
 
-    public String generarToken(String clienteId) {
-        return jwtUtil.generateToken(clienteId);
+    @Override
+    public String generarToken(String usuarioId) {
+        return jwtUtil.generateToken(usuarioId);
     }
 
     public boolean validarToken(String token) {
