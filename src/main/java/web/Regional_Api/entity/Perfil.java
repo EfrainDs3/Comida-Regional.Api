@@ -56,6 +56,4 @@ public class Perfil {
     public String toString() {
 		return "Perfil [idPerfil=" + idPerfil + ", nombrePerfil=" + nombrePerfil + ", estado=" + estado + "]";
     }
-
-
 }

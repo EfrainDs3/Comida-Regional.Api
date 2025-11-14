@@ -87,4 +87,10 @@ public class PagoSuscripcion {
     public void setEstado_pago(Integer estado_pago) {
         this.estado_pago = estado_pago;
     }
+    @Override
+    public String toString() {
+        return "PagoSuscripcion [id_pago=" + id_pago + ", restaurante=" + restaurante + ", fecha_pago=" + fecha_pago
+                + ", monto=" + monto + ", periodoCubiertoInicio=" + periodoCubiertoInicio + ", periodoCubiertoFin="
+                + periodoCubiertoFin + ", estado_pago=" + estado_pago + "]";
+    }
 }

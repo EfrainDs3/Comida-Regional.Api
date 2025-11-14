@@ -61,4 +61,10 @@ public class Categoria {
     public void setEstado(Integer estado) {
         this.estado = estado;
     }
+    @Override
+    public String toString() {
+        return "Categoria [id_categoria=" + id_categoria + ", restaurante=" + restaurante + ", nombre=" + nombre
+                + ", descripcion=" + descripcion + ", estado=" + estado + "]";
+    }
+
 }

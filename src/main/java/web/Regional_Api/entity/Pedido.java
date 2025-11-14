@@ -78,4 +78,11 @@ public class Pedido {
     public void setEstado(Integer estado) { this.estado = estado; }
     public List<DetallePedido> getDetalles() { return detalles; }
     public void setDetalles(List<DetallePedido> detalles) { this.detalles = detalles; }
+    @Override
+    public String toString() {
+        return "Pedido [id_pedido=" + id_pedido + ", mesa=" + mesa + ", usuario=" + usuario + ", fecha_hora="
+                + fecha_hora + ", estado_pedido=" + estado_pedido + ", notas=" + notas + ", estado=" + estado
+                + ", detalles=" + detalles + "]";
+    }
+    
 }

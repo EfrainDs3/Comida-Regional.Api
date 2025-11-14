@@ -205,7 +205,9 @@ public class Usuarios {
 
     @Override
     public String toString() {
-        return "Usuarios [idUsuario=" + idUsuario + ", nombreUsuario=" + nombreUsuario + ", apellidos=" + apellidos + ", dniUsuario=" + dniUsuario + ", telefono=" + telefono + ", contrasena=" + contrasena + ", estado=" + estado + ", rolId=" + rolId + ", nombreUsuarioLogin=" + nombreUsuarioLogin + "]";
+        return "Usuarios [idUsuario=" + idUsuario + ", rolId=" + rolId + ", idSucursal=" + idSucursal
+                + ", nombreUsuario=" + nombreUsuario + ", apellidos=" + apellidos + ", dniUsuario=" + dniUsuario
+                + ", telefono=" + telefono + ", nombreUsuarioLogin=" + nombreUsuarioLogin + ", contrasena=" + contrasena
+                + ", estado=" + estado + ", fechaCreacion=" + fechaCreacion + ", ultimoLogin=" + ultimoLogin + "]";
     }
-    
 }

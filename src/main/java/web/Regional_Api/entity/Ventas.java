@@ -174,8 +174,4 @@ public class Ventas {
                 + ", numeroComprobante=" + numeroComprobante + ", montoTotal=" + montoTotal + ", impuestos=" + impuestos
                 + ", metodoPago=" + metodoPago + ", fechaVenta=" + fechaVenta + ", estado=" + estado + "]";
     }
-
-
-
-
 }

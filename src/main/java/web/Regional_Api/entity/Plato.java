@@ -81,4 +81,11 @@ public class Plato {
     public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
     }
+
+    @Override
+    public String toString() {
+        return "Plato [id_plato=" + id_plato + ", nombre=" + nombre + ", descripcion=" + descripcion + ", precio="
+                + precio + ", estado=" + estado + ", categoria=" + categoria + "]";
+    }
+    
 }

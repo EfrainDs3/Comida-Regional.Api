@@ -96,8 +96,4 @@ public class Proveedores {
                 + ", contacto_nombre=" + contacto_nombre + ", contacto_telefono=" + contacto_telefono + ", estado="
                 + estado + ", id_restaurante=" + id_restaurante + "]";
     }
-   
-    
-
-    
 }

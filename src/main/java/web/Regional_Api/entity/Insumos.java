@@ -125,4 +125,13 @@ public class Insumos {
     public void setSucursales(Sucursales sucursales) {
         this.sucursales = sucursales;
     }
+
+    @Override
+    public String toString() {
+        return "Insumos [id_insumo=" + id_insumo + ", nombre=" + nombre + ", descripcion=" + descripcion
+                + ", stock_actual=" + stock_actual + ", stock_minimo=" + stock_minimo + ", unidad_medida="
+                + unidad_medida + ", fecha_vencimiento=" + fecha_vencimiento + ", estado=" + estado + ", sucursales="
+                + sucursales + "]";
+    }
+    
 }

@@ -100,4 +100,11 @@ public class MovimientosInventario {
     public void setProveedor(Proveedores proveedor) {
         this.proveedor = proveedor;
     }
+    @Override
+    public String toString() {
+        return "MovimientosInventario [id_movimiento=" + id_movimiento + ", cantidad=" + cantidad + ", motivo=" + motivo
+                + ", tipo_movimiento=" + tipo_movimiento + ", fecha_movimiento=" + fecha_movimiento + ", insumo="
+                + insumo + ", usuario=" + usuario + ", proveedor=" + proveedor + "]";
+    }
+    
 }

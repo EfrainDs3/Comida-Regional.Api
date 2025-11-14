@@ -50,4 +50,10 @@ public class DetallePedido {
     public void setPrecio_unitario(BigDecimal precio_unitario) { this.precio_unitario = precio_unitario; }
     public BigDecimal getSubtotal() { return subtotal; }
     public void setSubtotal(BigDecimal subtotal) { this.subtotal = subtotal; }
+    @Override
+    public String toString() {
+        return "DetallePedido [id_detalle=" + id_detalle + ", pedido=" + pedido + ", plato=" + plato + ", cantidad="
+                + cantidad + ", precio_unitario=" + precio_unitario + ", subtotal=" + subtotal + "]";
+    }
+    
 }

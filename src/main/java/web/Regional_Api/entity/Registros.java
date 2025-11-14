@@ -104,9 +104,5 @@ public class Registros {
         return "Registros [idregistro=" + idregistro + ", nombres=" + nombres + ", apellidos=" + apellidos + ", email="
                 + email + ", id_usuario=" + id_usuario + ", llave_secreta=" + llave_secreta + ", access_token="
                 + access_token + ", estado=" + estado + "]";
-    }
-
-
-
-    
+    }    
 }

@@ -106,8 +106,9 @@ public class Sucursales {
 
     @Override
     public String toString() {
-        return "Sucursales [idSucursal=" + idSucursal + ", idRestaurante=" + idRestaurante + 
-               ", nombre=" + nombre + ", direccion=" + direccion + ", telefono=" + telefono + 
-               ", horarioAtencion=" + horarioAtencion + ", estado=" + estado + "]";
+        return "Sucursales [idSucursal=" + idSucursal + ", idRestaurante=" + idRestaurante + ", nombre=" + nombre
+                + ", direccion=" + direccion + ", telefono=" + telefono + ", horarioAtencion=" + horarioAtencion
+                + ", estado=" + estado + "]";
     }
+
 }

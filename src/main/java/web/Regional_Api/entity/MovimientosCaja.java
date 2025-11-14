@@ -64,4 +64,11 @@ public class MovimientosCaja {
     public void setMonto(BigDecimal monto) { this.monto = monto; }
     public LocalDateTime getFechaMovimiento() { return fechaMovimiento; }
     public void setFechaMovimiento(LocalDateTime fechaMovimiento) { this.fechaMovimiento = fechaMovimiento; }
+
+    @Override
+    public String toString() {
+        return "MovimientosCaja [idMovimientoCaja=" + idMovimientoCaja + ", idSesion=" + idSesion + ", idUsuario="
+                + idUsuario + ", tipoMovimiento=" + tipoMovimiento + ", concepto=" + concepto + ", monto=" + monto
+                + ", fechaMovimiento=" + fechaMovimiento + "]";
+    } 
 }

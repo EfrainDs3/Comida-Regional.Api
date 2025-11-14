@@ -67,7 +67,5 @@ public class Modulo {
     public String toString() {
         return "Modulo [idModulo=" + idModulo + ", nombreModulo=" + nombreModulo + ", estado=" + estado + ", orden="
                 + orden + "]";
-    }
-
-    
+    } 
 }

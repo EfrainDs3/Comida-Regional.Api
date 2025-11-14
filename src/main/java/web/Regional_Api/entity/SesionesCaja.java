@@ -11,11 +11,7 @@ import java.time.LocalDateTime;
 @SQLDelete(sql = "UPDATE sesiones_caja SET estado=0 WHERE id_sesion=?") 
 @Where(clause = "estado=1") 
 public class SesionesCaja {
-    
-    // ... (Atributos idSesion, idSucursal, idUsuarioApertura, montoInicial, fechaApertura,
-    //      idUsuarioCierre, montoFinalCalculado, montoFinalReal, diferencia, fechaCierre, estado)
-    //      tal como los definimos anteriormente, incluyendo BigDecimal y LocalDateTime.
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_sesion")
@@ -48,11 +44,10 @@ public class SesionesCaja {
     private LocalDateTime fechaCierre; 
 
     @Column(nullable = false)
-    private Integer estado = 1; // 1: Abierta, 0: Cerrada/Eliminada
+    private Integer estado = 1;
 
-    // (Constructores, Getters y Setters completos...)
+   
     public SesionesCaja() {}
-    // ... (Getters y Setters) ...
     
     public Integer getIdSesion() { return idSesion; }
     public void setIdSesion(Integer idSesion) { this.idSesion = idSesion; }
@@ -76,9 +71,13 @@ public class SesionesCaja {
     public void setFechaCierre(LocalDateTime fechaCierre) { this.fechaCierre = fechaCierre; }
     public Integer getEstado() { return estado; }
     public void setEstado(Integer estado) { this.estado = estado; }
-    
+
     @Override
     public String toString() {
-        return "SesionesCaja [idSesion=" + idSesion + ", idSucursal=" + idSucursal + ", montoInicial=" + montoInicial + ", estado=" + estado + "]";
+        return "SesionesCaja [idSesion=" + idSesion + ", idSucursal=" + idSucursal + ", idUsuario=" + idUsuario
+                + ", montoInicial=" + montoInicial + ", fechaApertura=" + fechaApertura + ", idUsuarioCierre="
+                + idUsuarioCierre + ", montoFinalCalculado=" + montoFinalCalculado + ", montoFinalReal="
+                + montoFinalReal + ", diferencia=" + diferencia + ", fechaCierre=" + fechaCierre + ", estado=" + estado
+                + "]";
     }
 }

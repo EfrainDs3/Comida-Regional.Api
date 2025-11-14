@@ -1,4 +1,3 @@
-
 package web.Regional_Api.entity;
 
 import org.hibernate.annotations.Where;
