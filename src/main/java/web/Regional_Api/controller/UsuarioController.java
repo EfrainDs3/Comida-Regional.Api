@@ -104,4 +104,4 @@ public class UsuarioController {
             @RequestBody(required = false) Map<String, String> body) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("success", false, "message", "Endpoint no disponible"));
     }
-}
+}//
