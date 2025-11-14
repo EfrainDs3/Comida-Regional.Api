@@ -14,16 +14,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+
 @Entity
 @Table(name= "registros")
-@SQLDelete(sql ="UPDATE registros SET estado=0 WHERE idregistro=?")
 
-/* Cuando el modelo reciba del controlador el método para eliminar
-    un registro, lo que hará el modelo será cambiar el valor de
-    el campo estado = 0 (borrado lógico :3) */
-
-@Where(clause = "estado = 1")
-// Esto permite que se muestren solo los registros con estado = 1
+@SQLDelete(sql = "UPDATE resgistro SET estado = 0 WHERE idregistro = ?")
+@Where(clause="estado = 1")
 
 public class Registros {
     @Id
@@ -61,18 +57,18 @@ public class Registros {
     public void setEmail(String email) {
         this.email = email;
     }
-    public String getId_usuario() {
+    public String getid_usuario() {
         return id_usuario;
     }
-    public void setId_usuario(String id_usuario) {
+    public void setid_usuario(String id_usuario) {
         String datos = nombres + apellidos + email;
         MessageDigest md = null;
         try {
             md = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            e.printStackTrace() ;
         }
-        md.update(datos.getBytes());
+        md.update (datos.getBytes());
         byte[] digest = md.digest();
         String result = new BigInteger(1,digest).toString(16).toLowerCase();
         id_usuario = result;
@@ -82,7 +78,7 @@ public class Registros {
         return llave_secreta;
     }
     public void setLlave_secreta(String llave_secreta) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        BCryptPasswordEncoder encoder = new     BCryptPasswordEncoder();   
         this.llave_secreta = encoder.encode(llave_secreta);
     }
     public Integer getEstado() {
@@ -104,5 +100,9 @@ public class Registros {
         return "Registros [idregistro=" + idregistro + ", nombres=" + nombres + ", apellidos=" + apellidos + ", email="
                 + email + ", id_usuario=" + id_usuario + ", llave_secreta=" + llave_secreta + ", access_token="
                 + access_token + ", estado=" + estado + "]";
-    }    
+    }
+
+
+
+    
 }

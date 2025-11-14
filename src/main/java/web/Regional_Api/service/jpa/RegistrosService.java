@@ -9,16 +9,13 @@ import org.springframework.stereotype.Service;
 import web.Regional_Api.entity.Registros;
 import web.Regional_Api.repository.RegistrosRepository;
 import web.Regional_Api.service.IRegistrosService;
-import web.Regional_Api.security.JwtUtil;
+
 
 @Service
 public class RegistrosService implements  IRegistrosService {
 
     @Autowired
     private RegistrosRepository repoRegistros; 
-    @Autowired
-    private JwtUtil jwtUtil;
-
     public List<Registros> buscarTodos () {
         return repoRegistros.findAll();
     }
@@ -36,22 +33,29 @@ public class RegistrosService implements  IRegistrosService {
     public void eliminar(Integer id){
         repoRegistros.deleteById(id);
     }
+
     @Override
     public Optional<Registros> buscarPorIdUsuario(String idUsuario) {
-        return repoRegistros.findByIdUsuario(idUsuario);
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public Optional<Registros> buscarPorAccessToken(String accessToken) {
-        return repoRegistros.findByAccessToken(accessToken);
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public String generarToken(String idUsuario) {
-        return jwtUtil.generateDeveloperToken(idUsuario);
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public boolean validarToken(String token) {
-        return jwtUtil.validateToken(token);
+        throw new UnsupportedOperationException("Not supported yet.");
     }
+
+
+
+
+
 }
