@@ -20,6 +20,10 @@ public class RegistrosService implements  IRegistrosService {
         return repoRegistros.findAll();
     }
     public void guardar(Registros registro){
+        // Si se está guardando un access_token, valida que no sea cadena vacía
+        if (registro.getAccess_token() != null && registro.getAccess_token().trim().isEmpty()) {
+            throw new IllegalArgumentException("Access token cannot be null or empty");
+        }
         repoRegistros.save(registro);
     }
      public void modificar(Registros registro){

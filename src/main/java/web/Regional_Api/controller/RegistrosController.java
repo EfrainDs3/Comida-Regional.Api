@@ -79,11 +79,20 @@ public class RegistrosController {
         if (user.isPresent() && passwordEncoder.matches(llaveSecreta, user.get().getLlave_secreta())){
             String token = jwtUtil.generarToken(usuarioId);
 
+            // Verificar que el token generado sea válido (no nulo ni vacío)
+            if (token == null || token.trim().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to generate token");
+            }
+
             Registros registros = user.get();
             registros.setAccess_token(token);
-            serviceRegistro.guardar(registros);
+            try {
+                serviceRegistro.guardar(registros);
+            } catch (IllegalArgumentException ex) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+            }
             return ResponseEntity.ok(Collections.singletonMap("token", token));
-        }            
+        }
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales Incorrectas");
         }
         
