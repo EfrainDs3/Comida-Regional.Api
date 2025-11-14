@@ -38,6 +38,7 @@ public class RegistrosService implements  IRegistrosService {
     }
     @Override
     public Optional<Registros> buscarPorUsuarioId(String usuarioId) {
+<<<<<<< HEAD
         return repoRegistros.findByUsuarioId(usuarioId);
     }
 
@@ -49,6 +50,17 @@ public class RegistrosService implements  IRegistrosService {
     @Override
     public String generarToken(String clienteId) {
         return jwtUtil.generateToken(clienteId);
+=======
+        return repoRegistros.findAll()
+                .stream()
+                .filter(r -> usuarioId.equals(r.getUsuario_id()))
+                .findFirst();
+    }
+
+    @Override
+    public String generarToken(String usuarioId) {
+        return jwtUtil.generateToken(usuarioId);
+>>>>>>> f3962c3143b401d61ac21cb62ba9db512927d280
     }
 
     public boolean validarToken(String token) {

@@ -24,11 +24,15 @@ public interface IRegistrosService {
 
         Optional<Registros> buscarPorUsuarioId(String usuarioId);
 
+<<<<<<< HEAD
         Optional<Registros> buscarPorAccessToken(String accessToken);
 
         String generarToken(String clienteId);
 
         boolean validarToken(String token);
+=======
+        String generarToken(String usuarioId);
+>>>>>>> f3962c3143b401d61ac21cb62ba9db512927d280
 
 
 }
