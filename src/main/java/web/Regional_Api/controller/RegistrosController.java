@@ -90,8 +90,12 @@ public class RegistrosController {
 
     @PostMapping("/token")
     public ResponseEntity<?> obtenerToken(@RequestBody Map<String, String> credenciales) {
-        String usuarioId = Optional.ofNullable(credenciales.get("usuario_id"))
-                .orElse(credenciales.get("cliente_id"));
+        // Aceptar únicamente `usuario_id` (no más compatibilidad con `id_usuario`)
+        String usuarioId = credenciales.get("usuario_id");
+
+        if (usuarioId == null || usuarioId.isBlank()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Se requiere 'usuario_id'");
+        }
         String llaveSecreta = credenciales.get("llave_secreta");
 
         Optional<Registros> user = serviceRegistro.buscarPorUsuarioId(usuarioId);
