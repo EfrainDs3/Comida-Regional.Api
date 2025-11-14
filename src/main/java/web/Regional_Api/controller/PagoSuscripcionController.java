@@ -27,7 +27,6 @@ public class PagoSuscripcionController {
     @Autowired
     private IRestauranteService restauranteService;
 
-    // 1. GET (Todos)
     @GetMapping
     public ResponseEntity<List<PagoSuscripcionDTO>> obtenerTodos() {
         List<PagoSuscripcionDTO> pagos = pagoService.buscarTodos().stream()
@@ -36,7 +35,7 @@ public class PagoSuscripcionController {
         return ResponseEntity.ok(pagos);
     }
 
-    // 2. GET (Por ID)
+  
     @GetMapping("/{id}")
     public ResponseEntity<PagoSuscripcionDTO> obtenerPorId(@PathVariable Integer id) {
         return pagoService.buscarId(id)
@@ -45,7 +44,7 @@ public class PagoSuscripcionController {
                 .orElse(ResponseEntity.notFound().build());
     }
     
-    // 3. GET (Historial por Restaurante - RF10)
+
     @GetMapping("/restaurante/{idRestaurante}")
     public ResponseEntity<List<PagoSuscripcionDTO>> obtenerPagosPorRestaurante(@PathVariable Integer idRestaurante) {
         // (Opcional) Verificar si el restaurante existe
@@ -58,8 +57,6 @@ public class PagoSuscripcionController {
         return ResponseEntity.ok(pagos);
     }
 
-    // 4. POST (Crear)
-    @PostMapping
     public ResponseEntity<?> crear(@RequestBody PagoSuscripcionDTO dto) {
         
         Optional<Restaurante> optRestaurante = restauranteService.buscarId(dto.getId_restaurante());
@@ -67,8 +64,7 @@ public class PagoSuscripcionController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("No se puede crear el pago: El restaurante con ID " + dto.getId_restaurante() + " no existe.");
         }
-        
-        // Mapeo simple DTO -> Entidad
+  
         PagoSuscripcion pago = new PagoSuscripcion();
         pago.setRestaurante(optRestaurante.get()); // Asignamos el objeto
         
@@ -82,7 +78,7 @@ public class PagoSuscripcionController {
     return ResponseEntity.status(HttpStatus.CREATED).body(convertirADTO(nuevoPago));
     }
 
-    // 5. PUT (Actualizar)
+ 
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizar(@PathVariable Integer id, @RequestBody PagoSuscripcionDTO dto) {
         
@@ -97,10 +93,9 @@ public class PagoSuscripcionController {
                     .body("No se puede actualizar: El restaurante con ID " + dto.getId_restaurante() + " no existe.");
         }
         
-        // Mapeo simple DTO -> Entidad
+     
         PagoSuscripcion pago = optPago.get();
-        pago.setRestaurante(optRestaurante.get()); // Asignamos el objeto
-        
+        pago.setRestaurante(optRestaurante.get());
         pago.setFecha_pago(dto.getFecha_pago());
         pago.setMonto(dto.getMonto());
         pago.setPeriodoCubiertoInicio(dto.getPeriodo_cubierto_inicio());
@@ -111,7 +106,7 @@ public class PagoSuscripcionController {
     return ResponseEntity.ok(convertirADTO(actualizado));
     }
 
-    // 6. DELETE (Borrado Físico porque no hay 'estado ctmre')
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         if (pagoService.buscarId(id).isEmpty()) {

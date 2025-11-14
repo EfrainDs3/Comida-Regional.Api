@@ -57,11 +57,11 @@ public class PedidoController {
     }
 
 
-    // 3. POST (Crear Pedido y sus Detalles) - Lógica actualizada
+
     @PostMapping
     public ResponseEntity<?> crearPedido(@RequestBody PedidoDTO dto) {
         
-        // --- 1. Buscar Objetos para FK (Fidelidad) ---
+   
         Optional<Mesas> mes = mesaRepo.findById(dto.getId_mesa());
         Optional<Usuarios> usu = usuarioRepo.findById(dto.getId_usuario()); // Fiel al nuevo nombre
         
@@ -69,18 +69,16 @@ public class PedidoController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Mesa o Usuario no encontrado.");
         }
-        
-        // --- 2. Mapear DTO a Entidad "Padre" (Pedido) ---
+   
         Pedido pedido = new Pedido();
         pedido.setMesa(mes.get());
-        pedido.setUsuario(usu.get()); // Fiel al nuevo nombre
-        pedido.setNotas(dto.getNotas()); // Asignar nuevo campo
-        
-        // Fiel al enum: Asignamos el estado inicial
+        pedido.setUsuario(usu.get());
+        pedido.setNotas(dto.getNotas()); 
+    
+
         pedido.setEstado_pedido("En preparación"); 
         List<DetallePedido> detallesEntidad = new ArrayList<>();
-        
-        // --- 3. Mapear DTOs "Hijos" (Detalles) ---
+       
         for (DetallePedidoDTO detDto : dto.getDetalles()) {
             Optional<Plato> pla = platoRepo.findById(detDto.getId_plato());
             if (pla.isEmpty()) {
@@ -92,7 +90,7 @@ public class PedidoController {
             detalle.setPlato(pla.get());
             detalle.setCantidad(detDto.getCantidad());
             
-            // Asumimos que detalle_pedido AÚN TIENE estos campos
+
             detalle.setPrecio_unitario(detDto.getPrecio_unitario()); 
             BigDecimal subtotal = detDto.getPrecio_unitario()
                                     .multiply(new BigDecimal(detDto.getCantidad()));
@@ -108,11 +106,10 @@ public class PedidoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoPedido);
     }
 
-    // 4. PUT (Actualizar ESTADO de Pedido) - Fiel al Enum
     @PutMapping("/{id}/estado")
     public ResponseEntity<Pedido> actualizarEstado(
             @PathVariable Integer id, 
-            @RequestBody String nuevoEstado) { // Ejs: "Listo", "Entregado", "Cancelado"
+            @RequestBody String nuevoEstado) { 
         
         Optional<Pedido> opt = pedidoService.buscarId(id);
         if (opt.isEmpty()) {

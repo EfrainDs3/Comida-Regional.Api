@@ -38,8 +38,6 @@ public class DetallePedidoController {
             return ResponseEntity.notFound().build();
         }
     }
-
-    // 3. DELETE (Eliminar)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarDetalle(@PathVariable Integer id) {
         try {
