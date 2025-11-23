@@ -17,37 +17,56 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import web.Regional_Api.entity.Registros;
 import web.Regional_Api.repository.RegistrosRepository;
-
+import web.Regional_Api.entity.Usuarios;
+import web.Regional_Api.repository.UsuarioRepository;
 
 @Component
 public class JwtFilter extends GenericFilter {
     @Autowired
     private RegistrosRepository registrosRepository;
 
-@Override
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    @Override
     public void doFilter(ServletRequest req, ServletResponse res,
             FilterChain chain) throws IOException, ServletException {
-                
+
         HttpServletRequest request = (HttpServletRequest) req;
         String header = request.getHeader("Authorization");
 
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
+
+            // 1. Try Legacy Authentication (Registros table)
             Optional<Registros> match = registrosRepository.findAll()
-                .stream()
-                .filter(r -> token.equals(r.getAccess_token()))
-                .findFirst();
+                    .stream()
+                    .filter(r -> token.equals(r.getAccess_token()))
+                    .findFirst();
 
             if (match.isPresent()) {
                 String clienteId = match.get().getid_usuario();
-                UsernamePasswordAuthenticationToken auth = 
-                    new UsernamePasswordAuthenticationToken(clienteId, 
-                    null, Collections.emptyList());
+                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(clienteId,
+                        null, Collections.emptyList());
                 SecurityContextHolder.getContext().setAuthentication(auth);
+            }
+            // 2. Try New Admin Authentication (Usuarios table)
+            else if (jwtUtil.validarToken(token)) {
+                String username = jwtUtil.extraerClienteId(token);
+                Optional<Usuarios> usuarioOpt = usuarioRepository
+                        .findByNombreUsuarioLogin(username);
+
+                if (usuarioOpt.isPresent()) {
+                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username,
+                            null, Collections.emptyList());
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
             }
         }
 
         chain.doFilter(req, res);
     }
-
 }

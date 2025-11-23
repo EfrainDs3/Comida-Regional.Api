@@ -1,11 +1,14 @@
 package web.Regional_Api.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import web.Regional_Api.entity.Usuarios;
+import web.Regional_Api.security.JwtUtil;
 import web.Regional_Api.service.IUsuarioService;
 
 @RestController
@@ -24,6 +28,12 @@ public class UsuarioController {
 
     @Autowired
     private IUsuarioService usuarioService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @GetMapping("/usuarios")
     public List<Usuarios> listar() {
@@ -61,6 +71,67 @@ public class UsuarioController {
             return ResponseEntity.ok("Usuario eliminado");
         } catch (RuntimeException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
+    }
+
+    @PostMapping("/usuarios/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
+        String username = loginRequest.get("nombreUsuarioLogin");
+        String plainPassword = loginRequest.get("contrasena");
+
+        System.out.println("Intento de login para: " + username);
+        System.out.println("Contraseña recibida (texto plano): " + plainPassword);
+
+        Optional<Usuarios> usuarioOpt = usuarioService.getUsuarioByLogin(username);
+
+        if (usuarioOpt.isPresent()) {
+            Usuarios usuario = usuarioOpt.get();
+            System.out.println("Usuario encontrado en BD: " + usuario.getNombreUsuarioLogin());
+
+            // Manually hash the plain password to compare with DB
+            String hashedPassword = hashPassword(plainPassword);
+            System.out.println("Hash calculado: " + hashedPassword);
+            System.out.println("Hash en BD: " + usuario.getContrasena());
+
+            if (hashedPassword.equals(usuario.getContrasena())) {
+                System.out.println("¡Contraseña correcta!");
+                String token = jwtUtil.generarToken(usuario.getNombreUsuarioLogin());
+
+                // Return token and user info
+                Map<String, Object> response = new HashMap<>();
+                response.put("token", token);
+                response.put("nombreUsuario", usuario.getNombreUsuario());
+                response.put("nombreUsuarioLogin", usuario.getNombreUsuarioLogin());
+                response.put("rolId", usuario.getRolId());
+                response.put("nombrePerfil", "Administrador"); // TODO: Fetch actual profile name if needed
+
+                return ResponseEntity.ok(response);
+            } else {
+                System.out.println("¡Contraseña incorrecta!");
+            }
+        } else {
+            System.out.println("Usuario no encontrado en BD");
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales inválidas");
+    }
+
+    // Helper method to hash password using SHA-256
+    private String hashPassword(String plainPassword) {
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            md.update(plainPassword.getBytes());
+            byte[] digest = md.digest();
+            java.math.BigInteger result = new java.math.BigInteger(1, digest);
+            String hash = result.toString(16).toUpperCase();
+
+            while (hash.length() < 64) {
+                hash = "0" + hash;
+            }
+
+            return hash;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al encriptar la contraseña", e);
         }
     }
 }

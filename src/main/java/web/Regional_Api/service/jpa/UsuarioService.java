@@ -24,6 +24,7 @@ public class UsuarioService implements IUsuarioService {
 
     /**
      * Registra un nuevo usuario en el sistema
+     * 
      * @param usuario Usuario a registrar
      * @return Usuario registrado
      * @throws RuntimeException si el email ya existe
@@ -37,8 +38,9 @@ public class UsuarioService implements IUsuarioService {
         }
 
         // Cifrar la contraseña antes de guardar
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
+        // La entidad Usuarios ya se encarga de encriptar la contraseña con SHA-256 en
+        // el método setContrasena
+        // No es necesario usar BCrypt aquí
 
         // Guardar el usuario en la base de datos
         return usuarioRepository.save(usuario);
@@ -56,6 +58,7 @@ public class UsuarioService implements IUsuarioService {
 
     /**
      * Busca un usuario por su ID
+     * 
      * @param id ID del usuario
      * @return Usuario si existe
      */
@@ -67,6 +70,7 @@ public class UsuarioService implements IUsuarioService {
 
     /**
      * Busca un usuario por su nombreUsuarioLogin
+     * 
      * @param nombreUsuarioLogin Nombre de usuario
      * @return Usuario si existe
      */
