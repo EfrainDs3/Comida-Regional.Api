@@ -1,5 +1,5 @@
 <?php
-$apiBaseUrl = $_ENV['REGIONAL_API_BASE_URL'] ?? 'http://localhost:8080';
+$apiBaseUrl = $_ENV['REGIONAL_API_BASE_URL'] ?? 'http://localhost:8081';
 
 // Evitar caché en el navegador para ver cambios inmediatamente
 header('Cache-Control: no-cache, no-store, must-revalidate'); // HTTP 1.1.
