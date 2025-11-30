@@ -16,8 +16,8 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import web.Regional_Api.entity.Registros;
-import web.Regional_Api.repository.RegistrosRepository;
 import web.Regional_Api.entity.Usuarios;
+import web.Regional_Api.repository.RegistrosRepository;
 import web.Regional_Api.repository.UsuarioRepository;
 
 @Component
