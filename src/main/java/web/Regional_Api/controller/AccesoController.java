@@ -37,7 +37,13 @@ public class AccesoController {
     }
 
     @PostMapping
-    public ResponseEntity<Acceso> createAcceso(@RequestBody Acceso acceso) {
+    public ResponseEntity<?> createAcceso(@RequestBody Acceso acceso) {
+        // Validar si ya existe un acceso con la misma combinación de módulo y perfil
+        if (accesoService.existeAcceso(acceso.getIdModulo(), acceso.getIdPerfil())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("Ya existe un acceso para este módulo y perfil");
+        }
+
         Acceso saved = accesoService.saveAcceso(acceso);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
@@ -61,5 +67,32 @@ public class AccesoController {
 
         accesoService.deleteAcceso(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/perfil/{idPerfil}")
+    public ResponseEntity<Void> deleteAccesosByPerfil(@PathVariable Integer idPerfil) {
+        accesoService.deleteAccesosByPerfil(idPerfil);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Endpoints para sistema dinámico
+    @GetMapping("/perfil/{idPerfil}")
+    public ResponseEntity<List<Acceso>> getAccesosByPerfil(@PathVariable Integer idPerfil) {
+        List<Acceso> accesos = accesoService.getAccesosByPerfil(idPerfil);
+        return ResponseEntity.ok(accesos);
+    }
+
+    @GetMapping("/verificar/{idPerfil}/{idModulo}")
+    public ResponseEntity<Boolean> verificarAcceso(@PathVariable Integer idPerfil, @PathVariable Integer idModulo) {
+        boolean tieneAcceso = accesoService.tieneAcceso(idPerfil, idModulo);
+        return ResponseEntity.ok(tieneAcceso);
+    }
+
+    // Endpoint mejorado que devuelve accesos con información del módulo
+    @GetMapping("/perfil/{idPerfil}/completo")
+    public ResponseEntity<List<web.Regional_Api.dto.AccesoConModuloDTO>> getAccesosConModuloByPerfil(
+            @PathVariable Integer idPerfil) {
+        List<web.Regional_Api.dto.AccesoConModuloDTO> accesos = accesoService.getAccesosConModuloByPerfil(idPerfil);
+        return ResponseEntity.ok(accesos);
     }
 }

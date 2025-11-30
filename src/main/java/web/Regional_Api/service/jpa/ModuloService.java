@@ -33,6 +33,12 @@ public class ModuloService implements IModuloService {
 
     @Override
     public void deleteModulo(Integer id) {
-        moduloRepository.deleteById(id);
+        // Soft delete: cambiar estado a 0 en lugar de eliminar físicamente
+        Optional<Modulo> modulo = moduloRepository.findById(id);
+        if (modulo.isPresent()) {
+            Modulo m = modulo.get();
+            m.setEstado(0);
+            moduloRepository.save(m);
+        }
     }
 }

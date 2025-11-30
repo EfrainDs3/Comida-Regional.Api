@@ -36,6 +36,16 @@ public class JwtFilter extends GenericFilter {
             FilterChain chain) throws IOException, ServletException {
 
         HttpServletRequest request = (HttpServletRequest) req;
+        String requestURI = request.getRequestURI();
+
+        // Skip JWT validation for public endpoints
+        if (requestURI.equals("/restful/token") ||
+                requestURI.equals("/restful/registros") ||
+                requestURI.equals("/restful/usuarios/login")) {
+            chain.doFilter(req, res);
+            return;
+        }
+
         String header = request.getHeader("Authorization");
 
         if (header != null && header.startsWith("Bearer ")) {

@@ -35,6 +35,9 @@ public class UsuarioController {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Autowired
+    private web.Regional_Api.service.IPerfilService perfilService;
+
     @GetMapping("/usuarios")
     public List<Usuarios> listar() {
         return usuarioService.getAllUsuarios();
@@ -97,13 +100,23 @@ public class UsuarioController {
                 System.out.println("¡Contraseña correcta!");
                 String token = jwtUtil.generarToken(usuario.getNombreUsuarioLogin());
 
+                // Obtener el nombre del perfil real del usuario
+                String nombrePerfil = "Sin perfil";
+                if (usuario.getRolId() != null) {
+                    nombrePerfil = perfilService.getPerfilById(usuario.getRolId())
+                            .map(perfil -> perfil.getNombrePerfil())
+                            .orElse("Sin perfil");
+                }
+
                 // Return token and user info
                 Map<String, Object> response = new HashMap<>();
                 response.put("token", token);
+                response.put("idUsuario", usuario.getIdUsuario());
                 response.put("nombreUsuario", usuario.getNombreUsuario());
+                response.put("apellidos", usuario.getApellidos());
                 response.put("nombreUsuarioLogin", usuario.getNombreUsuarioLogin());
-                response.put("rolId", usuario.getRolId());
-                response.put("nombrePerfil", "Administrador"); // TODO: Fetch actual profile name if needed
+                response.put("idPerfil", usuario.getRolId());
+                response.put("nombrePerfil", nombrePerfil);
 
                 return ResponseEntity.ok(response);
             } else {
