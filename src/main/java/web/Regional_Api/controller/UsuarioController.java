@@ -117,6 +117,7 @@ public class UsuarioController {
                 response.put("nombreUsuarioLogin", usuario.getNombreUsuarioLogin());
                 response.put("idPerfil", usuario.getRolId());
                 response.put("nombrePerfil", nombrePerfil);
+                response.put("idSucursal", usuario.getIdSucursal()); // Multi-tenant: ID de la sucursal
 
                 return ResponseEntity.ok(response);
             } else {
