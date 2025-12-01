@@ -24,7 +24,6 @@ import web.Regional_Api.service.ICategoriaService;
 
 @RestController
 @RequestMapping("/api/categorias")
-@CrossOrigin(origins = "*")
 public class CategoriaController {
 
     @Autowired
@@ -33,7 +32,6 @@ public class CategoriaController {
     private web.Regional_Api.repository.CategoriaRepository categoriaRepository;
     @Autowired
     private web.Regional_Api.repository.RestauranteRepository restauranteRepository;
-    
 
     // Obtener todas las categorías
     @GetMapping
@@ -61,17 +59,17 @@ public class CategoriaController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-  
+
     @PostMapping
     public ResponseEntity<?> crear(@RequestBody CategoriaDTO categoriaDTO) {
-        
+
         // 1. Validar que el "padre" (Restaurante) existe
         Optional<Restaurante> optRestaurante = restauranteRepository.findById(categoriaDTO.getId_restaurante());
         if (optRestaurante.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                   .body("Error: El restaurante con ID " + categoriaDTO.getId_restaurante() + " no existe.");
+                    .body("Error: El restaurante con ID " + categoriaDTO.getId_restaurante() + " no existe.");
         }
-        
+
         // 2. Mapear DTO a Entidad
         Categoria categoria = new Categoria();
         categoria.setRestaurante(optRestaurante.get()); // <-- Asignar el padre
@@ -84,10 +82,10 @@ public class CategoriaController {
             return ResponseEntity.status(HttpStatus.CREATED).body(guardada);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                   .body("Error al guardar: " + e.getMessage());
+                    .body("Error al guardar: " + e.getMessage());
         }
     }
-    
+
     // Actualizar categoría
     @PutMapping("/{id}")
     public ResponseEntity<CategoriaDTO> actualizar(@PathVariable Integer id, @RequestBody CategoriaDTO categoriaDTO) {
@@ -97,8 +95,10 @@ public class CategoriaController {
         }
 
         Categoria categoria = optional.get();
-        if (categoriaDTO.getNombre() != null) categoria.setNombre(categoriaDTO.getNombre());
-        if (categoriaDTO.getDescripcion() != null) categoria.setDescripcion(categoriaDTO.getDescripcion());
+        if (categoriaDTO.getNombre() != null)
+            categoria.setNombre(categoriaDTO.getNombre());
+        if (categoriaDTO.getDescripcion() != null)
+            categoria.setDescripcion(categoriaDTO.getDescripcion());
 
         Categoria actualizada = categoriaService.modificar(categoria);
         return ResponseEntity.ok(convertirADTO(actualizada));

@@ -1,5 +1,6 @@
 package web.Regional_Api.entity;
 
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import jakarta.persistence.Column;
@@ -11,6 +12,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "perfil")
+@SQLDelete(sql = "UPDATE perfil SET estado = 0 WHERE id_perfil = ?")
 @Where(clause = "estado = 1")
 public class Perfil {
 
@@ -52,8 +54,8 @@ public class Perfil {
 		this.estado = estado;
 	}
 
-    @Override
-    public String toString() {
+	@Override
+	public String toString() {
 		return "Perfil [idPerfil=" + idPerfil + ", nombrePerfil=" + nombrePerfil + ", estado=" + estado + "]";
-    }
+	}
 }

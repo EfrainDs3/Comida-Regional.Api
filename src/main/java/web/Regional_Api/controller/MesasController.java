@@ -27,8 +27,7 @@ import web.Regional_Api.repository.SucursalesRepository;
 import web.Regional_Api.service.IMesasService;
 
 @RestController
-@RequestMapping("/api/mesas")
-@CrossOrigin(origins = "*")
+@RequestMapping("/restful/mesas")
 public class MesasController {
 
     @Autowired

@@ -18,7 +18,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "usuario")
 @SQLDelete(sql = "UPDATE usuario SET estado = 0 WHERE id_usuario = ?")
-// @Where(clause = "estado = 1")
+@Where(clause = "estado = 1")
 
 public class Usuarios {
 
@@ -50,23 +50,23 @@ public class Usuarios {
     private String nombreUsuarioLogin;
 
     @Column(name = "contrasena_usuario")
-    private String contrasena; 
+    private String contrasena;
 
     @Column(name = "estado")
     private Integer estado = 1;
 
- 
     @Column(name = "fecha_creacion", insertable = false, updatable = false)
     private LocalDateTime fechaCreacion;
 
     @Column(name = "ultimo_login")
     private LocalDateTime ultimoLogin;
 
-    public Usuarios(){
+    public Usuarios() {
     }
-    
-        public Usuarios(Integer idUsuario, String nombreUsuario, String apellidos, String dniUsuario, String telefono,
-            String contrasena, Integer estado, Integer rolId, String nombreUsuarioLogin, Integer idSucursal, LocalDateTime fechaCreacion, LocalDateTime ultimoLogin) {
+
+    public Usuarios(Integer idUsuario, String nombreUsuario, String apellidos, String dniUsuario, String telefono,
+            String contrasena, Integer estado, Integer rolId, String nombreUsuarioLogin, Integer idSucursal,
+            LocalDateTime fechaCreacion, LocalDateTime ultimoLogin) {
         this.idUsuario = idUsuario;
         this.nombreUsuario = nombreUsuario;
         this.apellidos = apellidos;
@@ -89,7 +89,6 @@ public class Usuarios {
         this.idUsuario = idUsuario;
     }
 
-
     public String getNombreUsuario() {
         return nombreUsuario;
     }
@@ -106,7 +105,6 @@ public class Usuarios {
         this.nombreUsuarioLogin = nombreUsuarioLogin;
     }
 
-    
     public String getApellidos() {
         return apellidos;
     }
@@ -122,7 +120,6 @@ public class Usuarios {
     public void setDniUsuario(String dniUsuario) {
         this.dniUsuario = dniUsuario;
     }
-
 
     public String getTelefono() {
         return telefono;
@@ -169,7 +166,6 @@ public class Usuarios {
     public void setEstado(Integer estado) {
         this.estado = estado;
     }
-
 
     public Integer getRolId() {
         return rolId;

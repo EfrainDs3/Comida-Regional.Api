@@ -23,7 +23,6 @@ import web.Regional_Api.service.IClienteService;
 
 @RestController
 @RequestMapping("/restful/clientes")
-@CrossOrigin(origins = "*")
 public class ClienteController {
 
     @Autowired

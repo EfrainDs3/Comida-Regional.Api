@@ -26,7 +26,6 @@ import web.Regional_Api.repository.PlatoRepository;
 
 @RestController
 @RequestMapping("/api/platos")
-@CrossOrigin(origins = "*")
 public class PlatoController {
 
     @Autowired
