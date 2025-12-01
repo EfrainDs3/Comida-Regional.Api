@@ -66,9 +66,9 @@ public class PagoSuscripcionController {
         pago.setRestaurante(optRestaurante.get()); // Asignamos el objeto
 
         pago.setFecha_pago(dto.getFecha_pago());
-        pago.setMonto(dto.getMonto_pagado());
-        pago.setPeriodoCubiertoInicio(dto.getFecha_inicio_suscripcion());
-        pago.setPeriodoCubiertoFin(dto.getFecha_fin_suscripcion());
+        pago.setMonto_pagado(dto.getMonto_pagado());
+        pago.setFecha_inicio_suscripcion(dto.getFecha_inicio_suscripcion());
+        pago.setFecha_fin_suscripcion(dto.getFecha_fin_suscripcion());
 
         PagoSuscripcion nuevoPago = pagoService.guardar(pago);
         return ResponseEntity.status(HttpStatus.CREATED).body(convertirADTO(nuevoPago));
@@ -91,9 +91,9 @@ public class PagoSuscripcionController {
         PagoSuscripcion pago = optPago.get();
         pago.setRestaurante(optRestaurante.get());
         pago.setFecha_pago(dto.getFecha_pago());
-        pago.setMonto(dto.getMonto_pagado());
-        pago.setPeriodoCubiertoInicio(dto.getFecha_inicio_suscripcion());
-        pago.setPeriodoCubiertoFin(dto.getFecha_fin_suscripcion());
+        pago.setMonto_pagado(dto.getMonto_pagado());
+        pago.setFecha_inicio_suscripcion(dto.getFecha_inicio_suscripcion());
+        pago.setFecha_fin_suscripcion(dto.getFecha_fin_suscripcion());
         pago.setEstado_pago(dto.getEstado_pago());
 
         PagoSuscripcion actualizado = pagoService.guardar(pago);
@@ -115,9 +115,9 @@ public class PagoSuscripcionController {
         dto.setId_pago(entidad.getId_pago());
         dto.setId_restaurante(entidad.getRestaurante() != null ? entidad.getRestaurante().getId_restaurante() : null);
         dto.setFecha_pago(entidad.getFecha_pago());
-        dto.setMonto_pagado(entidad.getMonto());
-        dto.setFecha_inicio_suscripcion(entidad.getPeriodoCubiertoInicio());
-        dto.setFecha_fin_suscripcion(entidad.getPeriodoCubiertoFin());
+        dto.setMonto_pagado(entidad.getMonto_pagado());
+        dto.setFecha_inicio_suscripcion(entidad.getFecha_inicio_suscripcion());
+        dto.setFecha_fin_suscripcion(entidad.getFecha_fin_suscripcion());
         dto.setEstado_pago(entidad.getEstado_pago());
         return dto;
     }
