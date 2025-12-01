@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -86,8 +85,12 @@ public class MesasController {
         mesa.setCapacidad(mesaDTO.getCapacidad());
         mesa.setEstado_mesa(estadoOpt.get());
 
-    Mesas nuevaMesa = mesasService.guardar(mesa);
-    return ResponseEntity.status(HttpStatus.CREATED).body(convertToDto(nuevaMesa));
+        // >> CORRECCIÓN: Establecer explícitamente el estado a 1 (Activo)
+        // Esto resuelve el error 500 si la base de datos no permite NULL en esa columna
+        mesa.setEstado(1);
+
+        Mesas nuevaMesa = mesasService.guardar(mesa);
+        return ResponseEntity.status(HttpStatus.CREATED).body(convertToDto(nuevaMesa));
     }
 
     // PUT - Actualizar mesa existente
