@@ -1,5 +1,3 @@
-package web.Regional_Api.controller;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -21,8 +19,7 @@ import web.Regional_Api.entity.RestauranteDTO;
 import web.Regional_Api.service.IRestauranteService;
 
 @RestController
-@RequestMapping("/restful/restaurantes")
-@CrossOrigin(origins = "*")
+@RequestMapping("/api/restaurantes")
 public class RestauranteController {
 
     @Autowired
@@ -52,7 +49,7 @@ public class RestauranteController {
         restaurante.setRuc(dto.getRuc());
         restaurante.setDireccion_principal(dto.getDireccion_principal());
         restaurante.setLogo_url(dto.getLogo_url());
-        
+
         // Los campos con DEFAULT (moneda, igv, estado) se asignan solos
         // gracias a @DynamicInsert en la Entidad.
 
@@ -63,14 +60,14 @@ public class RestauranteController {
     // 4. PUT (Actualizar)
     @PutMapping("/{id}")
     public ResponseEntity<Restaurante> actualizar(@PathVariable Integer id, @RequestBody RestauranteDTO dto) {
-        
+
         Optional<Restaurante> opt = restauranteService.buscarId(id);
         if (opt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
         Restaurante restaurante = opt.get();
-        
+
         // Mapeo simple de DTO a Entidad
         restaurante.setRazon_social(dto.getRazon_social());
         restaurante.setRuc(dto.getRuc());
@@ -79,7 +76,7 @@ public class RestauranteController {
         restaurante.setMoneda(dto.getMoneda());
         restaurante.setSimbolo_moneda(dto.getSimbolo_moneda());
         restaurante.setTasa_igv(dto.getTasa_igv());
-        
+
         Restaurante actualizado = restauranteService.guardar(restaurante);
         return ResponseEntity.ok(actualizado);
     }
@@ -90,7 +87,7 @@ public class RestauranteController {
         if (restauranteService.buscarId(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        
+
         restauranteService.eliminar(id); // Esto activa el @SQLDelete
         return ResponseEntity.noContent().build();
     }
