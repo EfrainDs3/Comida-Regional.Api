@@ -67,8 +67,8 @@ public class PedidoController {
         }
 
         Pedido pedido = new Pedido();
-        pedido.setMesa(mes.get());
-        pedido.setUsuario(usu.get());
+        pedido.setId_mesa(dto.getId_mesa());
+        pedido.setId_usuario(dto.getId_usuario());
         pedido.setNotas(dto.getNotas());
 
         pedido.setEstado_pedido("En preparación");
@@ -82,7 +82,7 @@ public class PedidoController {
             }
 
             DetallePedido detalle = new DetallePedido();
-            detalle.setPlato(pla.get());
+            detalle.setId_plato(detDto.getId_plato());
             detalle.setCantidad(detDto.getCantidad());
 
             detalle.setPrecio_unitario(detDto.getPrecio_unitario());
@@ -90,11 +90,11 @@ public class PedidoController {
                     .multiply(new BigDecimal(detDto.getCantidad()));
             detalle.setSubtotal(subtotal);
 
-            detalle.setPedido(pedido);
+            // setPedido se hará después de guardar el pedido
             detallesEntidad.add(detalle);
         }
 
-        pedido.setDetalles(detallesEntidad);
+        // Detalles se guardan por separado
         Pedido nuevoPedido = pedidoService.guardar(pedido);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoPedido);
