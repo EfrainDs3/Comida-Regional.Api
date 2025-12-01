@@ -12,6 +12,8 @@ public class PedidoDTO {
     
     // Lista de "hijos"
     private List<DetallePedidoDTO> detalles;
+
+    // --- Getters y Setters ---
     
     public Integer getId_mesa() { return id_mesa; }
     public void setId_mesa(Integer id_mesa) { this.id_mesa = id_mesa; }

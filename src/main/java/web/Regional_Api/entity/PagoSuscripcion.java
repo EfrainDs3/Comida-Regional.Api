@@ -33,64 +33,38 @@ public class PagoSuscripcion {
     private LocalDate fecha_pago;
 
     @Column(name = "monto", nullable = false, precision = 10, scale = 2)
-    private BigDecimal monto;
+    private BigDecimal monto_pagado;
 
     @Column(name = "periodo_cubierto_inicio", columnDefinition = "date")
-    private LocalDate periodoCubiertoInicio;
+    private LocalDate fecha_inicio_suscripcion;
 
     @Column(name = "periodo_cubierto_fin", columnDefinition = "date")
-    private LocalDate periodoCubiertoFin;
+    private LocalDate fecha_fin_suscripcion;
 
     @Column(nullable = false) 
     @ColumnDefault("1")
-    private Integer estado_pago=1;
-    
-    public Integer getId_pago() {
-        return id_pago;
-    }
-    public void setId_pago(Integer id_pago) {
-        this.id_pago = id_pago;
-    }
-    public Restaurante getRestaurante() {
-        return restaurante;
-    }
-    public void setRestaurante(Restaurante restaurante) {
-        this.restaurante = restaurante;
-    }
-    public LocalDate getFecha_pago() {
-        return fecha_pago;
-    }
-    public void setFecha_pago(LocalDate fecha_pago) {
-        this.fecha_pago = fecha_pago;
-    }
-    public BigDecimal getMonto() {
-        return monto;
-    }
-    public void setMonto(BigDecimal monto) {
-        this.monto = monto;
-    }
-    public LocalDate getPeriodoCubiertoInicio() {
-        return periodoCubiertoInicio;
-    }
-    public void setPeriodoCubiertoInicio(LocalDate periodoCubiertoInicio) {
-        this.periodoCubiertoInicio = periodoCubiertoInicio;
-    }
-    public LocalDate getPeriodoCubiertoFin() {
-        return periodoCubiertoFin;
-    }
-    public void setPeriodoCubiertoFin(LocalDate periodoCubiertoFin) {
-        this.periodoCubiertoFin = periodoCubiertoFin;
-    }
-    public Integer getEstado_pago() {
-        return estado_pago;
-    }
-    public void setEstado_pago(Integer estado_pago) {
-        this.estado_pago = estado_pago;
-    }
-    @Override
-    public String toString() {
-        return "PagoSuscripcion [id_pago=" + id_pago + ", restaurante=" + restaurante + ", fecha_pago=" + fecha_pago
-                + ", monto=" + monto + ", periodoCubiertoInicio=" + periodoCubiertoInicio + ", periodoCubiertoFin="
-                + periodoCubiertoFin + ", estado_pago=" + estado_pago + "]";
-    }
+    private Integer estado_pago = 1; // Inicializado para evitar nulls
+
+    // --- Getters y Setters ---
+
+    public Integer getId_pago() { return id_pago; }
+    public void setId_pago(Integer id_pago) { this.id_pago = id_pago; }
+
+    public Restaurante getRestaurante() { return restaurante; }
+    public void setRestaurante(Restaurante restaurante) { this.restaurante = restaurante; }
+
+    public LocalDate getFecha_pago() { return fecha_pago; }
+    public void setFecha_pago(LocalDate fecha_pago) { this.fecha_pago = fecha_pago; }
+
+    public BigDecimal getMonto_pagado() { return monto_pagado; }
+    public void setMonto_pagado(BigDecimal monto_pagado) { this.monto_pagado = monto_pagado; }
+
+    public LocalDate getFecha_inicio_suscripcion() { return fecha_inicio_suscripcion; }
+    public void setFecha_inicio_suscripcion(LocalDate fecha_inicio_suscripcion) { this.fecha_inicio_suscripcion = fecha_inicio_suscripcion; }
+
+    public LocalDate getFecha_fin_suscripcion() { return fecha_fin_suscripcion; }
+    public void setFecha_fin_suscripcion(LocalDate fecha_fin_suscripcion) { this.fecha_fin_suscripcion = fecha_fin_suscripcion; }
+
+    public Integer getEstado_pago() { return estado_pago; }
+    public void setEstado_pago(Integer estado_pago) { this.estado_pago = estado_pago; }
 }

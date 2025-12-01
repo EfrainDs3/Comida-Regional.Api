@@ -7,7 +7,6 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,7 +19,7 @@ import jakarta.persistence.Table;
 @Table(name = "restaurantes")
 @DynamicInsert // Usa los DEFAULT de la BD
 @SQLDelete(sql = "UPDATE restaurantes SET estado = 0 WHERE id_restaurante = ?")
-@Where(clause = "estado = 1") // Solo trae los activos
+//@Where(clause = "estado = 1") // Solo trae los activos
 public class Restaurante {
 
     @Id
@@ -118,12 +117,5 @@ public class Restaurante {
     }
     public void setFecha_creacion(LocalDateTime fecha_creacion) {
         this.fecha_creacion = fecha_creacion;
-    }
-    @Override
-    public String toString() {
-        return "Restaurante [id_restaurante=" + id_restaurante + ", razon_social=" + razon_social + ", ruc=" + ruc
-                + ", direccion_principal=" + direccion_principal + ", logo_url=" + logo_url + ", moneda=" + moneda
-                + ", simbolo_moneda=" + simbolo_moneda + ", tasa_igv=" + tasa_igv + ", estado=" + estado
-                + ", fecha_creacion=" + fecha_creacion + "]";
     }
 }
