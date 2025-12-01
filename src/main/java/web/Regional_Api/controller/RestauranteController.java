@@ -21,7 +21,7 @@ import web.Regional_Api.entity.RestauranteDTO;
 import web.Regional_Api.service.IRestauranteService;
 
 @RestController
-@RequestMapping("/api/restaurantes")
+@RequestMapping("/restful/restaurantes")
 @CrossOrigin(origins = "*")
 public class RestauranteController {
 
