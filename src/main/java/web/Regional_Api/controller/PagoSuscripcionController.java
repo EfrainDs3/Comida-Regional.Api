@@ -52,7 +52,7 @@ public class PagoSuscripcionController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(pagos);
     }
-
+    @PostMapping
     public ResponseEntity<?> crear(@RequestBody PagoSuscripcionDTO dto) {
 
         Optional<Restaurante> optRestaurante = restauranteService.buscarId(dto.getId_restaurante());
