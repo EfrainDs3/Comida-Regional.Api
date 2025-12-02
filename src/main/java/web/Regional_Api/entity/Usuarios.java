@@ -199,6 +199,11 @@ public class Usuarios {
         this.ultimoLogin = ultimoLogin;
     }
 
+    // Helper method para verificar si es SuperAdmin
+    public boolean esSuperAdmin() {
+        return this.rolId != null && this.rolId >= 5;
+    }
+
     @Override
     public String toString() {
         return "Usuarios [idUsuario=" + idUsuario + ", rolId=" + rolId + ", idSucursal=" + idSucursal

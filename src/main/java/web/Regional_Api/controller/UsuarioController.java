@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import web.Regional_Api.entity.Usuarios;
 import web.Regional_Api.security.JwtUtil;
 import web.Regional_Api.service.IUsuarioService;
+import web.Regional_Api.service.EmailService;
 
 @RestController
 @RequestMapping("/restful")
@@ -37,6 +38,9 @@ public class UsuarioController {
 
     @Autowired
     private web.Regional_Api.service.IPerfilService perfilService;
+
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping("/usuarios")
     public List<Usuarios> listar() {
@@ -119,6 +123,26 @@ public class UsuarioController {
                 response.put("nombrePerfil", nombrePerfil);
                 response.put("idSucursal", usuario.getIdSucursal()); // Multi-tenant: ID de la sucursal
 
+                // Si es SuperAdmin (rolId >= 5), enviar token por email
+                if (usuario.getRolId() != null && usuario.getRolId() >= 5) {
+                    try {
+                        // Usar el email configurado en application.properties como destinatario
+                        // En producción, deberías tener un campo email en la tabla usuario
+                        String emailDestinatario = "anllyriva14@gmail.com"; // Email del SuperAdmin
+                        emailService.enviarTokenSuperAdmin(emailDestinatario, token, usuario.getNombreUsuario());
+                        response.put("tokenEnviadoPorEmail", true);
+                        response.put("emailDestinatario", emailDestinatario);
+                        System.out.println("✅ Token enviado por email a: " + emailDestinatario);
+                    } catch (Exception e) {
+                        System.err.println("❌ Error al enviar email: " + e.getMessage());
+                        response.put("tokenEnviadoPorEmail", false);
+                        response.put("errorEmail",
+                                "No se pudo enviar el email, pero puedes usar el token directamente");
+                    }
+                } else {
+                    response.put("tokenEnviadoPorEmail", false);
+                }
+                
                 return ResponseEntity.ok(response);
             } else {
                 System.out.println("¡Contraseña incorrecta!");
