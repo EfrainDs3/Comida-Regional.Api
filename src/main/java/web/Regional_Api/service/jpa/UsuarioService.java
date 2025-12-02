@@ -133,6 +133,16 @@ public class UsuarioService implements IUsuarioService {
         return Optional.ofNullable(usuarioRepository.save(existente));
     }
 
+    /**
+     * Guarda o actualiza un usuario
+     * 
+     * @param usuario Usuario a guardar
+     * @return Usuario guardado
+     */
+    public Usuarios saveUsuarios(Usuarios usuario) {
+        return usuarioRepository.save(usuario);
+    }
+
     @Override
     public void deleteUsuario(Integer id) {
         Objects.requireNonNull(id, "El id no puede ser nulo");
