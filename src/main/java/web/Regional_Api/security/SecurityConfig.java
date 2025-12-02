@@ -44,9 +44,13 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Usar allowedOriginPatterns en lugar de allowedOrigins cuando allowCredentials
-        // = true
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        // Orígenes permitidos - dominios específicos para producción
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+                "http://localhost:*",
+                "https://localhost:*",
+                "https://*.vercel.app",
+                "https://*.informaticapp.com",
+                "https://informaticapp.com"));
 
         // Métodos HTTP permitidos
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
