@@ -18,7 +18,8 @@ public class SuperAdminService implements ISuperAdminService {
     @Autowired
     private SuperAdminRepository superAdminRepository;
 
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    // private final BCryptPasswordEncoder passwordEncoder = new
+    // BCryptPasswordEncoder();
 
     @Override
     public List<SuperAdmin> getAllSuperAdmins() {
@@ -37,10 +38,8 @@ public class SuperAdminService implements ISuperAdminService {
             throw new RuntimeException("El email ya está registrado");
         }
 
-        // Encriptar contraseña si existe
-        if (superAdmin.getPassword() != null && !superAdmin.getPassword().isEmpty()) {
-            superAdmin.setPassword(passwordEncoder.encode(superAdmin.getPassword()));
-        }
+        // La contraseña se encripta automáticamente en el setter de la entidad
+        // No es necesario hacer nada aquí
 
         return superAdminRepository.save(superAdmin);
     }
@@ -70,7 +69,8 @@ public class SuperAdminService implements ISuperAdminService {
         }
 
         if (superAdmin.getPassword() != null && !superAdmin.getPassword().isEmpty()) {
-            existente.setPassword(passwordEncoder.encode(superAdmin.getPassword()));
+            // La contraseña se encripta automáticamente en el setter de la entidad
+            existente.setPassword(superAdmin.getPassword());
         }
 
         if (superAdmin.getRol() != null) {
@@ -106,4 +106,5 @@ public class SuperAdminService implements ISuperAdminService {
     public Optional<SuperAdmin> getSuperAdminByToken(String token) {
         return superAdminRepository.findByTokenLogin(token);
     }
+
 }

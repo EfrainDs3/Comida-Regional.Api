@@ -98,17 +98,37 @@ public class SuperAdmin {
 
     @JsonProperty
     public void setPassword(String password) {
-        // Si la contraseña ya parece estar encriptada (BCrypt suele empezar con $2a$,
-        // $2b$ o $2y$ y tiene 60 chars), no la re-encriptamos
-        // Sin embargo, para mayor seguridad y simplicidad en el setter, asumiremos que
-        // si viene texto plano hay que encriptar.
-        // Pero como este setter puede ser llamado por JPA al leer de la BD, no debemos
-        // encriptar ahí.
-        // La mejor práctica es tener un método explícito para cambiar password o
-        // hacerlo en el servicio.
-        // Aquí simplemente seteamos el valor. La encriptación se hará en el servicio
-        // antes de guardar.
-        this.password = password;
+        System.out.println(">>> setPassword called with: '" + password + "' (length: "
+                + (password != null ? password.length() : 0) + ")");
+
+        if (password == null || password.isEmpty()) {
+            return;
+        }
+
+        // Si la contraseña ya está encriptada (64 caracteres hexadecimales = SHA-256),
+        // no re-encriptar
+        if (password.matches("^[0-9A-Fa-f]{64}$")) {
+            System.out.println(">>> Password is already a hash, storing as-is");
+            this.password = password.toUpperCase();
+            return;
+        }
+
+        // Encriptar la contraseña con SHA-256
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            md.update(password.getBytes());
+            byte[] digest = md.digest();
+            String result = new java.math.BigInteger(1, digest).toString(16).toUpperCase();
+
+            while (result.length() < 64) {
+                result = "0" + result;
+            }
+
+            System.out.println(">>> Hashed '" + password + "' to: " + result);
+            this.password = result;
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error al encriptar la contraseña", e);
+        }
     }
 
     public String getTokenLogin() {

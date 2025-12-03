@@ -19,7 +19,7 @@ public class PublicSecurityConfig {
             "/restful/token",
             "/restful/registros",
             "/restful/superadmin/login",
-            "/restful/superadmin/auth/**",
+            "/restful/superadmin/auth/initiate-login",
 
             // Documentación API (Swagger - si se implementa en el futuro)
             "/swagger-ui/**",
