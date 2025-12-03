@@ -5,21 +5,25 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import web.Regional_Api.entity.SuperAdmin;
 import web.Regional_Api.repository.SuperAdminRepository;
 import web.Regional_Api.service.ISuperAdminService;
 
 @Service
-public class SuperAdminService implements ISuperAdminService {
+public class SuperAdminService implements ISuperAdminService, UserDetailsService {
 
     @Autowired
     private SuperAdminRepository superAdminRepository;
 
-    // private final BCryptPasswordEncoder passwordEncoder = new
-    // BCryptPasswordEncoder();
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public List<SuperAdmin> getAllSuperAdmins() {
@@ -38,8 +42,8 @@ public class SuperAdminService implements ISuperAdminService {
             throw new RuntimeException("El email ya está registrado");
         }
 
-        // La contraseña se encripta automáticamente en el setter de la entidad
-        // No es necesario hacer nada aquí
+        // Encode the password explicitly
+        superAdmin.setPassword(passwordEncoder.encode(superAdmin.getPassword()));
 
         return superAdminRepository.save(superAdmin);
     }
@@ -69,8 +73,8 @@ public class SuperAdminService implements ISuperAdminService {
         }
 
         if (superAdmin.getPassword() != null && !superAdmin.getPassword().isEmpty()) {
-            // La contraseña se encripta automáticamente en el setter de la entidad
-            existente.setPassword(superAdmin.getPassword());
+            // Encode the password explicitly
+            existente.setPassword(passwordEncoder.encode(superAdmin.getPassword()));
         }
 
         if (superAdmin.getRol() != null) {
@@ -105,6 +109,17 @@ public class SuperAdminService implements ISuperAdminService {
     @Override
     public Optional<SuperAdmin> getSuperAdminByToken(String token) {
         return superAdminRepository.findByTokenLogin(token);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return superAdminRepository.findByEmail(username)
+                .map(admin -> User.builder()
+                        .username(admin.getEmail())
+                        .password(admin.getPassword())
+                        .roles(admin.getRol())
+                        .build())
+                .orElseThrow(() -> new UsernameNotFoundException("SuperAdmin no encontrado con email: " + username));
     }
 
 }

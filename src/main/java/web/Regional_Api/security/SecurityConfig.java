@@ -32,17 +32,38 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
-        http.csrf(csrf -> csrf.disable())
+        http.securityMatcher("/restful/**")
+                .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults()) // Habilitar CORS explícitamente
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/restful/token", "/restful/registros", "/restful/usuarios/login",
-                                "/restful/superadmin/login", "/restful/superadmin/auth/**")
+                            "/restful/superadmin/login", "/restful/superadmin/auth/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
+    /**
+     * Configuración de la cadena de filtros de seguridad para Superadmin
+     * 
+     * Esta cadena de filtros es específica para las peticiones a
+     * /restful/superadmin/**
+     * Permite autenticación básica y desactiva CSRF
+     
+    @Bean
+    public SecurityFilterChain superAdminSecurityFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher("/restful/superadmin/**")
+                .csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults()) // ✅ Habilitar CORS para SuperAdmin
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/restful/superadmin/**").permitAll()
+                        .anyRequest().authenticated())
+                .httpBasic(Customizer.withDefaults());
+
+        return http.build();
+    }*/
 
     /**
      * Bean para encriptación de contraseñas usando BCrypt

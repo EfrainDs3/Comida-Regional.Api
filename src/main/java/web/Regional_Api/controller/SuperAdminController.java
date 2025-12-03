@@ -1,4 +1,5 @@
 package web.Regional_Api.controller;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +32,7 @@ import web.Regional_Api.service.jpa.ModuloService;
 import web.Regional_Api.service.jpa.PerfilService;
 import web.Regional_Api.service.jpa.RestauranteService;
 import web.Regional_Api.service.EmailService;
-import org.springframework.security.crypto.password.PasswordEncoder; // ✅ Cambiado a PasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.UUID;
 
 @RestController
@@ -59,18 +60,17 @@ public class SuperAdminController {
     @Autowired
     private EmailService emailService;
 
-    // ✅ INYECTAR PasswordEncoder (BCrypt)
     @Autowired
     private PasswordEncoder passwordEncoder;
+
     // ============================================
     // AUTENTICACIÓN SUPERADMIN
     // ============================================
 
     @PostMapping("/auth/initiate-login")
-
-    public ResponseEntity<?> initiateLogin(@RequestBody Map<String, String> request) {
-        String email = request.get("email");
-        String password = request.get("password");
+    public ResponseEntity<?> initiateLogin(@RequestBody Map<String, String> loginRequest) {
+        String email = loginRequest.get("email");
+        String password = loginRequest.get("password");
         System.out.println("=== INITIATE LOGIN SUPERADMIN ===");
         System.out.println("Email recibido: " + email);
         if (email == null || password == null) {
@@ -85,10 +85,9 @@ public class SuperAdminController {
 
         SuperAdmin admin = adminOpt.get();
         System.out.println("SuperAdmin encontrado: " + admin.getEmail());
-        // ✅ VERIFICAR CONTRASEÑA CON BCRYPT
         System.out.println("Password recibido (texto plano): " + password);
         System.out.println("Password en BD (BCrypt hash): " + admin.getPassword());
-        
+
         boolean passwordMatch = passwordEncoder.matches(password, admin.getPassword());
         System.out.println("¿Contraseñas coinciden? " + passwordMatch);
         if (!passwordMatch) {
@@ -96,6 +95,7 @@ public class SuperAdminController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales inválidas");
         }
         System.out.println("¡Contraseña correcta!");
+
         // Verificar estado
         if (admin.getEstado() == null || admin.getEstado() != 1) {
             System.out.println("Cuenta inactiva");
@@ -111,7 +111,6 @@ public class SuperAdminController {
         superAdminService.updateSuperAdmin(admin.getIdSuperAdmin(), admin);
 
         // Enviar email
-
         try {
             emailService.enviarTokenSuperAdmin(admin.getEmail(), tokenLogin, admin.getNombres());
             System.out.println("✅ Token enviado por email a: " + admin.getEmail());
@@ -124,12 +123,6 @@ public class SuperAdminController {
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<?> loginSuperAdminAuth(@RequestBody Map<String, String> request) {
-        // Reutilizamos la lógica de login existente pero bajo la ruta /auth/login
-        return loginSuperAdmin(request);
-    }
-
-    @PostMapping("/login")
     public ResponseEntity<?> loginSuperAdmin(@RequestBody Map<String, String> request) {
         String token = request.get("token");
 
@@ -163,15 +156,14 @@ public class SuperAdminController {
         String jwt = jwtUtil.generarToken(superAdmin.getEmail());
 
         Map<String, Object> response = new HashMap<>();
-        response.put("token", jwt); // Retornamos el JWT nuevo, no el token de login
-        
-        // ✅ AGREGAR OBJETO USER PARA EL FRONTEND
+        response.put("token", jwt);
+
         Map<String, Object> user = new HashMap<>();
         user.put("id_superadmin", superAdmin.getIdSuperAdmin());
         user.put("nombres", superAdmin.getNombres());
         user.put("email", superAdmin.getEmail());
         user.put("rol", superAdmin.getRol());
-        
+
         response.put("user", user);
         System.out.println("Login SuperAdmin exitoso: " + superAdmin.getEmail());
         return ResponseEntity.ok(response);
@@ -189,7 +181,6 @@ public class SuperAdminController {
         stats.put("totalPerfiles", perfilService.getAllPerfiles().size());
         stats.put("totalModulos", moduloService.getAllModulos().size());
 
-        // Nuevas estadísticas de SuperAdmin
         List<SuperAdmin> admins = superAdminService.getAllSuperAdmins();
         stats.put("totalSuperAdmins", admins.size());
         stats.put("superAdminsActivos", admins.stream().filter(a -> a.getEstado() == 1).count());
@@ -218,34 +209,30 @@ public class SuperAdminController {
     @PostMapping("/super-admins")
     public ResponseEntity<?> createSuperAdmin(@RequestBody SuperAdmin superAdmin) {
         try {
-            // ✅ ENCRIPTAR LA CONTRASEÑA CON BCRYPT ANTES DE GUARDAR
-            if (superAdmin.getPassword() != null && !superAdmin.getPassword().isEmpty()) {
-                System.out.println("Encriptando contraseña para nuevo SuperAdmin: " + superAdmin.getEmail());
-                superAdmin.setPassword(passwordEncoder.encode(superAdmin.getPassword()));
-            }
-            
+            // ✅ NO encriptar aquí - el Service ya lo hace
+            System.out.println("Creando nuevo SuperAdmin: " + superAdmin.getEmail());
+
             SuperAdmin created = superAdminService.createSuperAdmin(superAdmin);
-            
+
             // No devolver la contraseña en la respuesta
             created.setPassword(null);
-            
+
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    
+
     @PutMapping("/super-admins/{id}")
     public ResponseEntity<?> updateSuperAdmin(@PathVariable Integer id, @RequestBody SuperAdmin superAdmin) {
         try {
-            // ✅ SI SE ENVÍA UNA NUEVA CONTRASEÑA, ENCRIPTARLA
+            // ✅ NO encriptar aquí - el Service ya lo hace
             if (superAdmin.getPassword() != null && !superAdmin.getPassword().isEmpty()) {
                 System.out.println("Actualizando contraseña para SuperAdmin ID: " + id);
-                superAdmin.setPassword(passwordEncoder.encode(superAdmin.getPassword()));
             }
-            
+
             Optional<SuperAdmin> updated = superAdminService.updateSuperAdmin(id, superAdmin);
-            
+
             if (updated.isPresent()) {
                 SuperAdmin result = updated.get();
                 // No devolver la contraseña en la respuesta
@@ -258,6 +245,7 @@ public class SuperAdminController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
     @DeleteMapping("/super-admins/{id}")
     public ResponseEntity<?> deleteSuperAdmin(@PathVariable Integer id) {
         try {
@@ -267,6 +255,7 @@ public class SuperAdminController {
             return ResponseEntity.notFound().build();
         }
     }
+
     // ============================================
     // GESTIÓN DE ROLES (usando tabla perfil)
     // ============================================
@@ -274,6 +263,7 @@ public class SuperAdminController {
     public ResponseEntity<List<Perfil>> getAllRoles() {
         return ResponseEntity.ok(perfilService.getAllPerfiles());
     }
+
     @GetMapping("/roles/{id}")
     public ResponseEntity<?> getRolById(@PathVariable Integer id) {
         Optional<Perfil> perfilOpt = perfilService.getPerfilById(id);
@@ -286,6 +276,7 @@ public class SuperAdminController {
         }
         return ResponseEntity.ok(perfil);
     }
+
     @PostMapping("/roles")
     public ResponseEntity<?> createRol(@RequestBody Perfil perfil) {
         if (perfil.getNombrePerfil() == null || perfil.getNombrePerfil().isEmpty()) {
@@ -298,6 +289,7 @@ public class SuperAdminController {
         Perfil saved = perfilService.savePerfil(perfil);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
+
     @PutMapping("/roles/{id}")
     public ResponseEntity<?> updateRol(@PathVariable Integer id, @RequestBody Perfil perfil) {
         Optional<Perfil> existingOpt = perfilService.getPerfilById(id);
@@ -316,6 +308,7 @@ public class SuperAdminController {
         Perfil updated = perfilService.savePerfil(perfil);
         return ResponseEntity.ok(updated);
     }
+
     @DeleteMapping("/roles/{id}")
     public ResponseEntity<?> deleteRol(@PathVariable Integer id) {
         Optional<Perfil> perfilOpt = perfilService.getPerfilById(id);
@@ -330,6 +323,7 @@ public class SuperAdminController {
         perfilService.deletePerfil(id);
         return ResponseEntity.ok("Rol eliminado correctamente");
     }
+
     // ============================================
     // GESTIÓN DE PERMISOS (usando tabla modulo)
     // ============================================
@@ -337,18 +331,21 @@ public class SuperAdminController {
     public ResponseEntity<List<Modulo>> getAllPermisos() {
         return ResponseEntity.ok(moduloService.getAllModulos());
     }
+
     @GetMapping("/permisos/{id}")
     public ResponseEntity<?> getPermisoById(@PathVariable Integer id) {
         return moduloService.getModuloById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
+
     @PostMapping("/permisos")
     public ResponseEntity<Modulo> createPermiso(@RequestBody Modulo modulo) {
         modulo.setEstado(1);
         Modulo saved = moduloService.saveModulo(modulo);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
+
     @PutMapping("/permisos/{id}")
     public ResponseEntity<?> updatePermiso(@PathVariable Integer id, @RequestBody Modulo modulo) {
         if (moduloService.getModuloById(id).isEmpty()) {
@@ -358,6 +355,7 @@ public class SuperAdminController {
         Modulo updated = moduloService.saveModulo(modulo);
         return ResponseEntity.ok(updated);
     }
+
     @DeleteMapping("/permisos/{id}")
     public ResponseEntity<?> deletePermiso(@PathVariable Integer id) {
         if (moduloService.getModuloById(id).isEmpty()) {
@@ -366,6 +364,7 @@ public class SuperAdminController {
         moduloService.deleteModulo(id);
         return ResponseEntity.ok("Permiso eliminado correctamente");
     }
+
     // ============================================
     // ASIGNAR PERMISOS A ROL (usando tabla acceso)
     // ============================================
@@ -379,6 +378,7 @@ public class SuperAdminController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(idsModulos);
     }
+
     @PostMapping("/roles/{idRol}/permisos")
     public ResponseEntity<?> asignarPermisos(
             @PathVariable Integer idRol,
@@ -405,6 +405,7 @@ public class SuperAdminController {
                 "mensaje", "Permisos asignados correctamente",
                 "totalPermisos", idsModulos.size()));
     }
+
     // ============================================
     // GESTIÓN DE RESTAURANTES
     // ============================================
@@ -412,14 +413,17 @@ public class SuperAdminController {
     public ResponseEntity<List<Restaurante>> getAllRestaurantes() {
         return ResponseEntity.ok(restauranteService.buscarTodos());
     }
+
     @GetMapping("/restaurantes/{id}")
     public ResponseEntity<?> getRestauranteById(@PathVariable Integer id) {
         return restauranteService.buscarId(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
+
     @Autowired
     private web.Regional_Api.service.jpa.SucursalesService sucursalesService;
+
     @PostMapping("/restaurantes")
     public ResponseEntity<Restaurante> createRestaurante(@RequestBody Restaurante restaurante) {
         restaurante.setEstado(1);
@@ -432,6 +436,7 @@ public class SuperAdminController {
         sucursalesService.guardar(sucursalPrincipal);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
+
     @PutMapping("/restaurantes/{id}")
     public ResponseEntity<?> updateRestaurante(@PathVariable Integer id, @RequestBody Restaurante restaurante) {
         if (restauranteService.buscarId(id).isEmpty()) {
@@ -441,6 +446,7 @@ public class SuperAdminController {
         Restaurante updated = restauranteService.guardar(restaurante);
         return ResponseEntity.ok(updated);
     }
+
     @DeleteMapping("/restaurantes/{id}")
     public ResponseEntity<?> deleteRestaurante(@PathVariable Integer id) {
         if (restauranteService.buscarId(id).isEmpty()) {
@@ -449,6 +455,4 @@ public class SuperAdminController {
         restauranteService.eliminar(id);
         return ResponseEntity.ok("Restaurante eliminado correctamente");
     }
-    // ❌ MÉTODO ELIMINADO - Ya no se usa SHA-256
-    // private String hashPassword(String plainPassword) { ... }
 }

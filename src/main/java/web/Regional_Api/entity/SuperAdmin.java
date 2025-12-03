@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+// IMPORTANTE: Ya no necesitamos PasswordEncoder aquí
+// import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -33,7 +35,7 @@ public class SuperAdmin {
     private String email;
 
     @Column(name = "password")
-    @JsonIgnore
+    @JsonIgnore // Oculta la contraseña al enviar respuestas JSON
     private String password;
 
     @Column(name = "token_login")
@@ -51,6 +53,8 @@ public class SuperAdmin {
     @Column(name = "fecha_creacion", insertable = false, updatable = false)
     private LocalDateTime fechaCreacion;
 
+    // --- HE BORRADO EL CAMPO 'passwordEncoder' Y SU SETTER ESTÁTICO ---
+
     public SuperAdmin() {
     }
 
@@ -66,6 +70,8 @@ public class SuperAdmin {
         this.estado = estado;
         this.fechaCreacion = fechaCreacion;
     }
+
+    // Getters y Setters normales
 
     public Integer getIdSuperAdmin() {
         return idSuperAdmin;
@@ -96,40 +102,14 @@ public class SuperAdmin {
         return password;
     }
 
-    @JsonProperty
+    // --- ESTA ES LA PARTE CORREGIDA ---
+    @JsonProperty // Permite recibir la contraseña en el JSON (Input)
     public void setPassword(String password) {
-        System.out.println(">>> setPassword called with: '" + password + "' (length: "
-                + (password != null ? password.length() : 0) + ")");
-
-        if (password == null || password.isEmpty()) {
-            return;
-        }
-
-        // Si la contraseña ya está encriptada (64 caracteres hexadecimales = SHA-256),
-        // no re-encriptar
-        if (password.matches("^[0-9A-Fa-f]{64}$")) {
-            System.out.println(">>> Password is already a hash, storing as-is");
-            this.password = password.toUpperCase();
-            return;
-        }
-
-        // Encriptar la contraseña con SHA-256
-        try {
-            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
-            md.update(password.getBytes());
-            byte[] digest = md.digest();
-            String result = new java.math.BigInteger(1, digest).toString(16).toUpperCase();
-
-            while (result.length() < 64) {
-                result = "0" + result;
-            }
-
-            System.out.println(">>> Hashed '" + password + "' to: " + result);
-            this.password = result;
-        } catch (java.security.NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error al encriptar la contraseña", e);
-        }
+        // Solo guardamos el valor tal cual llega.
+        // La encriptación SE DEBE HACER EN EL SERVICE.
+        this.password = password;
     }
+    // -----------------------------------
 
     public String getTokenLogin() {
         return tokenLogin;
