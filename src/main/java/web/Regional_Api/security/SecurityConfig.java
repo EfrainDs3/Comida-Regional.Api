@@ -36,7 +36,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults()) // Habilitar CORS explícitamente
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/restful/token", "/restful/registros", "/restful/usuarios/login",
-                                "/restful/superadmin/login")
+                                "/restful/superadmin/login", "/restful/superadmin/auth/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

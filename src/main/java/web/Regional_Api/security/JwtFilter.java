@@ -19,6 +19,8 @@ import web.Regional_Api.entity.Registros;
 import web.Regional_Api.repository.RegistrosRepository;
 import web.Regional_Api.entity.Usuarios;
 import web.Regional_Api.repository.UsuarioRepository;
+import web.Regional_Api.entity.SuperAdmin;
+import web.Regional_Api.repository.SuperAdminRepository;
 
 @Component
 public class JwtFilter extends GenericFilter {
@@ -30,6 +32,9 @@ public class JwtFilter extends GenericFilter {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private SuperAdminRepository superAdminRepository;
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res,
@@ -53,16 +58,28 @@ public class JwtFilter extends GenericFilter {
                         null, Collections.emptyList());
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
-            // 2. Try New Admin Authentication (Usuarios table)
+            // 2. Try New Admin Authentication (Usuarios table or SuperAdmin table)
             else if (jwtUtil.validarToken(token)) {
-                String username = jwtUtil.extraerClienteId(token);
+                String usernameOrEmail = jwtUtil.extraerClienteId(token);
+
+                // Primero buscar en Usuarios
                 Optional<Usuarios> usuarioOpt = usuarioRepository
-                        .findByNombreUsuarioLogin(username);
+                        .findByNombreUsuarioLogin(usernameOrEmail);
 
                 if (usuarioOpt.isPresent()) {
-                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username,
+                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(usernameOrEmail,
                             null, Collections.emptyList());
                     SecurityContextHolder.getContext().setAuthentication(auth);
+                } else {
+                    // Si no es usuario, buscar en SuperAdmins (por email)
+                    Optional<SuperAdmin> superAdminOpt = superAdminRepository.findByEmail(usernameOrEmail);
+
+                    if (superAdminOpt.isPresent()) {
+                        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                                usernameOrEmail,
+                                null, Collections.emptyList());
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+                    }
                 }
             }
         }
