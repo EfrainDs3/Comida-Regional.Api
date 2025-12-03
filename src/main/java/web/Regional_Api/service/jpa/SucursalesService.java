@@ -39,9 +39,11 @@ public class SucursalesService implements ISucursalesService {
         return repoSucursales.findByIdRestaurante(idRestaurante);
     }
 
-    @Override
-    public void guardar(Sucursales sucursal) {
-        repoSucursales.save(sucursal);
+   
+ @Override
+    public Sucursales guardar(Sucursales sucursal) {
+        // Al hacer return del save, devolvemos el objeto YA con el ID generado por la BD
+        return repoSucursales.save(sucursal); 
     }
 
     @Override

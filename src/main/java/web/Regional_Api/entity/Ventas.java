@@ -3,16 +3,10 @@ package web.Regional_Api.entity;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*; // Importamos todo para abreviar
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.stream.Stream;
 
 @Entity
 @Table(name = "ventas")
@@ -20,13 +14,54 @@ import java.time.LocalDateTime;
 @Where(clause = "estado=1") 
 public class Ventas {
     
-    // Mapeo de ENUMs
+    // --- 1. ENUM TIPO COMPROBANTE CON TRADUCCIÓN ---
     public enum TipoComprobante {
-        Boleta, Factura, Nota_de_Venta // Usaremos guiones bajos para espacios si es necesario
+        Boleta("Boleta"), 
+        Factura("Factura"), 
+        Nota_de_Venta("Nota de Venta"); // Aquí definimos cómo se llama en la BD
+
+        private final String nombreDb;
+
+        TipoComprobante(String nombreDb) {
+            this.nombreDb = nombreDb;
+        }
+
+        public String getNombreDb() {
+            return nombreDb;
+        }
+        
+        // Método para buscar el Enum basándose en el texto de la BD
+        public static TipoComprobante of(String nombreDb) {
+            return Stream.of(TipoComprobante.values())
+                .filter(p -> p.getNombreDb().equals(nombreDb))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Tipo Comprobante desconocido: " + nombreDb));
+        }
     }
     
+    // --- 2. ENUM METODO PAGO CON TRADUCCIÓN ---
     public enum MetodoPago {
-        Efectivo, Tarjeta, Billetera_Digital, Mixto // Usaremos guiones bajos
+        Efectivo("Efectivo"), 
+        Tarjeta("Tarjeta"), 
+        Billetera_Digital("Billetera Digital"), // El texto exacto de la BD
+        Mixto("Mixto");
+
+        private final String nombreDb;
+
+        MetodoPago(String nombreDb) {
+            this.nombreDb = nombreDb;
+        }
+
+        public String getNombreDb() {
+            return nombreDb;
+        }
+
+        public static MetodoPago of(String nombreDb) {
+            return Stream.of(MetodoPago.values())
+                .filter(p -> p.getNombreDb().equals(nombreDb))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Metodo Pago desconocido: " + nombreDb));
+        }
     }
 
     @Id
@@ -40,10 +75,11 @@ public class Ventas {
     @Column(name = "id_sesion", nullable = false)
     private Integer idSesion;
 
-    @Column(name = "id_cliente") // Puede ser NULL si la venta es anónima
+    @Column(name = "id_cliente")
     private Integer idCliente;
 
-    @Enumerated(EnumType.STRING)
+    // --- CAMBIO IMPORTANTE AQUÍ: Usamos el Converter ---
+    @Convert(converter = TipoComprobanteConverter.class)
     @Column(name = "tipo_comprobante", nullable = false)
     private TipoComprobante tipoComprobante;
 
@@ -59,7 +95,8 @@ public class Ventas {
     @Column(precision = 10, scale = 2)
     private BigDecimal impuestos;
 
-    @Enumerated(EnumType.STRING)
+    // --- CAMBIO IMPORTANTE AQUÍ: Usamos el Converter ---
+    @Convert(converter = MetodoPagoConverter.class)
     @Column(name = "metodo_pago", nullable = false)
     private MetodoPago metodoPago;
 
@@ -71,107 +108,62 @@ public class Ventas {
 
     public Ventas() {}
 
-    public Integer getIdVenta() {
-        return idVenta;
+    // Getters y Setters (Igual que antes)
+    public Integer getIdVenta() { return idVenta; }
+    public void setIdVenta(Integer idVenta) { this.idVenta = idVenta; }
+    public Integer getIdPedido() { return idPedido; }
+    public void setIdPedido(Integer idPedido) { this.idPedido = idPedido; }
+    public Integer getIdSesion() { return idSesion; }
+    public void setIdSesion(Integer idSesion) { this.idSesion = idSesion; }
+    public Integer getIdCliente() { return idCliente; }
+    public void setIdCliente(Integer idCliente) { this.idCliente = idCliente; }
+    public TipoComprobante getTipoComprobante() { return tipoComprobante; }
+    public void setTipoComprobante(TipoComprobante tipoComprobante) { this.tipoComprobante = tipoComprobante; }
+    public String getSerieComprobante() { return serieComprobante; }
+    public void setSerieComprobante(String serieComprobante) { this.serieComprobante = serieComprobante; }
+    public Integer getNumeroComprobante() { return numeroComprobante; }
+    public void setNumeroComprobante(Integer numeroComprobante) { this.numeroComprobante = numeroComprobante; }
+    public BigDecimal getMontoTotal() { return montoTotal; }
+    public void setMontoTotal(BigDecimal montoTotal) { this.montoTotal = montoTotal; }
+    public BigDecimal getImpuestos() { return impuestos; }
+    public void setImpuestos(BigDecimal impuestos) { this.impuestos = impuestos; }
+    public MetodoPago getMetodoPago() { return metodoPago; }
+    public void setMetodoPago(MetodoPago metodoPago) { this.metodoPago = metodoPago; }
+    public LocalDateTime getFechaVenta() { return fechaVenta; }
+    public void setFechaVenta(LocalDateTime fechaVenta) { this.fechaVenta = fechaVenta; }
+    public Integer getEstado() { return estado; }
+    public void setEstado(Integer estado) { this.estado = estado; }
+
+    // --- CLASES CONVERTIDORAS (TRADUCTORES) ---
+    // Estas clases le enseñan a JPA cómo leer los espacios
+    
+    @Converter(autoApply = true)
+    public static class TipoComprobanteConverter implements AttributeConverter<TipoComprobante, String> {
+        @Override
+        public String convertToDatabaseColumn(TipoComprobante attribute) {
+            if (attribute == null) return null;
+            return attribute.getNombreDb();
+        }
+
+        @Override
+        public TipoComprobante convertToEntityAttribute(String dbData) {
+            if (dbData == null) return null;
+            return TipoComprobante.of(dbData);
+        }
     }
 
-    public void setIdVenta(Integer idVenta) {
-        this.idVenta = idVenta;
-    }
+    @Converter(autoApply = true)
+    public static class MetodoPagoConverter implements AttributeConverter<MetodoPago, String> {
+        @Override
+        public String convertToDatabaseColumn(MetodoPago attribute) {
+            if (attribute == null) return null;
+            return attribute.getNombreDb();
+        }
 
-    public Integer getIdPedido() {
-        return idPedido;
-    }
-
-    public void setIdPedido(Integer idPedido) {
-        this.idPedido = idPedido;
-    }
-
-    public Integer getIdSesion() {
-        return idSesion;
-    }
-
-    public void setIdSesion(Integer idSesion) {
-        this.idSesion = idSesion;
-    }
-
-    public Integer getIdCliente() {
-        return idCliente;
-    }
-
-    public void setIdCliente(Integer idCliente) {
-        this.idCliente = idCliente;
-    }
-
-    public TipoComprobante getTipoComprobante() {
-        return tipoComprobante;
-    }
-
-    public void setTipoComprobante(TipoComprobante tipoComprobante) {
-        this.tipoComprobante = tipoComprobante;
-    }
-
-    public String getSerieComprobante() {
-        return serieComprobante;
-    }
-
-    public void setSerieComprobante(String serieComprobante) {
-        this.serieComprobante = serieComprobante;
-    }
-
-    public Integer getNumeroComprobante() {
-        return numeroComprobante;
-    }
-
-    public void setNumeroComprobante(Integer numeroComprobante) {
-        this.numeroComprobante = numeroComprobante;
-    }
-
-    public BigDecimal getMontoTotal() {
-        return montoTotal;
-    }
-
-    public void setMontoTotal(BigDecimal montoTotal) {
-        this.montoTotal = montoTotal;
-    }
-
-    public BigDecimal getImpuestos() {
-        return impuestos;
-    }
-
-    public void setImpuestos(BigDecimal impuestos) {
-        this.impuestos = impuestos;
-    }
-
-    public MetodoPago getMetodoPago() {
-        return metodoPago;
-    }
-
-    public void setMetodoPago(MetodoPago metodoPago) {
-        this.metodoPago = metodoPago;
-    }
-
-    public LocalDateTime getFechaVenta() {
-        return fechaVenta;
-    }
-
-    public void setFechaVenta(LocalDateTime fechaVenta) {
-        this.fechaVenta = fechaVenta;
-    }
-
-    public Integer getEstado() {
-        return estado;
-    }
-
-    public void setEstado(Integer estado) {
-        this.estado = estado;
-    }
-
-    @Override
-    public String toString() {
-        return "Ventas [idVenta=" + idVenta + ", idPedido=" + idPedido + ", idSesion=" + idSesion + ", idCliente="
-                + idCliente + ", tipoComprobante=" + tipoComprobante + ", serieComprobante=" + serieComprobante
-                + ", numeroComprobante=" + numeroComprobante + ", montoTotal=" + montoTotal + ", impuestos=" + impuestos
-                + ", metodoPago=" + metodoPago + ", fechaVenta=" + fechaVenta + ", estado=" + estado + "]";
+        @Override
+        public MetodoPago convertToEntityAttribute(String dbData) {
+            if (dbData == null) return null;
+            return MetodoPago.of(dbData);
+        }
     }
 }

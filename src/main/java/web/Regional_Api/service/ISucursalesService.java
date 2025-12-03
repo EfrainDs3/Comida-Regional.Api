@@ -19,7 +19,7 @@ public interface ISucursalesService {
     List<Sucursales> buscarTodos(); 
 
     // 🌟 CREATE: Guardar una nueva sucursal (ya no asigna idRestaurante)
-    void guardar(Sucursales sucursal);
+    Sucursales guardar(Sucursales sucursal);
 
     // 🌟 UPDATE: Modificar una sucursal existente (sin validación Multi-tenant)
     void modificar(Sucursales sucursalActualizada);
