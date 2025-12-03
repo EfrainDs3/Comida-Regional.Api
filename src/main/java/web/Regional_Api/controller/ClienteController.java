@@ -23,10 +23,6 @@ import web.Regional_Api.service.IClienteService;
 
 @RestController
 @RequestMapping("/restful/clientes")
-<<<<<<< Updated upstream
-=======
-/*@CrossOrigin(origins = "*")*/
->>>>>>> Stashed changes
 public class ClienteController {
 
     @Autowired
@@ -56,7 +52,8 @@ public class ClienteController {
         c.setEmail(dto.getEmail());
         c.setTelefono(dto.getTelefono());
         c.setDireccion(dto.getDireccion());
-        if (dto.getEstado() != null) c.setEstado(dto.getEstado());
+        if (dto.getEstado() != null)
+            c.setEstado(dto.getEstado());
 
         Cliente guardado = clienteService.guardar(c);
         return ResponseEntity.status(HttpStatus.CREATED).body(convertirADTO(guardado));
@@ -65,17 +62,26 @@ public class ClienteController {
     @PutMapping("/{id}")
     public ResponseEntity<ClienteDTO> actualizar(@PathVariable Integer id, @RequestBody ClienteDTO dto) {
         Optional<Cliente> opt = clienteService.buscarId(id);
-        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+        if (opt.isEmpty())
+            return ResponseEntity.notFound().build();
 
         Cliente c = opt.get();
-        if (dto.getIdRestaurante() != null) c.setIdRestaurante(dto.getIdRestaurante());
-        if (dto.getTipoCliente() != null) c.setTipoCliente(dto.getTipoCliente());
-        if (dto.getNombreRazonSocial() != null) c.setNombreRazonSocial(dto.getNombreRazonSocial());
-        if (dto.getDocumento() != null) c.setDocumento(dto.getDocumento());
-        if (dto.getEmail() != null) c.setEmail(dto.getEmail());
-        if (dto.getTelefono() != null) c.setTelefono(dto.getTelefono());
-        if (dto.getDireccion() != null) c.setDireccion(dto.getDireccion());
-        if (dto.getEstado() != null) c.setEstado(dto.getEstado());
+        if (dto.getIdRestaurante() != null)
+            c.setIdRestaurante(dto.getIdRestaurante());
+        if (dto.getTipoCliente() != null)
+            c.setTipoCliente(dto.getTipoCliente());
+        if (dto.getNombreRazonSocial() != null)
+            c.setNombreRazonSocial(dto.getNombreRazonSocial());
+        if (dto.getDocumento() != null)
+            c.setDocumento(dto.getDocumento());
+        if (dto.getEmail() != null)
+            c.setEmail(dto.getEmail());
+        if (dto.getTelefono() != null)
+            c.setTelefono(dto.getTelefono());
+        if (dto.getDireccion() != null)
+            c.setDireccion(dto.getDireccion());
+        if (dto.getEstado() != null)
+            c.setEstado(dto.getEstado());
 
         Cliente actualizado = clienteService.modificar(c);
         return ResponseEntity.ok(convertirADTO(actualizado));
@@ -84,7 +90,8 @@ public class ClienteController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         Optional<Cliente> opt = clienteService.buscarId(id);
-        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+        if (opt.isEmpty())
+            return ResponseEntity.notFound().build();
 
         Cliente c = opt.get();
         c.setEstado(0);
