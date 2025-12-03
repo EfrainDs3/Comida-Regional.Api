@@ -48,9 +48,10 @@ public class SucursalesController {
         return serviceSucursales.buscarId(idSucursal); 
     }
     
-    @PostMapping("/sucursales")
+  @PostMapping("/sucursales")
     public Sucursales guardar(@RequestBody Sucursales sucursal) {
-        return sucursal; 
+        // CORRECCIÓN: Llamamos al servicio y retornamos lo que el servicio nos da
+        return serviceSucursales.guardar(sucursal); 
     }
 
     
