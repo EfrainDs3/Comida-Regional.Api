@@ -13,14 +13,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
-/**
- * Configuración de seguridad
- * 
- * Proporciona beans compartidos por toda la aplicación:
- * - SecurityFilterChain para configurar autenticación y autorización
- * - BCryptPasswordEncoder para encriptación de contraseñas
- * - CorsConfigurationSource para configuración CORS global
- */
+
 @Configuration
 public class SecurityConfig {
 
@@ -34,36 +27,24 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
         http.securityMatcher("/restful/**")
                 .csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults()) // Habilitar CORS explícitamente
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/restful/token", "/restful/registros", "/restful/usuarios/login",
-                            "/restful/superadmin/login", "/restful/superadmin/auth/**")
-                        .permitAll()
-                        .anyRequest().authenticated())
+                        // Endpoints públicos de autenticación
+                        .requestMatchers(
+                            "/restful/token",
+                            "/restful/registros",
+                            "/restful/usuarios/login",
+                            "/restful/superadmin/auth/initiate-login",
+                            "/restful/superadmin/auth/login"
+                        ).permitAll()
+                        // Todos los demás requieren autenticación
+                        .anyRequest().authenticated()
+                )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    /**
-     * Configuración de la cadena de filtros de seguridad para Superadmin
-     * 
-     * Esta cadena de filtros es específica para las peticiones a
-     * /restful/superadmin/**
-     * Permite autenticación básica y desactiva CSRF
-     
-    @Bean
-    public SecurityFilterChain superAdminSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher("/restful/superadmin/**")
-                .csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults()) // ✅ Habilitar CORS para SuperAdmin
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/restful/superadmin/**").permitAll()
-                        .anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults());
-
-        return http.build();
-    }*/
 
     /**
      * Bean para encriptación de contraseñas usando BCrypt
