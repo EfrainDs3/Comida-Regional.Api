@@ -45,6 +45,12 @@ public class ExternalAuthFilter extends GenericFilter {
             return;
         }
 
+        // 🛑 SKIP SuperAdmin paths - deja que JwtFilter los maneje
+        if (requestURI.startsWith("/restful/superadmin")) {
+            chain.doFilter(req, res);
+            return;
+        }
+
         // Si ya está autenticado (por InternalAuthFilter), continuar
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
             chain.doFilter(req, res);

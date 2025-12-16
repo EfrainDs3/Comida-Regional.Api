@@ -30,7 +30,12 @@ public class EmailServiceImpl implements EmailService {
             System.out.println("✅ Email enviado exitosamente a: " + destinatario);
         } catch (MessagingException e) {
             System.err.println("❌ Error al enviar email: " + e.getMessage());
-            throw new RuntimeException("Error al enviar el correo electrónico", e);
+            e.printStackTrace(); // Agregar detalles del stack trace para depuración
+            throw new RuntimeException("Error al enviar el correo electrónico: " + e.getMessage(), e);
+        } catch (Exception e) {
+            System.err.println("❌ Error inesperado al enviar email: " + e.getMessage());
+            e.printStackTrace(); // Manejo de excepciones generales
+            throw new RuntimeException("Error inesperado al enviar el correo electrónico: " + e.getMessage(), e);
         }
     }
 
@@ -171,5 +176,28 @@ public class EmailServiceImpl implements EmailService {
                         "</body>" +
                         "</html>",
                 nombreUsuario, token);
+    }
+
+    @Override
+    public void sendEmail(String destinatario, String asunto, String contenido) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(destinatario);
+            helper.setSubject(asunto);
+            helper.setText(contenido, true);
+
+            mailSender.send(message);
+            System.out.println("✅ Email enviado exitosamente a: " + destinatario);
+        } catch (MessagingException e) {
+            System.err.println("❌ Error al enviar email: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Error al enviar el correo electrónico: " + e.getMessage(), e);
+        } catch (Exception e) {
+            System.err.println("❌ Error inesperado al enviar email: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Error inesperado al enviar el correo electrónico: " + e.getMessage(), e);
+        }
     }
 }

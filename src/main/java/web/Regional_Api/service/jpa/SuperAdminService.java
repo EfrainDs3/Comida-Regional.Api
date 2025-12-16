@@ -3,6 +3,10 @@ package web.Regional_Api.service.jpa;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,9 +26,6 @@ public class SuperAdminService implements ISuperAdminService, UserDetailsService
     @Autowired
     private SuperAdminRepository superAdminRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
     @Override
     public List<SuperAdmin> getAllSuperAdmins() {
         return superAdminRepository.findAll();
@@ -42,9 +43,7 @@ public class SuperAdminService implements ISuperAdminService, UserDetailsService
             throw new RuntimeException("El email ya está registrado");
         }
 
-        // Encode the password explicitly
-        superAdmin.setPassword(passwordEncoder.encode(superAdmin.getPassword()));
-
+        superAdmin.setPassword(hashPassword(superAdmin.getPassword()));
         return superAdminRepository.save(superAdmin);
     }
 
@@ -73,8 +72,7 @@ public class SuperAdminService implements ISuperAdminService, UserDetailsService
         }
 
         if (superAdmin.getPassword() != null && !superAdmin.getPassword().isEmpty()) {
-            // Encode the password explicitly
-            existente.setPassword(passwordEncoder.encode(superAdmin.getPassword()));
+            existente.setPassword(hashPassword(superAdmin.getPassword()));
         }
 
         if (superAdmin.getRol() != null) {
@@ -85,9 +83,8 @@ public class SuperAdminService implements ISuperAdminService, UserDetailsService
             existente.setTokenLogin(superAdmin.getTokenLogin());
         }
 
-        if (superAdmin.getTokenExpiracion() != null) {
-            existente.setTokenExpiracion(superAdmin.getTokenExpiracion());
-        }
+        // Token expiracion removido
+        // if (superAdmin.getTokenExpiracion() != null) ...
 
         return Optional.of(superAdminRepository.save(existente));
     }
@@ -120,6 +117,16 @@ public class SuperAdminService implements ISuperAdminService, UserDetailsService
                         .roles(admin.getRol())
                         .build())
                 .orElseThrow(() -> new UsernameNotFoundException("SuperAdmin no encontrado con email: " + username));
+    }
+
+    private String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error al generar hash de contraseña", e);
+        }
     }
 
 }

@@ -41,17 +41,15 @@ public class SuperAdmin {
     @Column(name = "token_login")
     private String tokenLogin;
 
-    @Column(name = "token_expiracion")
-    private LocalDateTime tokenExpiracion;
-
     @Column(name = "rol", length = 50)
     private String rol; // MASTER, SOPORTE, VENTAS
 
     @Column(name = "estado")
     private Integer estado = 1;
 
-    @Column(name = "fecha_creacion", insertable = false, updatable = false)
-    private LocalDateTime fechaCreacion;
+    // Column fecha_creacion removed from DB
+    // @Column(name = "fecha_creacion", insertable = false, updatable = false)
+    // private LocalDateTime fechaCreacion;
 
     // --- HE BORRADO EL CAMPO 'passwordEncoder' Y SU SETTER ESTÁTICO ---
 
@@ -59,16 +57,14 @@ public class SuperAdmin {
     }
 
     public SuperAdmin(Integer idSuperAdmin, String nombres, String email, String password, String tokenLogin,
-            LocalDateTime tokenExpiracion, String rol, Integer estado, LocalDateTime fechaCreacion) {
+            String rol, Integer estado) {
         this.idSuperAdmin = idSuperAdmin;
         this.nombres = nombres;
         this.email = email;
         this.password = password;
         this.tokenLogin = tokenLogin;
-        this.tokenExpiracion = tokenExpiracion;
         this.rol = rol;
         this.estado = estado;
-        this.fechaCreacion = fechaCreacion;
     }
 
     // Getters y Setters normales
@@ -119,14 +115,6 @@ public class SuperAdmin {
         this.tokenLogin = tokenLogin;
     }
 
-    public LocalDateTime getTokenExpiracion() {
-        return tokenExpiracion;
-    }
-
-    public void setTokenExpiracion(LocalDateTime tokenExpiracion) {
-        this.tokenExpiracion = tokenExpiracion;
-    }
-
     public String getRol() {
         return rol;
     }
@@ -143,13 +131,9 @@ public class SuperAdmin {
         this.estado = estado;
     }
 
-    public LocalDateTime getFechaCreacion() {
-        return fechaCreacion;
-    }
-
-    public void setFechaCreacion(LocalDateTime fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
-    }
+    // FechaCreacion removida
+    // public LocalDateTime getFechaCreacion() { ... }
+    // public void setFechaCreacion(LocalDateTime fechaCreacion) { ... }
 
     @Override
     public String toString() {

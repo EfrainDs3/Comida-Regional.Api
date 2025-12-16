@@ -50,6 +50,14 @@ public class InternalAuthFilter extends GenericFilter {
             return;
         }
 
+        // 🛑 SKIP SuperAdmin paths - deja que JwtFilter los maneje
+        System.out.println("🔍 InternalAuthFilter - URI: " + requestURI);
+        if (requestURI.startsWith("/restful/superadmin")) {
+            System.out.println("⏩ InternalAuthFilter SKIPPING SuperAdmin path");
+            chain.doFilter(req, res);
+            return;
+        }
+
         // Si ya está autenticado (por otro filtro), continuar
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
             chain.doFilter(req, res);

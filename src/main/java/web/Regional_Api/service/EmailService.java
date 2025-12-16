@@ -5,4 +5,6 @@ import org.springframework.scheduling.annotation.Async;
 public interface EmailService {
     @Async
     void enviarTokenSuperAdmin(String destinatario, String token, String nombreUsuario);
+
+    void sendEmail(String email, String string, String string2);
 }

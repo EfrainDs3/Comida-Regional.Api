@@ -25,7 +25,7 @@ import web.Regional_Api.repository.UsuarioRepository;
 
 @Component
 public class JwtFilter extends GenericFilter {
-    
+
     @Autowired
     private RegistrosRepository registrosRepository;
 
@@ -34,7 +34,7 @@ public class JwtFilter extends GenericFilter {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
-    
+
     @Autowired
     private SuperAdminRepository superAdminRepository;
 
@@ -48,13 +48,19 @@ public class JwtFilter extends GenericFilter {
 
         System.out.println("🔍 JwtFilter - Path: " + path);
 
+        // 🛑 SKIP SUPERADMIN: Deja que SuperAdminSecurityConfig y SuperAdminJwtFilter
+        // se encarguen
+        if (path.startsWith("/restful/superadmin")) {
+            System.out.println("⏩ JwtFilter SKIPPING SuperAdmin path: " + path);
+            chain.doFilter(req, res);
+            return;
+        }
+
         // ✅ NO FILTRAR endpoints públicos de autenticación
         if (path.equals("/restful/usuarios/login") ||
-            path.equals("/restful/token") ||
-            path.equals("/restful/registros") ||
-            path.equals("/restful/superadmin/auth/initiate-login") ||
-            path.equals("/restful/superadmin/auth/login")) {
-            
+                path.equals("/restful/token") ||
+                path.equals("/restful/registros")) {
+
             System.out.println("✅ Endpoint público - permitiendo acceso sin token");
             chain.doFilter(req, res);
             return;
@@ -75,8 +81,8 @@ public class JwtFilter extends GenericFilter {
 
             if (matchRegistro.isPresent()) {
                 String clienteId = matchRegistro.get().getid_usuario();
-                UsernamePasswordAuthenticationToken auth = 
-                    new UsernamePasswordAuthenticationToken(clienteId, null, Collections.emptyList());
+                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(clienteId, null,
+                        Collections.emptyList());
                 SecurityContextHolder.getContext().setAuthentication(auth);
                 System.out.println("✅ Autenticado como Usuario Legacy: " + clienteId);
                 chain.doFilter(req, res);
@@ -92,11 +98,11 @@ public class JwtFilter extends GenericFilter {
                 Optional<SuperAdmin> superAdminOpt = superAdminRepository.findByEmail(email);
                 if (superAdminOpt.isPresent()) {
                     SuperAdmin superAdmin = superAdminOpt.get();
-                    
+
                     // Verificar que el SuperAdmin esté activo
                     if (superAdmin.getEstado() != null && superAdmin.getEstado() == 1) {
-                        UsernamePasswordAuthenticationToken auth = 
-                            new UsernamePasswordAuthenticationToken(email, null, Collections.emptyList());
+                        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(email, null,
+                                Collections.emptyList());
                         SecurityContextHolder.getContext().setAuthentication(auth);
                         System.out.println("✅ Autenticado como SuperAdmin: " + email);
                         chain.doFilter(req, res);
@@ -111,8 +117,8 @@ public class JwtFilter extends GenericFilter {
                 // 2.B - Verificar si es Usuario normal
                 Optional<Usuarios> usuarioOpt = usuarioRepository.findByNombreUsuarioLogin(email);
                 if (usuarioOpt.isPresent()) {
-                    UsernamePasswordAuthenticationToken auth = 
-                        new UsernamePasswordAuthenticationToken(email, null, Collections.emptyList());
+                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(email, null,
+                            Collections.emptyList());
                     SecurityContextHolder.getContext().setAuthentication(auth);
                     System.out.println("✅ Autenticado como Usuario: " + email);
                     chain.doFilter(req, res);

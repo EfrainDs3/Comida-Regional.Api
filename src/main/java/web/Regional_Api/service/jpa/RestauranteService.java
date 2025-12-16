@@ -12,7 +12,7 @@ import web.Regional_Api.service.IRestauranteService;
 
 @Service
 public class RestauranteService implements IRestauranteService {
-    
+
     @Autowired
     private RestauranteRepository repoRestaurante;
 
@@ -36,5 +36,10 @@ public class RestauranteService implements IRestauranteService {
     @Override
     public void eliminar(Integer id) {
         repoRestaurante.deleteById(id);
+    }
+
+    @Override
+    public boolean existsByRuc(String ruc) {
+        return repoRestaurante.existsByRuc(ruc);
     }
 }

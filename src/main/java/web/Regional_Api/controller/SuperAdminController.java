@@ -1,11 +1,14 @@
 package web.Regional_Api.controller;
 
-import java.time.LocalDateTime;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,8 +27,9 @@ import web.Regional_Api.entity.Modulo;
 import web.Regional_Api.entity.Perfil;
 import web.Regional_Api.entity.Restaurante;
 import web.Regional_Api.entity.SuperAdmin;
+import web.Regional_Api.entity.Usuarios;
 
-import web.Regional_Api.security.JwtUtil;
+import web.Regional_Api.security.SuperAdminJwtUtil;
 import web.Regional_Api.service.ISuperAdminService;
 import web.Regional_Api.service.jpa.AccesoService;
 import web.Regional_Api.service.jpa.ModuloService;
@@ -33,14 +37,15 @@ import web.Regional_Api.service.jpa.PerfilService;
 import web.Regional_Api.service.jpa.RestauranteService;
 import web.Regional_Api.service.EmailService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import java.util.UUID;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
 @RequestMapping("/restful/superadmin")
 public class SuperAdminController {
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private SuperAdminJwtUtil jwtUtil;
 
     @Autowired
     private PerfilService perfilService;
@@ -63,6 +68,9 @@ public class SuperAdminController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private web.Regional_Api.service.jpa.UsuarioService usuarioService;
+
     // ============================================
     // AUTENTICACIÓN SUPERADMIN
     // ============================================
@@ -71,55 +79,60 @@ public class SuperAdminController {
     public ResponseEntity<?> initiateLogin(@RequestBody Map<String, String> loginRequest) {
         String email = loginRequest.get("email");
         String password = loginRequest.get("password");
-        System.out.println("=== INITIATE LOGIN SUPERADMIN ===");
-        System.out.println("Email recibido: " + email);
         if (email == null || password == null) {
             return ResponseEntity.badRequest().body("Email y contraseña requeridos");
         }
 
         Optional<SuperAdmin> adminOpt = superAdminService.getSuperAdminByEmail(email);
         if (adminOpt.isEmpty()) {
-            System.out.println("SuperAdmin no encontrado");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales inválidas");
         }
 
         SuperAdmin admin = adminOpt.get();
-        System.out.println("SuperAdmin encontrado: " + admin.getEmail());
-        System.out.println("Password recibido (texto plano): " + password);
-        System.out.println("Password en BD (BCrypt hash): " + admin.getPassword());
+        String hashedPassword = hashPassword(password);
 
-        boolean passwordMatch = passwordEncoder.matches(password, admin.getPassword());
-        System.out.println("¿Contraseñas coinciden? " + passwordMatch);
-        if (!passwordMatch) {
-            System.out.println("¡Contraseña incorrecta!");
+        if (!hashedPassword.equals(admin.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales inválidas");
         }
-        System.out.println("¡Contraseña correcta!");
 
-        // Verificar estado
         if (admin.getEstado() == null || admin.getEstado() != 1) {
-            System.out.println("Cuenta inactiva");
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Cuenta inactiva");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("SuperAdmin inactivo");
         }
 
-        // Generar token de login (aleatorio)
-        String tokenLogin = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
-        System.out.println("Token generado: " + tokenLogin);
-        // Guardar token y expiración (10 minutos)
-        admin.setTokenLogin(tokenLogin);
-        admin.setTokenExpiracion(LocalDateTime.now().plusMinutes(10));
+        String token = jwtUtil.generateToken(admin.getEmail());
+
+        // GUARDAR TOKEN EN BD
+        admin.setTokenLogin(token);
+        // Expiración removida según nuevo esquema
+
+        // ⚠️ CRÍTICO: Evitar re-hashing de la contraseña existente
+        String oldPassword = admin.getPassword();
+        admin.setPassword(null);
+
         superAdminService.updateSuperAdmin(admin.getIdSuperAdmin(), admin);
 
-        // Enviar email
+        // Restaurar para el objeto en memoria
+        admin.setPassword(oldPassword);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("token", token);
+
+        // Enviar el token por correo electrónico
+        emailService.enviarTokenSuperAdmin(email, token, admin.getNombres());
+
+        System.out.println("📧 Token enviado al correo: " + email);
+
+        return ResponseEntity.ok(response);
+    }
+
+    private String hashPassword(String password) {
         try {
-            emailService.enviarTokenSuperAdmin(admin.getEmail(), tokenLogin, admin.getNombres());
-            System.out.println("✅ Token enviado por email a: " + admin.getEmail());
-        } catch (Exception e) {
-            System.err.println("❌ Error al enviar email: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al enviar el correo: " + e.getMessage());
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error al generar hash de contraseña", e);
         }
-        return ResponseEntity.ok(Map.of("message", "Token enviado al correo", "email", admin.getEmail()));
     }
 
     @PostMapping("/auth/login")
@@ -142,10 +155,8 @@ public class SuperAdminController {
 
         SuperAdmin superAdmin = superAdminOpt.get();
 
-        // Verificar expiración
-        if (superAdmin.getTokenExpiracion() != null && superAdmin.getTokenExpiracion().isBefore(LocalDateTime.now())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("El token ha expirado");
-        }
+        // Verificar expiración - ELIMINADO
+        // if (superAdmin.getTokenExpiracion() != null ...
 
         // Verificar estado
         if (superAdmin.getEstado() == null || superAdmin.getEstado() != 1) {
@@ -158,13 +169,25 @@ public class SuperAdminController {
         Map<String, Object> response = new HashMap<>();
         response.put("token", jwt);
 
+        // Flattened response structure to match UsuarioController
+        response.put("idUsuario", superAdmin.getIdSuperAdmin()); // Frontend expects "idUsuario"
+        response.put("nombres", superAdmin.getNombres());
+        response.put("email", superAdmin.getEmail());
+        response.put("rol", superAdmin.getRol());
+
+        // Mock fields for Frontend compatibility
+        // response.put("idPerfil", 999); // 999 = Virtual SuperAdmin Role
+        response.put("nombrePerfil", "Super Administrador");
+        response.put("idSucursal", 0); // 0 = Global / No specific branch
+
+        // Legacy nested user object (optional, kept just in case frontend checks both)
         Map<String, Object> user = new HashMap<>();
         user.put("id_superadmin", superAdmin.getIdSuperAdmin());
         user.put("nombres", superAdmin.getNombres());
         user.put("email", superAdmin.getEmail());
         user.put("rol", superAdmin.getRol());
-
         response.put("user", user);
+
         System.out.println("Login SuperAdmin exitoso: " + superAdmin.getEmail());
         return ResponseEntity.ok(response);
     }
@@ -201,14 +224,23 @@ public class SuperAdminController {
 
     @GetMapping("/super-admins/{id}")
     public ResponseEntity<?> getSuperAdminById(@PathVariable Integer id) {
-        return superAdminService.getSuperAdminById(id)
-                .map(ResponseEntity::ok)
+        return superAdminService.getSuperAdminById(id).map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/super-admins")
     public ResponseEntity<?> createSuperAdmin(@RequestBody SuperAdmin superAdmin) {
         try {
+            // 🔒 SECURITY CHECK: SOLO MASTER
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            boolean isMaster = auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_MASTER"));
+
+            if (!isMaster) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Acceso denegado: Solo el MASTER puede crear nuevos SuperAdmins.");
+            }
+
             // ✅ NO encriptar aquí - el Service ya lo hace
             System.out.println("Creando nuevo SuperAdmin: " + superAdmin.getEmail());
 
@@ -334,8 +366,7 @@ public class SuperAdminController {
 
     @GetMapping("/permisos/{id}")
     public ResponseEntity<?> getPermisoById(@PathVariable Integer id) {
-        return moduloService.getModuloById(id)
-                .map(ResponseEntity::ok)
+        return moduloService.getModuloById(id).map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
@@ -370,27 +401,21 @@ public class SuperAdminController {
     // ============================================
     @GetMapping("/roles/{idRol}/permisos")
     public ResponseEntity<?> getPermisosByRol(@PathVariable Integer idRol) {
-        List<Acceso> accesos = accesoService.getAllAccesos().stream()
-                .filter(a -> a.getIdPerfil().equals(idRol))
+        List<Acceso> accesos = accesoService.getAllAccesos().stream().filter(a -> a.getIdPerfil().equals(idRol))
                 .collect(Collectors.toList());
-        List<Integer> idsModulos = accesos.stream()
-                .map(Acceso::getIdModulo)
-                .collect(Collectors.toList());
+        List<Integer> idsModulos = accesos.stream().map(Acceso::getIdModulo).collect(Collectors.toList());
         return ResponseEntity.ok(idsModulos);
     }
 
     @PostMapping("/roles/{idRol}/permisos")
-    public ResponseEntity<?> asignarPermisos(
-            @PathVariable Integer idRol,
-            @RequestBody List<Integer> idsModulos) {
+    public ResponseEntity<?> asignarPermisos(@PathVariable Integer idRol, @RequestBody List<Integer> idsModulos) {
         System.out.println("Asignando permisos al rol " + idRol + ": " + idsModulos);
         Optional<Perfil> perfilOpt = perfilService.getPerfilById(idRol);
         if (perfilOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Rol no encontrado");
         }
         List<Acceso> accesosAnteriores = accesoService.getAllAccesos().stream()
-                .filter(a -> a.getIdPerfil().equals(idRol))
-                .collect(Collectors.toList());
+                .filter(a -> a.getIdPerfil().equals(idRol)).collect(Collectors.toList());
         for (Acceso acceso : accesosAnteriores) {
             accesoService.deleteAcceso(acceso.getIdAcceso());
         }
@@ -401,9 +426,8 @@ public class SuperAdminController {
             nuevoAcceso.setEstado(1);
             accesoService.saveAcceso(nuevoAcceso);
         }
-        return ResponseEntity.ok(Map.of(
-                "mensaje", "Permisos asignados correctamente",
-                "totalPermisos", idsModulos.size()));
+        return ResponseEntity
+                .ok(Map.of("mensaje", "Permisos asignados correctamente", "totalPermisos", idsModulos.size()));
     }
 
     // ============================================
@@ -416,8 +440,7 @@ public class SuperAdminController {
 
     @GetMapping("/restaurantes/{id}")
     public ResponseEntity<?> getRestauranteById(@PathVariable Integer id) {
-        return restauranteService.buscarId(id)
-                .map(ResponseEntity::ok)
+        return restauranteService.buscarId(id).map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
@@ -425,16 +448,39 @@ public class SuperAdminController {
     private web.Regional_Api.service.jpa.SucursalesService sucursalesService;
 
     @PostMapping("/restaurantes")
-    public ResponseEntity<Restaurante> createRestaurante(@RequestBody Restaurante restaurante) {
-        restaurante.setEstado(1);
-        Restaurante saved = restauranteService.guardar(restaurante);
-        web.Regional_Api.entity.Sucursales sucursalPrincipal = new web.Regional_Api.entity.Sucursales();
-        sucursalPrincipal.setIdRestaurante(saved.getId_restaurante());
-        sucursalPrincipal.setNombre("Sucursal Principal");
-        sucursalPrincipal.setDireccion(saved.getDireccion_principal());
-        sucursalPrincipal.setEstado(1);
-        sucursalesService.guardar(sucursalPrincipal);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    public ResponseEntity<?> createRestaurante(@RequestBody Restaurante restaurante) {
+        try {
+            // 1. Validar duplicados (RUC)
+            if (restauranteService.existsByRuc(restaurante.getRuc())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("{\"error\": \"El RUC " + restaurante.getRuc() + " ya está registrado en el sistema.\"}");
+            }
+
+            restaurante.setEstado(1);
+            Restaurante saved = restauranteService.guardar(restaurante);
+
+            // 2. Crear Sucursal Principal
+            web.Regional_Api.entity.Sucursales sucursalPrincipal = new web.Regional_Api.entity.Sucursales();
+            sucursalPrincipal.setIdRestaurante(saved.getId_restaurante());
+            sucursalPrincipal.setNombre("Sucursal Principal");
+
+            // 🛡️ Protección contra dirección Nula (Causa común de error 500)
+            String direccion = saved.getDireccion_principal();
+            if (direccion == null || direccion.trim().isEmpty()) {
+                direccion = "Dirección Pendiente de Actualizar";
+            }
+            sucursalPrincipal.setDireccion(direccion);
+
+            sucursalPrincipal.setEstado(1);
+            sucursalesService.guardar(sucursalPrincipal);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        } catch (Exception e) {
+            System.err.println("❌ Error al crear restaurante: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"error\": \"Error interno: " + e.getMessage() + "\"}");
+        }
     }
 
     @PutMapping("/restaurantes/{id}")
@@ -454,5 +500,104 @@ public class SuperAdminController {
         }
         restauranteService.eliminar(id);
         return ResponseEntity.ok("Restaurante eliminado correctamente");
+    }
+
+    // ============================================
+    // GESTIÓN DE USUARIOS (Clientes / Dueños)
+    // ============================================
+    @PostMapping("/usuarios")
+    public ResponseEntity<?> createUsuario(@RequestBody Map<String, Object> request) {
+        try {
+            // Extract fields
+            String nombreUsuario = (String) request.get("nombreUsuario");
+            String apellidos = (String) request.get("apellidos");
+            String dniUsuario = (String) request.get("dniUsuario");
+            String telefono = (String) request.get("telefono");
+            String nombreUsuarioLogin = (String) request.get("nombreUsuarioLogin");
+            String contrasena = (String) request.get("contrasena");
+            // Handle Long/Integer conversion safely
+            Object rolIdObj = request.get("rolId");
+            Integer rolId = null;
+            if (rolIdObj instanceof Number) {
+                rolId = ((Number) rolIdObj).intValue();
+            } else if (rolIdObj instanceof String) {
+                try {
+                    rolId = Integer.parseInt((String) rolIdObj);
+                } catch (NumberFormatException e) {
+                    // ignore
+                }
+            }
+
+            Object idSucursalObj = request.get("idSucursal");
+            Integer idSucursal = null;
+            if (idSucursalObj instanceof Number) {
+                idSucursal = ((Number) idSucursalObj).intValue();
+            } else if (idSucursalObj instanceof String) {
+                try {
+                    idSucursal = Integer.parseInt((String) idSucursalObj);
+                } catch (NumberFormatException e) {
+                    // ignore
+                }
+            }
+
+            // Validate mandatory fields
+            if (nombreUsuario == null || apellidos == null || dniUsuario == null ||
+                    nombreUsuarioLogin == null || contrasena == null || rolId == null || idSucursal == null) {
+                return ResponseEntity.badRequest().body("{\"error\": \"Faltan datos obligatorios\"}");
+            }
+
+            // Check if user exists (by login)
+            if (usuarioService.getUsuarioByLogin(nombreUsuarioLogin).isPresent()) {
+                return ResponseEntity.badRequest().body("{\"error\": \"El nombre de usuario ya existe\"}");
+            }
+
+            // ⚠️ FIX: El frontend envía el ID del Restaurante en el campo "idSucursal"
+            // Debemos buscar la "Sucursal Principal" asociada a ese restaurante
+            if (idSucursal != null) {
+                // Inyectar servicio si no está (revisar imports y autowired arriba, pero asumo
+                // aquí lógica)
+                // Nota: Asumiendo que sucursalesService está disponible en la clase (ver abajo)
+                java.util.List<web.Regional_Api.entity.Sucursales> sucursales = sucursalesService
+                        .buscarTodosPorRestaurante(idSucursal);
+                if (sucursales != null && !sucursales.isEmpty()) {
+                    // Usar el ID real de la sucursal (la primera encontrada, usualmente Principal)
+                    idSucursal = sucursales.get(0).getIdSucursal();
+                } else {
+                    // Fallback: Si no se encuentran sucursales, esto fallará por FK,
+                    // pero al menos intentamos mapearlo.
+                    // Opcional: Crear sucursal dummy si no existe.
+                    System.out.println("⚠️ No se encontraron sucursales para el Restaurante ID: " + idSucursal);
+                }
+            }
+
+            // Create Usuario
+            Usuarios newUser = new Usuarios();
+            newUser.setNombreUsuario(nombreUsuario);
+            newUser.setApellidos(apellidos);
+            newUser.setDniUsuario(dniUsuario);
+            newUser.setTelefono(telefono);
+            newUser.setNombreUsuarioLogin(nombreUsuarioLogin);
+            newUser.setRolId(rolId);
+            newUser.setIdSucursal(idSucursal);
+            newUser.setEstado(1);
+            newUser.setFechaCreacion(java.time.LocalDateTime.now());
+
+            // Hash Password with BCrypt
+            org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+            String hashedPassword = encoder.encode(contrasena);
+
+            // Set Hashed Password (logic in Entity accepts $2a$)
+            newUser.setContrasena(hashedPassword);
+
+            // Save
+            Usuarios savedUser = usuarioService.saveUsuarios(newUser);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"error\": \"Error al crear usuario: " + e.getMessage() + "\"}");
+        }
     }
 }

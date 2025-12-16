@@ -78,14 +78,6 @@ public class SuperAdminDTO {
         this.tokenLogin = tokenLogin;
     }
 
-    public LocalDateTime getTokenExpiracion() {
-        return tokenExpiracion;
-    }
-
-    public void setTokenExpiracion(LocalDateTime tokenExpiracion) {
-        this.tokenExpiracion = tokenExpiracion;
-    }
-
     public String getRol() {
         return rol;
     }
@@ -102,14 +94,6 @@ public class SuperAdminDTO {
         this.estado = estado;
     }
 
-    public LocalDateTime getFechaCreacion() {
-        return fechaCreacion;
-    }
-
-    public void setFechaCreacion(LocalDateTime fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
-    }
-
     @Override
     public String toString() {
         return "SuperAdminDTO{" +
@@ -118,10 +102,8 @@ public class SuperAdminDTO {
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", tokenLogin='" + tokenLogin + '\'' +
-                ", tokenExpiracion=" + tokenExpiracion +
                 ", rol='" + rol + '\'' +
                 ", estado=" + estado +
-                ", fechaCreacion=" + fechaCreacion +
                 '}';
     }
 }

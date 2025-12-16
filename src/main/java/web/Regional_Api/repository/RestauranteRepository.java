@@ -7,5 +7,9 @@ import web.Regional_Api.entity.Restaurante;
 
 @Repository
 public interface RestauranteRepository extends JpaRepository<Restaurante, Integer> {
-    
+
+    java.util.Optional<Restaurante> findByRuc(String ruc);
+
+    boolean existsByRuc(String ruc);
+
 }
