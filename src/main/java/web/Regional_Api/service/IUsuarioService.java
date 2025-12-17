@@ -21,4 +21,6 @@ public interface IUsuarioService {
     Optional<Usuarios> updateUsuario(Integer id, Usuarios usuario);
 
     void deleteUsuario(Integer id);
+
+    List<Usuarios> getUsuariosBySucursal(Integer idSucursal);
 }

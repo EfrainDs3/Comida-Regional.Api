@@ -47,6 +47,16 @@ public class UsuarioController {
         return usuarioService.getAllUsuarios();
     }
 
+    @GetMapping("/usuarios/sucursal/{idSucursal}")
+    public ResponseEntity<?> obtenerPorSucursal(@PathVariable Integer idSucursal) {
+        try {
+            List<Usuarios> usuarios = usuarioService.getUsuariosBySucursal(idSucursal);
+            return ResponseEntity.ok(usuarios);
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al obtener usuarios por sucursal");
+        }
+    }
+
     @GetMapping("/usuarios/{id}")
     public ResponseEntity<?> obtenerPorId(@PathVariable Integer id) {
         Optional<Usuarios> opt = usuarioService.getUsuarioById(id);

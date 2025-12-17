@@ -151,4 +151,10 @@ public class UsuarioService implements IUsuarioService {
         }
         usuarioRepository.deleteById(id);
     }
+
+    @Override
+    public List<Usuarios> getUsuariosBySucursal(Integer idSucursal) {
+        Objects.requireNonNull(idSucursal, "El idSucursal no puede ser nulo");
+        return usuarioRepository.findByIdSucursal(idSucursal);
+    }
 }
