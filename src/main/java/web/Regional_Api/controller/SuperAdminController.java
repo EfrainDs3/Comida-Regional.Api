@@ -103,15 +103,12 @@ public class SuperAdminController {
 
         // GUARDAR TOKEN EN BD
         admin.setTokenLogin(token);
-        // Expiración removida según nuevo esquema
 
-        // ⚠️ CRÍTICO: Evitar re-hashing de la contraseña existente
         String oldPassword = admin.getPassword();
         admin.setPassword(null);
 
         superAdminService.updateSuperAdmin(admin.getIdSuperAdmin(), admin);
 
-        // Restaurar para el objeto en memoria
         admin.setPassword(oldPassword);
 
         Map<String, String> response = new HashMap<>();
@@ -155,9 +152,6 @@ public class SuperAdminController {
 
         SuperAdmin superAdmin = superAdminOpt.get();
 
-        // Verificar expiración - ELIMINADO
-        // if (superAdmin.getTokenExpiracion() != null ...
-
         // Verificar estado
         if (superAdmin.getEstado() == null || superAdmin.getEstado() != 1) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Cuenta inactiva o eliminada");
@@ -169,18 +163,14 @@ public class SuperAdminController {
         Map<String, Object> response = new HashMap<>();
         response.put("token", jwt);
 
-        // Flattened response structure to match UsuarioController
-        response.put("idUsuario", superAdmin.getIdSuperAdmin()); // Frontend expects "idUsuario"
+        response.put("idUsuario", superAdmin.getIdSuperAdmin());
         response.put("nombres", superAdmin.getNombres());
         response.put("email", superAdmin.getEmail());
         response.put("rol", superAdmin.getRol());
 
-        // Mock fields for Frontend compatibility
-        // response.put("idPerfil", 999); // 999 = Virtual SuperAdmin Role
         response.put("nombrePerfil", "Super Administrador");
-        response.put("idSucursal", 0); // 0 = Global / No specific branch
+        response.put("idSucursal", 0); 
 
-        // Legacy nested user object (optional, kept just in case frontend checks both)
         Map<String, Object> user = new HashMap<>();
         user.put("id_superadmin", superAdmin.getIdSuperAdmin());
         user.put("nombres", superAdmin.getNombres());
@@ -231,7 +221,7 @@ public class SuperAdminController {
     @PostMapping("/super-admins")
     public ResponseEntity<?> createSuperAdmin(@RequestBody SuperAdmin superAdmin) {
         try {
-            // 🔒 SECURITY CHECK: SOLO MASTER
+
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             boolean isMaster = auth.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_MASTER"));
@@ -241,12 +231,10 @@ public class SuperAdminController {
                         .body("Acceso denegado: Solo el MASTER puede crear nuevos SuperAdmins.");
             }
 
-            // ✅ NO encriptar aquí - el Service ya lo hace
             System.out.println("Creando nuevo SuperAdmin: " + superAdmin.getEmail());
 
             SuperAdmin created = superAdminService.createSuperAdmin(superAdmin);
 
-            // No devolver la contraseña en la respuesta
             created.setPassword(null);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
@@ -258,7 +246,6 @@ public class SuperAdminController {
     @PutMapping("/super-admins/{id}")
     public ResponseEntity<?> updateSuperAdmin(@PathVariable Integer id, @RequestBody SuperAdmin superAdmin) {
         try {
-            // ✅ NO encriptar aquí - el Service ya lo hace
             if (superAdmin.getPassword() != null && !superAdmin.getPassword().isEmpty()) {
                 System.out.println("Actualizando contraseña para SuperAdmin ID: " + id);
             }
@@ -319,8 +306,7 @@ public class SuperAdminController {
         }
         perfil.setEstado(1);
         Perfil saved = perfilService.savePerfil(perfil);
-        
-        // ✅ NUEVO: Si es un rol administrativo, asignar automáticamente todos los módulos
+
         if (perfil.getNombrePerfil().contains("ADMIN") || perfil.getNombrePerfil().contains("Administrador")) {
             try {
                 List<Modulo> todosModulos = moduloService.getAllModulos();
@@ -536,7 +522,7 @@ public class SuperAdminController {
             String telefono = (String) request.get("telefono");
             String nombreUsuarioLogin = (String) request.get("nombreUsuarioLogin");
             String contrasena = (String) request.get("contrasena");
-            // Handle Long/Integer conversion safely
+
             Object rolIdObj = request.get("rolId");
             Integer rolId = null;
             if (rolIdObj instanceof Number) {
@@ -567,26 +553,18 @@ public class SuperAdminController {
                 return ResponseEntity.badRequest().body("{\"error\": \"Faltan datos obligatorios\"}");
             }
 
-            // Check if user exists (by login)
             if (usuarioService.getUsuarioByLogin(nombreUsuarioLogin).isPresent()) {
                 return ResponseEntity.badRequest().body("{\"error\": \"El nombre de usuario ya existe\"}");
             }
 
-            // ⚠️ FIX: El frontend envía el ID del Restaurante en el campo "idSucursal"
-            // Debemos buscar la "Sucursal Principal" asociada a ese restaurante
             if (idSucursal != null) {
-                // Inyectar servicio si no está (revisar imports y autowired arriba, pero asumo
-                // aquí lógica)
-                // Nota: Asumiendo que sucursalesService está disponible en la clase (ver abajo)
+
                 java.util.List<web.Regional_Api.entity.Sucursales> sucursales = sucursalesService
                         .buscarTodosPorRestaurante(idSucursal);
                 if (sucursales != null && !sucursales.isEmpty()) {
-                    // Usar el ID real de la sucursal (la primera encontrada, usualmente Principal)
+
                     idSucursal = sucursales.get(0).getIdSucursal();
                 } else {
-                    // Fallback: Si no se encuentran sucursales, esto fallará por FK,
-                    // pero al menos intentamos mapearlo.
-                    // Opcional: Crear sucursal dummy si no existe.
                     System.out.println("⚠️ No se encontraron sucursales para el Restaurante ID: " + idSucursal);
                 }
             }
@@ -603,11 +581,10 @@ public class SuperAdminController {
             newUser.setEstado(1);
             newUser.setFechaCreacion(java.time.LocalDateTime.now());
 
-            // Hash Password with BCrypt
             org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
             String hashedPassword = encoder.encode(contrasena);
 
-            // Set Hashed Password (logic in Entity accepts $2a$)
+
             newUser.setContrasena(hashedPassword);
 
             // Save
@@ -642,7 +619,6 @@ public class SuperAdminController {
                         .body("Acceso denegado: Solo el MASTER puede crear administradores");
             }
 
-            // Extract fields
             String nombreUsuario = (String) request.get("nombreUsuario");
             String apellidos = (String) request.get("apellidos");
             String dniUsuario = (String) request.get("dniUsuario");
@@ -650,7 +626,6 @@ public class SuperAdminController {
             String nombreUsuarioLogin = (String) request.get("nombreUsuarioLogin");
             String contrasena = (String) request.get("contrasena");
             
-            // Handle rolId - usar el nombre del perfil administrativo
             Object rolIdObj = request.get("rolId");
             Integer rolId = null;
             if (rolIdObj instanceof Number) {
@@ -659,7 +634,6 @@ public class SuperAdminController {
                 try {
                     rolId = Integer.parseInt((String) rolIdObj);
                 } catch (NumberFormatException e) {
-                    // ignore
                 }
             }
 
@@ -671,22 +645,18 @@ public class SuperAdminController {
                 try {
                     idSucursal = Integer.parseInt((String) idSucursalObj);
                 } catch (NumberFormatException e) {
-                    // ignore
+
                 }
             }
 
-            // Validate mandatory fields
             if (nombreUsuario == null || apellidos == null || dniUsuario == null ||
                     nombreUsuarioLogin == null || contrasena == null || rolId == null || idSucursal == null) {
                 return ResponseEntity.badRequest().body("{\"error\": \"Faltan datos obligatorios\"}");
             }
-
-            // Check if user exists (by login)
             if (usuarioService.getUsuarioByLogin(nombreUsuarioLogin).isPresent()) {
                 return ResponseEntity.badRequest().body("{\"error\": \"El nombre de usuario ya existe\"}");
             }
 
-            // Map restaurant to branch
             if (idSucursal != null) {
                 java.util.List<web.Regional_Api.entity.Sucursales> sucursales = sucursalesService
                         .buscarTodosPorRestaurante(idSucursal);
@@ -709,20 +679,16 @@ public class SuperAdminController {
             newUser.setEstado(1);
             newUser.setFechaCreacion(java.time.LocalDateTime.now());
 
-            // Hash Password with BCrypt
             org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
             String hashedPassword = encoder.encode(contrasena);
             newUser.setContrasena(hashedPassword);
 
-            // Save Usuario
             Usuarios savedUser = usuarioService.saveUsuarios(newUser);
 
-            // ✅ AUTOMÁTICAMENTE ASIGNAR TODOS LOS ACCESOS AL PERFIL
-            final Integer finalRolId = rolId;  // ✅ Hacer final para uso en lambda
+            final Integer finalRolId = rolId; 
             try {
                 List<Modulo> todosModulos = moduloService.getAllModulos();
                 
-                // Primero, eliminar accesos anteriores del perfil si existen
                 List<Acceso> accesosAnteriores = accesoService.getAllAccesos().stream()
                         .filter(a -> a.getIdPerfil().equals(finalRolId))
                         .collect(Collectors.toList());
@@ -744,7 +710,7 @@ public class SuperAdminController {
             } catch (Exception e) {
                 System.err.println("⚠️ Error al asignar accesos: " + e.getMessage());
                 e.printStackTrace();
-                // No fallar la creación del usuario si hay error en accesos
+
             }
 
             return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);

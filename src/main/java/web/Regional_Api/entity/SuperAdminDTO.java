@@ -2,11 +2,6 @@ package web.Regional_Api.entity;
 
 import java.time.LocalDateTime;
 
-/**
- * DTO para SuperAdmin
- * 
- * Representa los datos del SuperAdmin para transferir entre el frontend y el backend.
- */
 public class SuperAdminDTO {
 
     private Integer idSuperadmin;

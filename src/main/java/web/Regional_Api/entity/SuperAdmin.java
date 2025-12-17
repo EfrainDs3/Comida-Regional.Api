@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-// IMPORTANTE: Ya no necesitamos PasswordEncoder aquí
-// import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -46,12 +44,6 @@ public class SuperAdmin {
 
     @Column(name = "estado")
     private Integer estado = 1;
-
-    // Column fecha_creacion removed from DB
-    // @Column(name = "fecha_creacion", insertable = false, updatable = false)
-    // private LocalDateTime fechaCreacion;
-
-    // --- HE BORRADO EL CAMPO 'passwordEncoder' Y SU SETTER ESTÁTICO ---
 
     public SuperAdmin() {
     }
@@ -98,11 +90,10 @@ public class SuperAdmin {
         return password;
     }
 
-    // --- ESTA ES LA PARTE CORREGIDA ---
+
     @JsonProperty // Permite recibir la contraseña en el JSON (Input)
     public void setPassword(String password) {
-        // Solo guardamos el valor tal cual llega.
-        // La encriptación SE DEBE HACER EN EL SERVICE.
+
         this.password = password;
     }
     // -----------------------------------
@@ -130,10 +121,6 @@ public class SuperAdmin {
     public void setEstado(Integer estado) {
         this.estado = estado;
     }
-
-    // FechaCreacion removida
-    // public LocalDateTime getFechaCreacion() { ... }
-    // public void setFechaCreacion(LocalDateTime fechaCreacion) { ... }
 
     @Override
     public String toString() {
