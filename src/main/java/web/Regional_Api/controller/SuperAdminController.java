@@ -319,6 +319,27 @@ public class SuperAdminController {
         }
         perfil.setEstado(1);
         Perfil saved = perfilService.savePerfil(perfil);
+        
+        // ✅ NUEVO: Si es un rol administrativo, asignar automáticamente todos los módulos
+        if (perfil.getNombrePerfil().contains("ADMIN") || perfil.getNombrePerfil().contains("Administrador")) {
+            try {
+                List<Modulo> todosModulos = moduloService.getAllModulos();
+                for (Modulo modulo : todosModulos) {
+                    if (!accesoService.existeAcceso(modulo.getIdModulo(), saved.getIdPerfil())) {
+                        Acceso nuevoAcceso = new Acceso();
+                        nuevoAcceso.setIdPerfil(saved.getIdPerfil());
+                        nuevoAcceso.setIdModulo(modulo.getIdModulo());
+                        nuevoAcceso.setEstado(1);
+                        accesoService.saveAcceso(nuevoAcceso);
+                    }
+                }
+                System.out.println("✅ Todos los módulos asignados automáticamente al rol administrativo: " + perfil.getNombrePerfil());
+            } catch (Exception e) {
+                System.err.println("⚠️ Error al asignar módulos automáticamente: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
@@ -598,6 +619,140 @@ public class SuperAdminController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("{\"error\": \"Error al crear usuario: " + e.getMessage() + "\"}");
+        }
+    }
+
+    // ============================================
+    // CREAR ADMINISTRADOR CON TODOS LOS ACCESOS
+    // ============================================
+    /**
+     * Endpoint para crear un administrador desde el SuperAdmin
+     * Automáticamente asigna TODOS los módulos/accesos disponibles
+     */
+    @PostMapping("/crear-administrador")
+    public ResponseEntity<?> crearAdministrador(@RequestBody Map<String, Object> request) {
+        try {
+            // Verificar que sea MASTER
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            boolean isMaster = auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_MASTER"));
+
+            if (!isMaster) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Acceso denegado: Solo el MASTER puede crear administradores");
+            }
+
+            // Extract fields
+            String nombreUsuario = (String) request.get("nombreUsuario");
+            String apellidos = (String) request.get("apellidos");
+            String dniUsuario = (String) request.get("dniUsuario");
+            String telefono = (String) request.get("telefono");
+            String nombreUsuarioLogin = (String) request.get("nombreUsuarioLogin");
+            String contrasena = (String) request.get("contrasena");
+            
+            // Handle rolId - usar el nombre del perfil administrativo
+            Object rolIdObj = request.get("rolId");
+            Integer rolId = null;
+            if (rolIdObj instanceof Number) {
+                rolId = ((Number) rolIdObj).intValue();
+            } else if (rolIdObj instanceof String) {
+                try {
+                    rolId = Integer.parseInt((String) rolIdObj);
+                } catch (NumberFormatException e) {
+                    // ignore
+                }
+            }
+
+            Object idSucursalObj = request.get("idSucursal");
+            Integer idSucursal = null;
+            if (idSucursalObj instanceof Number) {
+                idSucursal = ((Number) idSucursalObj).intValue();
+            } else if (idSucursalObj instanceof String) {
+                try {
+                    idSucursal = Integer.parseInt((String) idSucursalObj);
+                } catch (NumberFormatException e) {
+                    // ignore
+                }
+            }
+
+            // Validate mandatory fields
+            if (nombreUsuario == null || apellidos == null || dniUsuario == null ||
+                    nombreUsuarioLogin == null || contrasena == null || rolId == null || idSucursal == null) {
+                return ResponseEntity.badRequest().body("{\"error\": \"Faltan datos obligatorios\"}");
+            }
+
+            // Check if user exists (by login)
+            if (usuarioService.getUsuarioByLogin(nombreUsuarioLogin).isPresent()) {
+                return ResponseEntity.badRequest().body("{\"error\": \"El nombre de usuario ya existe\"}");
+            }
+
+            // Map restaurant to branch
+            if (idSucursal != null) {
+                java.util.List<web.Regional_Api.entity.Sucursales> sucursales = sucursalesService
+                        .buscarTodosPorRestaurante(idSucursal);
+                if (sucursales != null && !sucursales.isEmpty()) {
+                    idSucursal = sucursales.get(0).getIdSucursal();
+                } else {
+                    System.out.println("⚠️ No se encontraron sucursales para el Restaurante ID: " + idSucursal);
+                }
+            }
+
+            // Create Usuario
+            Usuarios newUser = new Usuarios();
+            newUser.setNombreUsuario(nombreUsuario);
+            newUser.setApellidos(apellidos);
+            newUser.setDniUsuario(dniUsuario);
+            newUser.setTelefono(telefono);
+            newUser.setNombreUsuarioLogin(nombreUsuarioLogin);
+            newUser.setRolId(rolId);
+            newUser.setIdSucursal(idSucursal);
+            newUser.setEstado(1);
+            newUser.setFechaCreacion(java.time.LocalDateTime.now());
+
+            // Hash Password with BCrypt
+            org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+            String hashedPassword = encoder.encode(contrasena);
+            newUser.setContrasena(hashedPassword);
+
+            // Save Usuario
+            Usuarios savedUser = usuarioService.saveUsuarios(newUser);
+
+            // ✅ AUTOMÁTICAMENTE ASIGNAR TODOS LOS ACCESOS AL PERFIL
+            final Integer finalRolId = rolId;  // ✅ Hacer final para uso en lambda
+            try {
+                List<Modulo> todosModulos = moduloService.getAllModulos();
+                
+                // Primero, eliminar accesos anteriores del perfil si existen
+                List<Acceso> accesosAnteriores = accesoService.getAllAccesos().stream()
+                        .filter(a -> a.getIdPerfil().equals(finalRolId))
+                        .collect(Collectors.toList());
+                for (Acceso acceso : accesosAnteriores) {
+                    accesoService.deleteAcceso(acceso.getIdAcceso());
+                }
+
+                // Asignar todos los módulos disponibles
+                for (Modulo modulo : todosModulos) {
+                    Acceso nuevoAcceso = new Acceso();
+                    nuevoAcceso.setIdPerfil(finalRolId);
+                    nuevoAcceso.setIdModulo(modulo.getIdModulo());
+                    nuevoAcceso.setEstado(1);
+                    accesoService.saveAcceso(nuevoAcceso);
+                }
+                
+                System.out.println("✅ Administrador creado con éxito: " + nombreUsuarioLogin);
+                System.out.println("✅ Se asignaron " + todosModulos.size() + " módulos/accesos automáticamente");
+            } catch (Exception e) {
+                System.err.println("⚠️ Error al asignar accesos: " + e.getMessage());
+                e.printStackTrace();
+                // No fallar la creación del usuario si hay error en accesos
+            }
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"error\": \"Error al crear administrador: " + e.getMessage() + "\"}");
         }
     }
 }
