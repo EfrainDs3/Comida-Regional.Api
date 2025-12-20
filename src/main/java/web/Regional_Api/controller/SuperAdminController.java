@@ -169,7 +169,7 @@ public class SuperAdminController {
         response.put("rol", superAdmin.getRol());
 
         response.put("nombrePerfil", "Super Administrador");
-        response.put("idSucursal", 0); 
+        response.put("idSucursal", 0);
 
         Map<String, Object> user = new HashMap<>();
         user.put("id_superadmin", superAdmin.getIdSuperAdmin());
@@ -319,13 +319,14 @@ public class SuperAdminController {
                         accesoService.saveAcceso(nuevoAcceso);
                     }
                 }
-                System.out.println("✅ Todos los módulos asignados automáticamente al rol administrativo: " + perfil.getNombrePerfil());
+                System.out.println("✅ Todos los módulos asignados automáticamente al rol administrativo: "
+                        + perfil.getNombrePerfil());
             } catch (Exception e) {
                 System.err.println("⚠️ Error al asignar módulos automáticamente: " + e.getMessage());
                 e.printStackTrace();
             }
         }
-        
+
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
@@ -581,10 +582,8 @@ public class SuperAdminController {
             newUser.setEstado(1);
             newUser.setFechaCreacion(java.time.LocalDateTime.now());
 
-            org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
-            String hashedPassword = encoder.encode(contrasena);
-
-
+            // Usar SHA-256 para consistencia con el login
+            String hashedPassword = hashPassword(contrasena);
             newUser.setContrasena(hashedPassword);
 
             // Save
@@ -625,7 +624,7 @@ public class SuperAdminController {
             String telefono = (String) request.get("telefono");
             String nombreUsuarioLogin = (String) request.get("nombreUsuarioLogin");
             String contrasena = (String) request.get("contrasena");
-            
+
             Object rolIdObj = request.get("rolId");
             Integer rolId = null;
             if (rolIdObj instanceof Number) {
@@ -679,16 +678,16 @@ public class SuperAdminController {
             newUser.setEstado(1);
             newUser.setFechaCreacion(java.time.LocalDateTime.now());
 
-            org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
-            String hashedPassword = encoder.encode(contrasena);
+            // Usar SHA-256 para consistencia con el login
+            String hashedPassword = hashPassword(contrasena);
             newUser.setContrasena(hashedPassword);
 
             Usuarios savedUser = usuarioService.saveUsuarios(newUser);
 
-            final Integer finalRolId = rolId; 
+            final Integer finalRolId = rolId;
             try {
                 List<Modulo> todosModulos = moduloService.getAllModulos();
-                
+
                 List<Acceso> accesosAnteriores = accesoService.getAllAccesos().stream()
                         .filter(a -> a.getIdPerfil().equals(finalRolId))
                         .collect(Collectors.toList());
@@ -704,7 +703,7 @@ public class SuperAdminController {
                     nuevoAcceso.setEstado(1);
                     accesoService.saveAcceso(nuevoAcceso);
                 }
-                
+
                 System.out.println("✅ Administrador creado con éxito: " + nombreUsuarioLogin);
                 System.out.println("✅ Se asignaron " + todosModulos.size() + " módulos/accesos automáticamente");
             } catch (Exception e) {
