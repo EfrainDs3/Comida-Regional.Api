@@ -132,6 +132,23 @@ public class SuperAdminController {
         }
     }
 
+    // SHA-256 en formato HEXADECIMAL (compatible con Usuarios y login)
+    private String hashPasswordHex(String plainPassword) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(plainPassword.getBytes(StandardCharsets.UTF_8));
+            byte[] digest = md.digest();
+            java.math.BigInteger result = new java.math.BigInteger(1, digest);
+            String hash = result.toString(16).toUpperCase();
+            while (hash.length() < 64) {
+                hash = "0" + hash;
+            }
+            return hash;
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error al encriptar la contraseña", e);
+        }
+    }
+
     @PostMapping("/auth/login")
     public ResponseEntity<?> loginSuperAdmin(@RequestBody Map<String, String> request) {
         String token = request.get("token");
@@ -582,8 +599,8 @@ public class SuperAdminController {
             newUser.setEstado(1);
             newUser.setFechaCreacion(java.time.LocalDateTime.now());
 
-            // Usar SHA-256 para consistencia con el login
-            String hashedPassword = hashPassword(contrasena);
+            // Usar SHA-256 en formato HEXADECIMAL para consistencia con el login
+            String hashedPassword = hashPasswordHex(contrasena);
             newUser.setContrasena(hashedPassword);
 
             // Save
@@ -678,8 +695,8 @@ public class SuperAdminController {
             newUser.setEstado(1);
             newUser.setFechaCreacion(java.time.LocalDateTime.now());
 
-            // Usar SHA-256 para consistencia con el login
-            String hashedPassword = hashPassword(contrasena);
+            // Usar SHA-256 en formato HEXADECIMAL para consistencia con el login
+            String hashedPassword = hashPasswordHex(contrasena);
             newUser.setContrasena(hashedPassword);
 
             Usuarios savedUser = usuarioService.saveUsuarios(newUser);
@@ -718,6 +735,87 @@ public class SuperAdminController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("{\"error\": \"Error al crear administrador: " + e.getMessage() + "\"}");
+        }
+    }
+    // ============================================
+    // LISTAR, ACTUALIZAR Y ELIMINAR USUARIOS
+    // ============================================
+    
+    @GetMapping("/usuarios")
+    public ResponseEntity<List<Usuarios>> getAllUsuarios() {
+        return ResponseEntity.ok(usuarioService.getAllUsuarios());
+    }
+
+    @GetMapping("/usuarios/{id}")
+    public ResponseEntity<?> getUsuarioById(@PathVariable Integer id) {
+        return usuarioService.getUsuarioById(id)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/usuarios/{id}")
+    public ResponseEntity<?> updateUsuario(@PathVariable Integer id, @RequestBody Map<String, Object> request) {
+        try {
+            Optional<Usuarios> usuarioOpt = usuarioService.getUsuarioById(id);
+            if (usuarioOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            Usuarios usuario = usuarioOpt.get();
+            
+            // Actualizar campos si vienen en el request
+            if (request.get("nombreUsuario") != null) {
+                usuario.setNombreUsuario((String) request.get("nombreUsuario"));
+            }
+            if (request.get("apellidos") != null) {
+                usuario.setApellidos((String) request.get("apellidos"));
+            }
+            if (request.get("nombreUsuarioLogin") != null) {
+                usuario.setNombreUsuarioLogin((String) request.get("nombreUsuarioLogin"));
+            }
+            if (request.get("dniUsuario") != null) {
+                usuario.setDniUsuario((String) request.get("dniUsuario"));
+            }
+            if (request.get("telefono") != null) {
+                usuario.setTelefono((String) request.get("telefono"));
+            }
+            if (request.get("idSucursal") != null) {
+                Object idSucursalObj = request.get("idSucursal");
+                if (idSucursalObj instanceof Number) {
+                    usuario.setIdSucursal(((Number) idSucursalObj).intValue());
+                }
+            }
+            
+            // Si viene nueva contraseña, encriptarla
+            if (request.get("contrasenaUsuario") != null) {
+                String nuevaContrasena = (String) request.get("contrasenaUsuario");
+                if (!nuevaContrasena.isEmpty()) {
+                    String hashedPassword = hashPasswordHex(nuevaContrasena);
+                    usuario.setContrasena(hashedPassword);
+                }
+            }
+            
+            Usuarios updated = usuarioService.saveUsuarios(usuario);
+            return ResponseEntity.ok(updated);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("{\"error\": \"Error al actualizar usuario: " + e.getMessage() + "\"}");
+        }
+    }
+
+    @DeleteMapping("/usuarios/{id}")
+    public ResponseEntity<?> deleteUsuario(@PathVariable Integer id) {
+        try {
+            if (usuarioService.getUsuarioById(id).isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            usuarioService.deleteUsuario(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("{\"error\": \"Error al eliminar usuario: " + e.getMessage() + "\"}");
         }
     }
 }
