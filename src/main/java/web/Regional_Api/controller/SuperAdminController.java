@@ -114,10 +114,14 @@ public class SuperAdminController {
         Map<String, String> response = new HashMap<>();
         response.put("token", token);
 
-        // Enviar el token por correo electrónico
-        emailService.enviarTokenSuperAdmin(email, token, admin.getNombres());
-
-        System.out.println("📧 Token enviado al correo: " + email);
+        // Enviar el token por correo electrónico (NO bloquear si falla)
+        try {
+            emailService.enviarTokenSuperAdmin(email, token, admin.getNombres());
+            System.out.println("📧 Token enviado al correo: " + email);
+        } catch (Exception emailEx) {
+            System.err.println("⚠️ Error al enviar email (login continúa): " + emailEx.getMessage());
+            // El login sigue funcionando aunque el email falle
+        }
 
         return ResponseEntity.ok(response);
     }
@@ -196,6 +200,10 @@ public class SuperAdminController {
         response.put("user", user);
 
         System.out.println("Login SuperAdmin exitoso: " + superAdmin.getEmail());
+
+        //bitacoraService.logLogin(superAdmin.getIdSuperAdmin(), 
+                //"SuperAdmin login: " + superAdmin.getEmail());
+
         return ResponseEntity.ok(response);
     }
 
@@ -251,6 +259,9 @@ public class SuperAdminController {
             System.out.println("Creando nuevo SuperAdmin: " + superAdmin.getEmail());
 
             SuperAdmin created = superAdminService.createSuperAdmin(superAdmin);
+
+           // bitacoraService.logCreacion(0, "super_admin", created.getIdSuperAdmin(), 
+                    //"SuperAdmin creado: " + created.getEmail() + " - Rol: " + created.getRol());
 
             created.setPassword(null);
 
@@ -484,6 +495,9 @@ public class SuperAdminController {
             restaurante.setEstado(1);
             Restaurante saved = restauranteService.guardar(restaurante);
 
+            //bitacoraService.logCreacion(0, "restaurante", saved.getId_restaurante(),
+                 //   "Restaurante creado: " + saved.getRazon_social() + " - RUC: " + saved.getRuc());
+            
             // 2. Crear Sucursal Principal
             web.Regional_Api.entity.Sucursales sucursalPrincipal = new web.Regional_Api.entity.Sucursales();
             sucursalPrincipal.setIdRestaurante(saved.getId_restaurante());
@@ -515,6 +529,10 @@ public class SuperAdminController {
         }
         restaurante.setId_restaurante(id);
         Restaurante updated = restauranteService.guardar(restaurante);
+
+        //bitacoraService.logActualizacion(0, "restaurante", id,
+              //  "Restaurante actualizado: " + updated.getRazon_social());
+
         return ResponseEntity.ok(updated);
     }
 
@@ -524,6 +542,9 @@ public class SuperAdminController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Restaurante no encontrado");
         }
         restauranteService.eliminar(id);
+
+        //bitacoraService.logEliminacion(0, "restaurante", id, "Restaurante eliminado ID: " + id);
+
         return ResponseEntity.ok("Restaurante eliminado correctamente");
     }
 
@@ -605,6 +626,9 @@ public class SuperAdminController {
 
             // Save
             Usuarios savedUser = usuarioService.saveUsuarios(newUser);
+
+           // bitacoraService.logCreacion(0, "usuario", savedUser.getIdUsuario(),
+                 //   "Usuario creado: " + savedUser.getNombreUsuarioLogin());
 
             return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
 
@@ -796,6 +820,10 @@ public class SuperAdminController {
             }
             
             Usuarios updated = usuarioService.saveUsuarios(usuario);
+
+           // bitacoraService.logActualizacion(0, "usuario", id, 
+            //        "Usuario actualizado: " + updated.getNombreUsuarioLogin());
+
             return ResponseEntity.ok(updated);
             
         } catch (Exception e) {
@@ -812,10 +840,42 @@ public class SuperAdminController {
                 return ResponseEntity.notFound().build();
             }
             usuarioService.deleteUsuario(id);
+
+          //  bitacoraService.logEliminacion(0, "usuario", id, "Usuario eliminado ID: " + id);
+
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("{\"error\": \"Error al eliminar usuario: " + e.getMessage() + "\"}");
         }
+    }
+
+    // ============================================
+    // BITÁCORA / AUDITORÍA
+    // ============================================
+    
+    @Autowired
+    private web.Regional_Api.service.jpa.BitacoraService bitacoraService;
+
+    @GetMapping("/bitacora")
+    public ResponseEntity<List<web.Regional_Api.entity.BitacoraAccion>> getBitacora() {
+        return ResponseEntity.ok(bitacoraService.obtenerTodos());
+    }
+
+    @GetMapping("/bitacora/usuario/{idUsuario}")
+    public ResponseEntity<List<web.Regional_Api.entity.BitacoraAccion>> getBitacoraPorUsuario(
+            @PathVariable Integer idUsuario) {
+        return ResponseEntity.ok(bitacoraService.obtenerPorUsuario(idUsuario));
+    }
+
+    @GetMapping("/bitacora/tabla/{tabla}")
+    public ResponseEntity<List<web.Regional_Api.entity.BitacoraAccion>> getBitacoraPorTabla(
+            @PathVariable String tabla) {
+        return ResponseEntity.ok(bitacoraService.obtenerPorTabla(tabla));
+    }
+
+    @GetMapping("/bitacora/estadisticas")
+    public ResponseEntity<?> getEstadisticasBitacora() {
+        return ResponseEntity.ok(bitacoraService.estadisticasPorAccion());
     }
 }
