@@ -7,7 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-
+import java.math.BigDecimal;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -46,8 +46,28 @@ public class Pedido {
     
     @Column(nullable = false)
     @ColumnDefault("1")
-    private Integer estado = 1; 
-    
+    private Integer estado = 1;
+
+    @Column(name = "total", precision = 10, scale = 2)
+    private BigDecimal total;
+
+
+    @Column(name = "json_detalles", columnDefinition = "TEXT") 
+    private String jsonDetalles;
+
+
+    public BigDecimal getTotal() {
+        return total;
+    }
+    public void setTotal(BigDecimal total) {
+        this.total = total;
+    }
+    public String getJsonDetalles() {
+        return jsonDetalles;
+    }
+    public void setJsonDetalles(String jsonDetalles) {
+        this.jsonDetalles = jsonDetalles;
+    }
     public Integer getId_pedido() { return id_pedido; }
     public void setId_pedido(Integer id_pedido) { this.id_pedido = id_pedido; }
     

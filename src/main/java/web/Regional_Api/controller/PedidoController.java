@@ -1,119 +1,87 @@
 package web.Regional_Api.controller;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Autowired; // Importante para convertir a JSON
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping; // <-- El DTO actualizado
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping; // Importa todas tus entidades
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import web.Regional_Api.entity.DetallePedido;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import web.Regional_Api.entity.DetallePedidoDTO;
-import web.Regional_Api.entity.Mesas;
 import web.Regional_Api.entity.Pedido;
 import web.Regional_Api.entity.PedidoDTO;
-import web.Regional_Api.entity.Plato;
-import web.Regional_Api.entity.Usuarios;
-import web.Regional_Api.repository.MesasRepository;
-import web.Regional_Api.repository.PlatoRepository;
-import web.Regional_Api.repository.UsuarioRepository;
 import web.Regional_Api.service.IPedidoService;
 
 @RestController
 @RequestMapping("/api/pedidos")
+@CrossOrigin(origins = "*") // Asegurar acceso desde React
 public class PedidoController {
 
     @Autowired
     private IPedidoService pedidoService;
+    
+    // Jackson Mapper para convertir Objetos <-> Texto JSON
+    private final ObjectMapper mapper = new ObjectMapper(); 
 
-    @Autowired
-    private MesasRepository mesaRepo;
-    @Autowired
-    private UsuarioRepository usuarioRepo;
-    @Autowired
-    private PlatoRepository platoRepo;
+    @PostMapping
+    public ResponseEntity<?> crearPedido(@RequestBody PedidoDTO pedidoDTO) {
+        try {
+            Pedido pedido = new Pedido();
+            
+            // 1. Datos básicos
+            pedido.setId_mesa(pedidoDTO.getId_mesa());
+            pedido.setId_usuario(pedidoDTO.getId_usuario());
+            pedido.setNotas(pedidoDTO.getNotas());
+            pedido.setEstado_pedido("Pendiente");
 
+            // 2. LÓGICA DE DESNORMALIZACIÓN (La magia)
+            if (pedidoDTO.getDetalles() != null && !pedidoDTO.getDetalles().isEmpty()) {
+                
+                // A. Calcular Total sumando la lista en memoria
+                BigDecimal totalCalculado = BigDecimal.ZERO;
+                for (DetallePedidoDTO d : pedidoDTO.getDetalles()) {
+                    BigDecimal sub = d.getPrecio_unitario()
+                        .multiply(new BigDecimal(d.getCantidad()));
+                    totalCalculado = totalCalculado.add(sub);
+                }
+                pedido.setTotal(totalCalculado);
+
+                // B. Convertir la Lista de Detalles a un String JSON
+                String jsonString = mapper.writeValueAsString(pedidoDTO.getDetalles());
+                pedido.setJsonDetalles(jsonString);
+            }
+
+            // 3. Guardar solo el Padre (Ya contiene los detalles adentro como texto)
+            Pedido nuevoPedido = pedidoService.guardar(pedido);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(nuevoPedido);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error procesando el pedido: " + e.getMessage());
+        }
+    }
+    
     @GetMapping
-    public ResponseEntity<List<Pedido>> obtenerTodos() {
+    public ResponseEntity<?> listarTodos() {
         return ResponseEntity.ok(pedidoService.buscarTodos());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Pedido> obtenerPorId(@PathVariable Integer id) {
-        return pedidoService.buscarId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PostMapping
-    public ResponseEntity<?> crearPedido(@RequestBody PedidoDTO dto) {
-
-        Optional<Mesas> mes = mesaRepo.findById(dto.getId_mesa());
-        Optional<Usuarios> usu = usuarioRepo.findById(dto.getId_usuario()); // Fiel al nuevo nombre
-
-        if (mes.isEmpty() || usu.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Mesa o Usuario no encontrado.");
-        }
-
-        Pedido pedido = new Pedido();
-        pedido.setId_mesa(dto.getId_mesa());
-        pedido.setId_usuario(dto.getId_usuario());
-        pedido.setNotas(dto.getNotas());
-
-        pedido.setEstado_pedido("En preparación");
-        List<DetallePedido> detallesEntidad = new ArrayList<>();
-
-        for (DetallePedidoDTO detDto : dto.getDetalles()) {
-            Optional<Plato> pla = platoRepo.findById(detDto.getId_plato());
-            if (pla.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Plato con ID " + detDto.getId_plato() + " no encontrado.");
-            }
-
-            DetallePedido detalle = new DetallePedido();
-            detalle.setId_plato(detDto.getId_plato());
-            detalle.setCantidad(detDto.getCantidad());
-
-            detalle.setPrecio_unitario(detDto.getPrecio_unitario());
-            BigDecimal subtotal = detDto.getPrecio_unitario()
-                    .multiply(new BigDecimal(detDto.getCantidad()));
-            detalle.setSubtotal(subtotal);
-
-            // setPedido se hará después de guardar el pedido
-            detallesEntidad.add(detalle);
-        }
-
-        // Detalles se guardan por separado
-        Pedido nuevoPedido = pedidoService.guardar(pedido);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoPedido);
-    }
-
+    // PUT para cambiar estado
     @PutMapping("/{id}/estado")
-    public ResponseEntity<Pedido> actualizarEstado(
-            @PathVariable Integer id,
-            @RequestBody String nuevoEstado) {
-
-        Optional<Pedido> opt = pedidoService.buscarId(id);
-        if (opt.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Pedido pedido = opt.get();
-        pedido.setEstado_pedido(nuevoEstado);
-
-        Pedido actualizado = pedidoService.guardar(pedido);
-        return ResponseEntity.ok(actualizado);
+    public ResponseEntity<?> actualizarEstado(@PathVariable Integer id, @RequestBody String nuevoEstado) {
+        return pedidoService.buscarId(id).map(p -> {
+            p.setEstado_pedido(nuevoEstado);
+            return ResponseEntity.ok(pedidoService.guardar(p));
+        }).orElse(ResponseEntity.notFound().build());
     }
 }
