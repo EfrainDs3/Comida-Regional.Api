@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import web.Regional_Api.entity.Usuarios;
@@ -152,7 +153,7 @@ public class UsuarioController {
                 } else {
                     response.put("tokenEnviadoPorEmail", false);
                 }
-                
+
                 return ResponseEntity.ok(response);
             } else {
                 System.out.println("¡Contraseña incorrecta!");
@@ -162,6 +163,184 @@ public class UsuarioController {
         }
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales inválidas");
+    }
+
+    @PostMapping("/usuarios/import")
+    public ResponseEntity<?> importarUsuarios(
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        try {
+            // Validar que el archivo sea Excel
+            String filename = file.getOriginalFilename();
+            if (filename == null || (!filename.endsWith(".xlsx") && !filename.endsWith(".xls"))) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("El archivo debe ser formato Excel (.xlsx o .xls)");
+            }
+
+            // Leer el archivo Excel
+            org.apache.poi.ss.usermodel.Workbook workbook;
+            if (filename.endsWith(".xlsx")) {
+                workbook = new org.apache.poi.xssf.usermodel.XSSFWorkbook(file.getInputStream());
+            } else {
+                workbook = new org.apache.poi.hssf.usermodel.HSSFWorkbook(file.getInputStream());
+            }
+
+            org.apache.poi.ss.usermodel.Sheet sheet = workbook.getSheetAt(0);
+
+            List<Map<String, Object>> resultados = new java.util.ArrayList<>();
+            int exitosos = 0;
+            int fallidos = 0;
+
+            // Contador para generar nombres de usuario únicos
+            Map<String, Integer> contadorNombres = new HashMap<>();
+
+            // Saltar la primera fila (encabezados) y procesar desde la fila 1
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                org.apache.poi.ss.usermodel.Row row = sheet.getRow(i);
+                if (row == null)
+                    continue;
+
+                try {
+                    // Leer datos del Excel: ID, Nombre, Email, Rol, Estado, Teléfono
+                    String idStr = getCellValueAsString(row.getCell(0)); // Columna A: ID (ignorar)
+                    String nombreCompleto = getCellValueAsString(row.getCell(1)); // Columna B: Nombre completo
+                    String email = getCellValueAsString(row.getCell(2)); // Columna C: Email
+                    String rolTexto = getCellValueAsString(row.getCell(3)); // Columna D: Rol (texto)
+                    String estadoTexto = getCellValueAsString(row.getCell(4)); // Columna E: Estado
+                    String telefono = getCellValueAsString(row.getCell(5)); // Columna F: Teléfono
+
+                    // Validar datos requeridos
+                    if (nombreCompleto == null || nombreCompleto.trim().isEmpty()) {
+                        fallidos++;
+                        Map<String, Object> error = new HashMap<>();
+                        error.put("fila", i + 1);
+                        error.put("error", "Nombre completo es requerido");
+                        resultados.add(error);
+                        continue;
+                    }
+
+                    // Separar nombre completo en nombre y apellidos
+                    String[] partesNombre = nombreCompleto.trim().split("\\s+", 2);
+                    String nombreUsuario = partesNombre[0];
+                    String apellidos = partesNombre.length > 1 ? partesNombre[1] : "";
+
+                    // Mapear rol de texto a ID (ajusta según tus roles)
+                    Integer rolId = mapearRolTextoAId(rolTexto);
+
+                    // Auto-generar nombre de usuario (login)
+                    String baseLogin = nombreUsuario.trim().replaceAll("\\s+", "");
+                    int contador = contadorNombres.getOrDefault(baseLogin, 0) + 1;
+                    contadorNombres.put(baseLogin, contador);
+                    String nombreUsuarioLogin = baseLogin + contador;
+
+                    // Verificar que no exista en la base de datos
+                    while (usuarioService.getUsuarioByLogin(nombreUsuarioLogin).isPresent()) {
+                        contador++;
+                        contadorNombres.put(baseLogin, contador);
+                        nombreUsuarioLogin = baseLogin + contador;
+                    }
+
+                    // Auto-generar contraseña temporal
+                    String contrasenaTemporal = "Temporal123";
+                    String contrasenaHash = hashPassword(contrasenaTemporal);
+
+                    // Crear usuario
+                    Usuarios nuevoUsuario = new Usuarios();
+                    nuevoUsuario.setNombreUsuario(nombreUsuario.trim());
+                    nuevoUsuario.setApellidos(apellidos.trim());
+                    nuevoUsuario.setNombreUsuarioLogin(nombreUsuarioLogin);
+                    nuevoUsuario.setContrasena(contrasenaHash);
+                    nuevoUsuario.setRolId(rolId);
+                    nuevoUsuario.setIdSucursal(0); // Por defecto sin sucursal específica
+                    nuevoUsuario.setEstado(1); // Activo
+
+                    usuarioService.registrarUsuario(nuevoUsuario);
+
+                    exitosos++;
+                    Map<String, Object> exito = new HashMap<>();
+                    exito.put("fila", i + 1);
+                    exito.put("nombre", nombreCompleto);
+                    exito.put("usuario", nombreUsuarioLogin);
+                    exito.put("contrasena", contrasenaTemporal);
+                    exito.put("email", email != null ? email : "N/A");
+                    resultados.add(exito);
+
+                } catch (Exception e) {
+                    fallidos++;
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("fila", i + 1);
+                    error.put("error", e.getMessage());
+                    resultados.add(error);
+                }
+            }
+
+            workbook.close();
+
+            // Preparar respuesta
+            Map<String, Object> respuesta = new HashMap<>();
+            respuesta.put("exitosos", exitosos);
+            respuesta.put("fallidos", fallidos);
+            respuesta.put("detalles", resultados);
+            respuesta.put("mensaje",
+                    "Importación completada: " + exitosos + " usuarios creados, " + fallidos + " errores");
+
+            return ResponseEntity.ok(respuesta);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al procesar el archivo: " + e.getMessage());
+        }
+    }
+
+    // Helper methods para leer celdas de Excel
+    private String getCellValueAsString(org.apache.poi.ss.usermodel.Cell cell) {
+        if (cell == null)
+            return null;
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                return String.valueOf((int) cell.getNumericCellValue());
+            default:
+                return null;
+        }
+    }
+
+    private Integer getCellValueAsInteger(org.apache.poi.ss.usermodel.Cell cell) {
+        if (cell == null)
+            return null;
+        try {
+            switch (cell.getCellType()) {
+                case NUMERIC:
+                    return (int) cell.getNumericCellValue();
+                case STRING:
+                    return Integer.parseInt(cell.getStringCellValue());
+                default:
+                    return null;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // Helper method to map role text to role ID
+    private Integer mapearRolTextoAId(String rolTexto) {
+        if (rolTexto == null)
+            return null;
+
+        String rolLower = rolTexto.trim().toLowerCase();
+        switch (rolLower) {
+            case "admin":
+            case "administrador":
+                return 5; // Ajusta según tu base de datos
+            case "manager":
+            case "gerente":
+                return 3;
+            case "user":
+            case "usuario":
+                return 2;
+            default:
+                return null; // Rol no válido
+        }
     }
 
     // Helper method to hash password using SHA-256
