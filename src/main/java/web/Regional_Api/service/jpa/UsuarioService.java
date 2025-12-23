@@ -33,7 +33,7 @@ public class UsuarioService implements IUsuarioService {
     @Override
     public Usuarios registrarUsuario(Usuarios usuario) {
         // Verificar si el nombre de usuario de login ya existe
-        if (usuarioRepository.existsByNombreUsuarioLogin(usuario.getNombreUsuario())) {
+        if (usuarioRepository.existsByNombreUsuarioLogin(usuario.getNombreUsuarioLogin())) {
             throw new RuntimeException("El nombre de usuario de login ya está registrado en el sistema");
         }
 
