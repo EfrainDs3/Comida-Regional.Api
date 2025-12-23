@@ -10,11 +10,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.nio.charset.StandardCharsets;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -201,8 +204,8 @@ public class SuperAdminController {
 
         System.out.println("Login SuperAdmin exitoso: " + superAdmin.getEmail());
 
-        //bitacoraService.logLogin(superAdmin.getIdSuperAdmin(), 
-                //"SuperAdmin login: " + superAdmin.getEmail());
+        // bitacoraService.logLogin(superAdmin.getIdSuperAdmin(),
+        // "SuperAdmin login: " + superAdmin.getEmail());
 
         return ResponseEntity.ok(response);
     }
@@ -260,8 +263,8 @@ public class SuperAdminController {
 
             SuperAdmin created = superAdminService.createSuperAdmin(superAdmin);
 
-           // bitacoraService.logCreacion(0, "super_admin", created.getIdSuperAdmin(), 
-                    //"SuperAdmin creado: " + created.getEmail() + " - Rol: " + created.getRol());
+            // bitacoraService.logCreacion(0, "super_admin", created.getIdSuperAdmin(),
+            // "SuperAdmin creado: " + created.getEmail() + " - Rol: " + created.getRol());
 
             created.setPassword(null);
 
@@ -495,9 +498,10 @@ public class SuperAdminController {
             restaurante.setEstado(1);
             Restaurante saved = restauranteService.guardar(restaurante);
 
-            //bitacoraService.logCreacion(0, "restaurante", saved.getId_restaurante(),
-                 //   "Restaurante creado: " + saved.getRazon_social() + " - RUC: " + saved.getRuc());
-            
+            // bitacoraService.logCreacion(0, "restaurante", saved.getId_restaurante(),
+            // "Restaurante creado: " + saved.getRazon_social() + " - RUC: " +
+            // saved.getRuc());
+
             // 2. Crear Sucursal Principal
             web.Regional_Api.entity.Sucursales sucursalPrincipal = new web.Regional_Api.entity.Sucursales();
             sucursalPrincipal.setIdRestaurante(saved.getId_restaurante());
@@ -530,8 +534,8 @@ public class SuperAdminController {
         restaurante.setId_restaurante(id);
         Restaurante updated = restauranteService.guardar(restaurante);
 
-        //bitacoraService.logActualizacion(0, "restaurante", id,
-              //  "Restaurante actualizado: " + updated.getRazon_social());
+        // bitacoraService.logActualizacion(0, "restaurante", id,
+        // "Restaurante actualizado: " + updated.getRazon_social());
 
         return ResponseEntity.ok(updated);
     }
@@ -543,7 +547,8 @@ public class SuperAdminController {
         }
         restauranteService.eliminar(id);
 
-        //bitacoraService.logEliminacion(0, "restaurante", id, "Restaurante eliminado ID: " + id);
+        // bitacoraService.logEliminacion(0, "restaurante", id, "Restaurante eliminado
+        // ID: " + id);
 
         return ResponseEntity.ok("Restaurante eliminado correctamente");
     }
@@ -627,8 +632,8 @@ public class SuperAdminController {
             // Save
             Usuarios savedUser = usuarioService.saveUsuarios(newUser);
 
-           // bitacoraService.logCreacion(0, "usuario", savedUser.getIdUsuario(),
-                 //   "Usuario creado: " + savedUser.getNombreUsuarioLogin());
+            // bitacoraService.logCreacion(0, "usuario", savedUser.getIdUsuario(),
+            // "Usuario creado: " + savedUser.getNombreUsuarioLogin());
 
             return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
 
@@ -764,7 +769,7 @@ public class SuperAdminController {
     // ============================================
     // LISTAR, ACTUALIZAR Y ELIMINAR USUARIOS
     // ============================================
-    
+
     @GetMapping("/usuarios")
     public ResponseEntity<List<Usuarios>> getAllUsuarios() {
         return ResponseEntity.ok(usuarioService.getAllUsuarios());
@@ -773,8 +778,8 @@ public class SuperAdminController {
     @GetMapping("/usuarios/{id}")
     public ResponseEntity<?> getUsuarioById(@PathVariable Integer id) {
         return usuarioService.getUsuarioById(id)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/usuarios/{id}")
@@ -784,9 +789,9 @@ public class SuperAdminController {
             if (usuarioOpt.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
-            
+
             Usuarios usuario = usuarioOpt.get();
-            
+
             // Actualizar campos si vienen en el request
             if (request.get("nombreUsuario") != null) {
                 usuario.setNombreUsuario((String) request.get("nombreUsuario"));
@@ -809,7 +814,7 @@ public class SuperAdminController {
                     usuario.setIdSucursal(((Number) idSucursalObj).intValue());
                 }
             }
-            
+
             // Si viene nueva contraseña, encriptarla
             if (request.get("contrasenaUsuario") != null) {
                 String nuevaContrasena = (String) request.get("contrasenaUsuario");
@@ -818,18 +823,18 @@ public class SuperAdminController {
                     usuario.setContrasena(hashedPassword);
                 }
             }
-            
+
             Usuarios updated = usuarioService.saveUsuarios(usuario);
 
-           // bitacoraService.logActualizacion(0, "usuario", id, 
-            //        "Usuario actualizado: " + updated.getNombreUsuarioLogin());
+            // bitacoraService.logActualizacion(0, "usuario", id,
+            // "Usuario actualizado: " + updated.getNombreUsuarioLogin());
 
             return ResponseEntity.ok(updated);
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("{\"error\": \"Error al actualizar usuario: " + e.getMessage() + "\"}");
+                    .body("{\"error\": \"Error al actualizar usuario: " + e.getMessage() + "\"}");
         }
     }
 
@@ -841,19 +846,20 @@ public class SuperAdminController {
             }
             usuarioService.deleteUsuario(id);
 
-          //  bitacoraService.logEliminacion(0, "usuario", id, "Usuario eliminado ID: " + id);
+            // bitacoraService.logEliminacion(0, "usuario", id, "Usuario eliminado ID: " +
+            // id);
 
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("{\"error\": \"Error al eliminar usuario: " + e.getMessage() + "\"}");
+                    .body("{\"error\": \"Error al eliminar usuario: " + e.getMessage() + "\"}");
         }
     }
 
     // ============================================
     // BITÁCORA / AUDITORÍA
     // ============================================
-    
+
     @Autowired
     private web.Regional_Api.service.jpa.BitacoraService bitacoraService;
 
@@ -877,5 +883,43 @@ public class SuperAdminController {
     @GetMapping("/bitacora/estadisticas")
     public ResponseEntity<?> getEstadisticasBitacora() {
         return ResponseEntity.ok(bitacoraService.estadisticasPorAccion());
+    }
+
+    // ========== TOGGLE ESTADO ==========
+
+    // Toggle estado SuperAdmin
+    @PatchMapping("/super-admins/{id}/estado")
+    public ResponseEntity<?> toggleEstadoSuperAdmin(
+            @PathVariable Integer id,
+            @RequestBody Map<String, Integer> body) {
+        try {
+            SuperAdmin sa = superAdminService.getSuperAdminById(id).orElse(null);
+            if (sa == null) {
+                return ResponseEntity.notFound().build();
+            }
+            sa.setEstado(body.get("estado"));
+            SuperAdmin updated = superAdminService.createSuperAdmin(sa);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
+    // Toggle estado Usuario
+    @PatchMapping("/usuarios/{id}/estado")
+    public ResponseEntity<?> toggleEstadoUsuario(
+            @PathVariable Integer id,
+            @RequestBody Map<String, Integer> body) {
+        try {
+            Usuarios usuario = usuarioService.getUsuarioById(id).orElse(null);
+            if (usuario == null) {
+                return ResponseEntity.notFound().build();
+            }
+            usuario.setEstado(body.get("estado"));
+            Usuarios updated = usuarioService.saveUsuarios(usuario);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 }
