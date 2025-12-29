@@ -20,7 +20,7 @@ import web.Regional_Api.entity.RestauranteDTO;
 import web.Regional_Api.service.RestauranteService;
 @RestController
 @RequestMapping("/api/restaurantes")
-@CrossOrigin(origins = "*")
+
 public class RestauranteController {
     
     @Autowired

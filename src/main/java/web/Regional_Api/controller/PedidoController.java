@@ -28,7 +28,7 @@ import web.Regional_Api.service.IPedidoService;
 
 @RestController
 @RequestMapping("/api/pedidos")
-@CrossOrigin(origins = "*")
+
 public class PedidoController {
 
     @Autowired
