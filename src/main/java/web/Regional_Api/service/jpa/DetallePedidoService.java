@@ -1,6 +1,7 @@
 package web.Regional_Api.service.jpa;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,45 +9,94 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import web.Regional_Api.entity.DetallePedido;
-import web.Regional_Api.entity.DetallePedidoUpdateDTO;
+import web.Regional_Api.entity.Pedido;
 import web.Regional_Api.repository.DetallePedidoRepository;
+import web.Regional_Api.repository.PedidoRepository;
 import web.Regional_Api.service.IDetallePedidoService;
 
 @Service
 public class DetallePedidoService implements IDetallePedidoService {
 
     @Autowired
-    private DetallePedidoRepository repoDetalle;
+    private DetallePedidoRepository repoDetallePedido;
+    
+    @Autowired
+    private PedidoRepository repoPedido;
+
+    @Override
+    public List<DetallePedido> buscarTodos() {
+        return repoDetallePedido.findAll();
+    }
+
+    @Override
+    @Transactional
+    public DetallePedido guardar(DetallePedido detallePedido) {
+        DetallePedido guardado = repoDetallePedido.save(detallePedido);
+        // Actualizar total del pedido padre
+        actualizarTotalPedido(detallePedido.getPedido().getIdPedido());
+        return guardado;
+    }
+
+    @Override
+    @Transactional
+    public DetallePedido modificar(DetallePedido detallePedido) {
+        DetallePedido modificado = repoDetallePedido.save(detallePedido);
+        // Actualizar total del pedido padre
+        actualizarTotalPedido(detallePedido.getPedido().getIdPedido());
+        return modificado;
+    }
 
     @Override
     public Optional<DetallePedido> buscarId(Integer id) {
-        return repoDetalle.findById(id);
-    }
-
-    @Transactional
-    public DetallePedido actualizar(Integer idDetalle, DetallePedidoUpdateDTO dto) {
-        
-        DetallePedido detalle = repoDetalle.findById(idDetalle)
-                .orElseThrow(() -> new RuntimeException("Detalle no encontrado"));
-        
-        // 1. Actualizar campos (solo cantidad)
-        detalle.setCantidad(dto.getCantidad());
-        
-        // 2. Recalcular el subtotal (fiel al .sql)
-        BigDecimal nuevoSubtotal = detalle.getPrecio_unitario()
-                                    .multiply(new BigDecimal(dto.getCantidad()));
-        detalle.setSubtotal(nuevoSubtotal);
-        
-        // 3. Guardar el detalle
-        repoDetalle.save(detalle);
-        
-        return detalle;
+        return repoDetallePedido.findById(id);
     }
 
     @Override
     @Transactional
-    public void eliminar(Integer idDetalle) {
-        repoDetalle.deleteById(idDetalle);
+    public void eliminar(Integer id) {
+        Optional<DetallePedido> optional = repoDetallePedido.findById(id);
+        if (optional.isPresent()) {
+            DetallePedido detalle = optional.get();
+            Integer idPedido = detalle.getPedido().getIdPedido();
+            repoDetallePedido.deleteById(id);
+            // Actualizar total del pedido padre
+            actualizarTotalPedido(idPedido);
+        }
     }
-    
+
+    @Override
+    public List<DetallePedido> buscarPorPedido(Integer idPedido) {
+        return repoDetallePedido.buscarPorPedido(idPedido);
+    }
+
+    @Override
+    public List<DetallePedido> buscarPorPlato(Integer idPlato) {
+        return repoDetallePedido.buscarPorPlato(idPlato);
+    }
+
+    @Override
+    public Double calcularSubtotal(Integer idDetallePedido) {
+        Optional<DetallePedido> optional = repoDetallePedido.findById(idDetallePedido);
+        if (optional.isPresent()) {
+            DetallePedido detalle = optional.get();
+            return detalle.getSubtotal().doubleValue();
+        }
+        return 0.0;
+    }
+
+    // Método privado para actualizar el total del pedido
+    @Transactional
+    private void actualizarTotalPedido(Integer idPedido) {
+        Optional<Pedido> optionalPedido = repoPedido.findById(idPedido);
+        if (optionalPedido.isPresent()) {
+            Pedido pedido = optionalPedido.get();
+            List<DetallePedido> detalles = repoDetallePedido.buscarPorPedido(idPedido);
+            BigDecimal total = detalles.stream()
+                    .map(d -> d.getSubtotal())
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            pedido.setTotal(total);
+            repoPedido.save(pedido);
+        }
+    }
 }
+

@@ -37,11 +37,11 @@ import web.Regional_Api.service.ISuperAdminService;
 import web.Regional_Api.service.jpa.AccesoService;
 import web.Regional_Api.service.jpa.ModuloService;
 import web.Regional_Api.service.jpa.PerfilService;
-import web.Regional_Api.service.jpa.RestauranteService;
 import web.Regional_Api.service.EmailService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import web.Regional_Api.service.RestauranteService;
 
 @RestController
 @RequestMapping("/restful/superadmin")
@@ -217,7 +217,7 @@ public class SuperAdminController {
     @GetMapping("/estadisticas")
     public ResponseEntity<?> getEstadisticas() {
         Map<String, Object> stats = new HashMap<>();
-        stats.put("totalRestaurantes", restauranteService.buscarTodos().size());
+        stats.put("totalRestaurantes", restauranteService.contarTodos());
 
         stats.put("totalPerfiles", perfilService.getAllPerfiles().size());
         stats.put("totalModulos", moduloService.getAllModulos().size());
@@ -498,17 +498,17 @@ public class SuperAdminController {
             restaurante.setEstado(1);
             Restaurante saved = restauranteService.guardar(restaurante);
 
-            // bitacoraService.logCreacion(0, "restaurante", saved.getId_restaurante(),
+            // bitacoraService.logCreacion(0, "restaurante", saved.getIdRestaurante(),
             // "Restaurante creado: " + saved.getRazon_social() + " - RUC: " +
             // saved.getRuc());
 
             // 2. Crear Sucursal Principal
             web.Regional_Api.entity.Sucursales sucursalPrincipal = new web.Regional_Api.entity.Sucursales();
-            sucursalPrincipal.setIdRestaurante(saved.getId_restaurante());
+            sucursalPrincipal.setIdRestaurante(saved.getIdRestaurante());
             sucursalPrincipal.setNombre("Sucursal Principal");
 
             // 🛡️ Protección contra dirección Nula (Causa común de error 500)
-            String direccion = saved.getDireccion_principal();
+            String direccion = saved.getDireccion();
             if (direccion == null || direccion.trim().isEmpty()) {
                 direccion = "Dirección Pendiente de Actualizar";
             }
@@ -531,7 +531,7 @@ public class SuperAdminController {
         if (restauranteService.buscarId(id).isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Restaurante no encontrado");
         }
-        restaurante.setId_restaurante(id);
+        restaurante.setIdRestaurante(id);
         Restaurante updated = restauranteService.guardar(restaurante);
 
         // bitacoraService.logActualizacion(0, "restaurante", id,

@@ -1,54 +1,124 @@
 package web.Regional_Api.entity;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "detalle_pedido")
-public class DetallePedido {
+public class DetallePedido implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_detalle;
+    @Column(name = "id_detalle")
+    private Integer idDetalle;
 
-    @Column(name = "id_pedido", nullable = false)
-    private Integer id_pedido;
-    
-    @Column(name = "id_plato", nullable = false)
-    private Integer id_plato;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_pedido", nullable = false)
+    private Pedido pedido;
 
-    @Column(nullable = false)
+    // Asumo entidad Plato o Producto
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_plato", nullable = false)
+    private Plato plato;
+
+    @Column(name = "cantidad", nullable = false)
     private Integer cantidad;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal precio_unitario;
+    @Column(name = "precio_unitario", nullable = false, precision = 10, scale = 2)
+    private BigDecimal precioUnitario;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(name = "subtotal", nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
 
-    // --- Getters y Setters Actualizados ---
-    
-    public Integer getId_detalle() { return id_detalle; }
-    public void setId_detalle(Integer id_detalle) { this.id_detalle = id_detalle; }
-    
-    public Integer getId_pedido() { return id_pedido; }
-    public void setId_pedido(Integer id_pedido) { this.id_pedido = id_pedido; }
-    
-    public Integer getId_plato() { return id_plato; }
-    public void setId_plato(Integer id_plato) { this.id_plato = id_plato; }
-    
-    public Integer getCantidad() { return cantidad; }
-    public void setCantidad(Integer cantidad) { this.cantidad = cantidad; }
-    
-    public BigDecimal getPrecio_unitario() { return precio_unitario; }
-    public void setPrecio_unitario(BigDecimal precio_unitario) { this.precio_unitario = precio_unitario; }
-    
-    public BigDecimal getSubtotal() { return subtotal; }
-    public void setSubtotal(BigDecimal subtotal) { this.subtotal = subtotal; }
+    public DetallePedido() {
+    }
+
+    public DetallePedido(Pedido pedido, Plato plato, Integer cantidad, BigDecimal precioUnitario) {
+        this.pedido = pedido;
+        this.plato = plato;
+        this.cantidad = cantidad;
+        this.precioUnitario = precioUnitario;
+        this.actualizarSubtotal();
+    }
+
+    public void actualizarSubtotal() {
+        if(this.cantidad != null && this.precioUnitario != null) {
+            this.subtotal = this.precioUnitario.multiply(new BigDecimal(this.cantidad));
+        }
+    }
+
+    // Getters y Setters
+    public Integer getIdDetalle() {
+        return idDetalle;
+    }
+
+    public void setIdDetalle(Integer idDetalle) {
+        this.idDetalle = idDetalle;
+    }
+
+    public Pedido getPedido() {
+        return pedido;
+    }
+
+    public void setPedido(Pedido pedido) {
+        this.pedido = pedido;
+    }
+
+    public Plato getPlato() {
+        return plato;
+    }
+
+    public void setPlato(Plato plato) {
+        this.plato = plato;
+    }
+
+    public Integer getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(Integer cantidad) {
+        this.cantidad = cantidad;
+        this.actualizarSubtotal();
+    }
+
+    public BigDecimal getPrecioUnitario() {
+        return precioUnitario;
+    }
+
+    public void setPrecioUnitario(BigDecimal precioUnitario) {
+        this.precioUnitario = precioUnitario;
+        this.actualizarSubtotal();
+    }
+
+    public BigDecimal getSubtotal() {
+        return subtotal;
+    }
+
+    public void setSubtotal(BigDecimal subtotal) {
+        this.subtotal = subtotal;
+    }
+
+   @Override
+    public String toString() {
+        return "DetallePedido{" +
+                "idDetalle=" + idDetalle +
+                ", pedido=" + (pedido != null ? pedido.getIdPedido() : null) +
+                ", plato=" + (plato != null ? plato.getId_plato() : null) +
+                ", cantidad=" + cantidad +
+                ", precioUnitario=" + precioUnitario +
+                ", subtotal=" + subtotal +
+                '}';
+    }
 }

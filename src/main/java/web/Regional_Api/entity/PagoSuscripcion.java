@@ -1,10 +1,8 @@
 package web.Regional_Api.entity;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDate;
-
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.DynamicInsert;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,57 +12,145 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "pagos_suscripcion")
-@DynamicInsert 
-public class PagoSuscripcion {
+public class PagoSuscripcion implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_pago;
-    
-    @ManyToOne(fetch = FetchType.LAZY) 
-    @JoinColumn(name = "id_restaurante", nullable = false) 
+    @Column(name = "id_pago")
+    private Long idPago;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_restaurante", nullable = false)
     private Restaurante restaurante;
 
-    @Column(columnDefinition = "date") 
-    private LocalDate fecha_pago;
-
     @Column(name = "monto", nullable = false, precision = 10, scale = 2)
-    private BigDecimal monto_pagado;
+    private BigDecimal monto;
 
-    @Column(name = "periodo_cubierto_inicio", columnDefinition = "date")
-    private LocalDate fecha_inicio_suscripcion;
+    @Column(name = "fecha_pago", nullable = false)
+    private LocalDateTime fechaPago;
 
-    @Column(name = "periodo_cubierto_fin", columnDefinition = "date")
-    private LocalDate fecha_fin_suscripcion;
+    @Column(name = "periodo_cubierto", length = 100)
+    private  String periodoCubierto;
 
-    @Column(nullable = false) 
-    @ColumnDefault("1")
-    private Integer estado_pago = 1; // Inicializado para evitar nulls
+    @Column(name ="metodo_pago", length = 50)
+    private String metodoPago;
 
-    // --- Getters y Setters ---
+    @Column(name = "url_comprobante", length = 255)
+    private String comprobanteUrl;
 
-    public Integer getId_pago() { return id_pago; }
-    public void setId_pago(Integer id_pago) { this.id_pago = id_pago; }
+    // PENDIENTE, APROBADO, RECHAZADO
+    @Column(name = "estado", length = 20)
+    private String estado;
 
-    public Restaurante getRestaurante() { return restaurante; }
-    public void setRestaurante(Restaurante restaurante) { this.restaurante = restaurante; }
+    @Column(name="fecha_aprobacion")
+    private LocalDateTime fechaAprobacion;
 
-    public LocalDate getFecha_pago() { return fecha_pago; }
-    public void setFecha_pago(LocalDate fecha_pago) { this.fecha_pago = fecha_pago; }
+    @Column(name = "observaciones", columnDefinition = "TEXT")
+    private String observaciones;
 
-    public BigDecimal getMonto_pagado() { return monto_pagado; }
-    public void setMonto_pagado(BigDecimal monto_pagado) { this.monto_pagado = monto_pagado; }
+    public PagoSuscripcion() {
+    }
 
-    public LocalDate getFecha_inicio_suscripcion() { return fecha_inicio_suscripcion; }
-    public void setFecha_inicio_suscripcion(LocalDate fecha_inicio_suscripcion) { this.fecha_inicio_suscripcion = fecha_inicio_suscripcion; }
+    public PagoSuscripcion(Long idPago, Restaurante restaurante, BigDecimal monto, LocalDateTime fechaPago, String estado) {
+        this.idPago = idPago;
+        this.restaurante = restaurante;
+        this.monto = monto;
+        this.fechaPago = fechaPago;
+        this.estado = estado;
+    }
 
-    public LocalDate getFecha_fin_suscripcion() { return fecha_fin_suscripcion; }
-    public void setFecha_fin_suscripcion(LocalDate fecha_fin_suscripcion) { this.fecha_fin_suscripcion = fecha_fin_suscripcion; }
+    // Getters y Setters
+    public Long getIdPago() {
+        return idPago;
+    }
 
-    public Integer getEstado_pago() { return estado_pago; }
-    public void setEstado_pago(Integer estado_pago) { this.estado_pago = estado_pago; }
+    public void setIdPago(Long idPago) {
+        this.idPago = idPago;
+    }
+
+    public Restaurante getRestaurante() {
+        return restaurante;
+    }
+
+    public void setRestaurante(Restaurante restaurante) {
+        this.restaurante = restaurante;
+    }
+
+    public BigDecimal getMonto() {
+        return monto;
+    }
+
+    public void setMonto(BigDecimal monto) {
+        this.monto = monto;
+    }
+
+    public LocalDateTime getFechaPago() {
+        return fechaPago;
+    }
+
+    public void setFechaPago(LocalDateTime fechaPago) {
+        this.fechaPago = fechaPago;
+    }
+
+    public String getComprobanteUrl() {
+        return comprobanteUrl;
+    }
+
+    public void setComprobanteUrl(String comprobanteUrl) {
+        this.comprobanteUrl = comprobanteUrl;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public String getObservaciones() {
+        return observaciones;
+    }
+
+    public void setObservaciones(String observaciones) {
+        this.observaciones = observaciones;
+    }
+    public String getPeriodoCubierto() {
+        return periodoCubierto;
+    }
+    public void setPeriodoCubierto(String periodoCubierto) {
+        this.periodoCubierto = periodoCubierto;
+    }
+    public String getMetodoPago() {
+        return metodoPago;
+    }
+    public void setMetodoPago(String metodoPago) {
+        this.metodoPago = metodoPago;
+    }
+    public LocalDateTime getFechaAprobacion() {
+        return fechaAprobacion;
+    }
+    public void setFechaAprobacion(LocalDateTime fechaAprobacion) {
+        this.fechaAprobacion = fechaAprobacion;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if(this.fechaPago == null) this.fechaPago = LocalDateTime.now();
+        if(this.estado == null) this.estado = "PENDIENTE";
+    }
+    @Override
+    public String toString() {
+        return "PagoSuscripcion [idPago=" + idPago + ", restaurante=" + restaurante + ", monto=" + monto
+                + ", fechaPago=" + fechaPago + ", periodoCubierto=" + periodoCubierto + ", metodoPago=" + metodoPago
+                + ", comprobanteUrl=" + comprobanteUrl + ", estado=" + estado + ", fechaAprobacion=" + fechaAprobacion
+                + ", observaciones=" + observaciones + "]";
+    }
 }

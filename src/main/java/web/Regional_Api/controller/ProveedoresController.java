@@ -1,9 +1,9 @@
 package web.Regional_Api.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.Map; 
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import web.Regional_Api.entity.ProveedoresDTO;
 import web.Regional_Api.entity.Proveedores;
+import web.Regional_Api.entity.ProveedoresDTO;
 import web.Regional_Api.entity.Restaurante;
 import web.Regional_Api.repository.RestauranteRepository; 
 import web.Regional_Api.service.IProveedoresService;
@@ -123,7 +123,7 @@ public ResponseEntity<?> guardar(@RequestBody ProveedoresDTO dto) { // Cambia a 
         dto.setEstado(entidad.getEstado());
         
         if (entidad.getId_restaurante() != null) {
-            dto.setIdRestaurante(entidad.getId_restaurante().getId_restaurante());
+            dto.setIdRestaurante(entidad.getId_restaurante().getIdRestaurante());
         }
         return dto;
     }

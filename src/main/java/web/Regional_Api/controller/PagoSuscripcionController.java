@@ -1,124 +1,201 @@
 package web.Regional_Api.controller;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import web.Regional_Api.entity.PagoSuscripcionDTO;
-import web.Regional_Api.entity.PagoSuscripcion;
-import web.Regional_Api.entity.Restaurante;
-import web.Regional_Api.service.IPagoSuscripcionService;
-import web.Regional_Api.service.IRestauranteService;
-
+import web.Regional_Api.service.PagoSuscripcionService;
 @RestController
-@RequestMapping("/api/pagos")
+@RequestMapping("/api/pagos-suscripcion")
+@CrossOrigin(origins = "*")
 public class PagoSuscripcionController {
-
+    
     @Autowired
-    private IPagoSuscripcionService pagoService;
-
-    @Autowired
-    private IRestauranteService restauranteService;
-
+    private PagoSuscripcionService pagoService;
+    
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    
+    /**
+     * Obtener todos los pagos
+     */
     @GetMapping
     public ResponseEntity<List<PagoSuscripcionDTO>> obtenerTodos() {
-        List<PagoSuscripcionDTO> pagos = pagoService.buscarTodos().stream()
-                .map(this::convertirADTO)
-                .collect(Collectors.toList());
+        List<PagoSuscripcionDTO> pagos = pagoService.obtenerTodos();
         return ResponseEntity.ok(pagos);
     }
-
+    
+    /**
+     * Obtener pago por ID
+     */
     @GetMapping("/{id}")
-    public ResponseEntity<PagoSuscripcionDTO> obtenerPorId(@PathVariable Integer id) {
-        return pagoService.buscarId(id)
-                .map(this::convertirADTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/restaurante/{idRestaurante}")
-    public ResponseEntity<List<PagoSuscripcionDTO>> obtenerPagosPorRestaurante(@PathVariable Integer idRestaurante) {
-        // (Opcional) Verificar si el restaurante existe
-        if (restauranteService.buscarId(idRestaurante).isEmpty()) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<PagoSuscripcionDTO> obtenerPorId(@PathVariable Long id) {
+        PagoSuscripcionDTO pago = pagoService.obtenerPorId(id);
+        if (pago != null) {
+            return ResponseEntity.ok(pago);
         }
-        List<PagoSuscripcionDTO> pagos = pagoService.buscarPorIdRestaurante(idRestaurante).stream()
-                .map(this::convertirADTO)
-                .collect(Collectors.toList());
+        return ResponseEntity.notFound().build();
+    }
+    
+    /**
+     * Obtener todos los pagos de un restaurante
+     */
+    @GetMapping("/restaurante/{idRestaurante}")
+    public ResponseEntity<List<PagoSuscripcionDTO>> obtenerPagosPorRestaurante(
+            @PathVariable Integer idRestaurante) {
+        List<PagoSuscripcionDTO> pagos = pagoService.obtenerPagosPorRestaurante(idRestaurante);
         return ResponseEntity.ok(pagos);
     }
-    @PostMapping
-    public ResponseEntity<?> crear(@RequestBody PagoSuscripcionDTO dto) {
-
-        Optional<Restaurante> optRestaurante = restauranteService.buscarId(dto.getId_restaurante());
-        if (optRestaurante.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("No se puede crear el pago: El restaurante con ID " + dto.getId_restaurante()
-                            + " no existe.");
+    
+    /**
+     * Obtener último pago de un restaurante
+     */
+    @GetMapping("/restaurante/{idRestaurante}/ultimo")
+    public ResponseEntity<PagoSuscripcionDTO> obtenerUltimoPago(
+            @PathVariable Integer idRestaurante) {
+        PagoSuscripcionDTO pago = pagoService.obtenerUltimoPago(idRestaurante);
+        if (pago != null) {
+            return ResponseEntity.ok(pago);
         }
-
-        PagoSuscripcion pago = new PagoSuscripcion();
-        pago.setRestaurante(optRestaurante.get()); // Asignamos el objeto
-
-        pago.setFecha_pago(dto.getFecha_pago());
-        pago.setMonto_pagado(dto.getMonto_pagado());
-        pago.setFecha_inicio_suscripcion(dto.getFecha_inicio_suscripcion());
-        pago.setFecha_fin_suscripcion(dto.getFecha_fin_suscripcion());
-
-        PagoSuscripcion nuevoPago = pagoService.guardar(pago);
-        return ResponseEntity.status(HttpStatus.CREATED).body(convertirADTO(nuevoPago));
+        return ResponseEntity.notFound().build();
     }
-
+    
+    /**
+     * Obtener pagos pendientes
+     */
+    @GetMapping("/filtro/pendientes")
+    public ResponseEntity<List<PagoSuscripcionDTO>> obtenerPagosPendientes() {
+        List<PagoSuscripcionDTO> pagos = pagoService.obtenerPagosPendientes();
+        return ResponseEntity.ok(pagos);
+    }
+    
+    /**
+     * Obtener pagos por estado
+     */
+    @GetMapping("/filtro/estado")
+    public ResponseEntity<List<PagoSuscripcionDTO>> obtenerPagosPorEstado(
+            @RequestParam String estado) {
+        List<PagoSuscripcionDTO> pagos = pagoService.obtenerPagosPorEstado(estado);
+        return ResponseEntity.ok(pagos);
+    }
+    
+    /**
+     * Obtener pagos de restaurante por estado
+     */
+    @GetMapping("/restaurante/{idRestaurante}/estado")
+    public ResponseEntity<List<PagoSuscripcionDTO>> obtenerPagosRestaurantePorEstado(
+            @PathVariable Integer idRestaurante,
+            @RequestParam String estado) {
+        List<PagoSuscripcionDTO> pagos = pagoService.obtenerPagosRestaurantePorEstado(idRestaurante, estado);
+        return ResponseEntity.ok(pagos);
+    }
+    
+    /**
+     * Obtener pagos por rango de fechas
+     */
+    @GetMapping("/filtro/fecha")
+    public ResponseEntity<List<PagoSuscripcionDTO>> obtenerPagosPorFecha(
+            @RequestParam String desde,
+            @RequestParam String hasta) {
+        LocalDateTime desdeDate = LocalDateTime.parse(desde, dateFormatter);
+        LocalDateTime hastaDate = LocalDateTime.parse(hasta, dateFormatter);
+        List<PagoSuscripcionDTO> pagos = pagoService.obtenerPagosPorFecha(desdeDate, hastaDate);
+        return ResponseEntity.ok(pagos);
+    }
+    
+    /**
+     * Contar pagos pendientes
+     */
+    @GetMapping("/estadisticas/pendientes-count")
+    public ResponseEntity<Long> contarPagosPendientes() {
+        long count = pagoService.contarPagosPendientes();
+        return ResponseEntity.ok(count);
+    }
+    
+    /**
+     * Crear nuevo pago de suscripción
+     */
+    @PostMapping("/restaurante/{idRestaurante}")
+    public ResponseEntity<PagoSuscripcionDTO> crearPago(
+            @PathVariable Integer idRestaurante,
+            @RequestBody PagoSuscripcionDTO dto) {
+        try {
+            PagoSuscripcionDTO pago = pagoService.crearPago(idRestaurante, dto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(pago);
+        } catch (RuntimeException e) {
+            e.printStackTrace(); // Agregar logging para debug
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    /**
+     * Aprobar pago de suscripción
+     */
+    @PutMapping("/{id}/aprobar")
+    public ResponseEntity<PagoSuscripcionDTO> aprobarPago(@PathVariable Long id) {
+        try {
+            PagoSuscripcionDTO pago = pagoService.aprobarPago(id);
+            return ResponseEntity.ok(pago);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+    /**
+     * Rechazar pago de suscripción
+     */
+    @PutMapping("/{id}/rechazar")
+    public ResponseEntity<PagoSuscripcionDTO> rechazarPago(
+            @PathVariable Long id,
+            @RequestParam String motivo) {
+        try {
+            PagoSuscripcionDTO pago = pagoService.rechazarPago(id, motivo);
+            return ResponseEntity.ok(pago);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+    /**
+     * Actualizar pago
+     */
     @PutMapping("/{id}")
-    public ResponseEntity<?> actualizar(@PathVariable Integer id, @RequestBody PagoSuscripcionDTO dto) {
-
-        Optional<PagoSuscripcion> optPago = pagoService.buscarId(id);
-        if (optPago.isEmpty()) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<PagoSuscripcionDTO> actualizarPago(
+            @PathVariable Long id,
+            @RequestBody PagoSuscripcionDTO dto) {
+        try {
+            PagoSuscripcionDTO pago = pagoService.actualizarPago(id, dto);
+            return ResponseEntity.ok(pago);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
         }
-
-        Optional<Restaurante> optRestaurante = restauranteService.buscarId(dto.getId_restaurante());
-        if (optRestaurante.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("No se puede actualizar: El restaurante con ID " + dto.getId_restaurante() + " no existe.");
-        }
-
-        PagoSuscripcion pago = optPago.get();
-        pago.setRestaurante(optRestaurante.get());
-        pago.setFecha_pago(dto.getFecha_pago());
-        pago.setMonto_pagado(dto.getMonto_pagado());
-        pago.setFecha_inicio_suscripcion(dto.getFecha_inicio_suscripcion());
-        pago.setFecha_fin_suscripcion(dto.getFecha_fin_suscripcion());
-        pago.setEstado_pago(dto.getEstado_pago());
-
-        PagoSuscripcion actualizado = pagoService.guardar(pago);
-        return ResponseEntity.ok(convertirADTO(actualizado));
     }
-
+    
+    /**
+     * Eliminar pago
+     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
-        if (pagoService.buscarId(id).isEmpty()) {
+    public ResponseEntity<Void> eliminarPago(@PathVariable Long id) {
+        try {
+            pagoService.eliminarPago(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
-
-        pagoService.eliminar(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    private PagoSuscripcionDTO convertirADTO(PagoSuscripcion entidad) {
-        PagoSuscripcionDTO dto = new PagoSuscripcionDTO();
-        dto.setId_pago(entidad.getId_pago());
-        dto.setId_restaurante(entidad.getRestaurante() != null ? entidad.getRestaurante().getId_restaurante() : null);
-        dto.setFecha_pago(entidad.getFecha_pago());
-        dto.setMonto_pagado(entidad.getMonto_pagado());
-        dto.setFecha_inicio_suscripcion(entidad.getFecha_inicio_suscripcion());
-        dto.setFecha_fin_suscripcion(entidad.getFecha_fin_suscripcion());
-        dto.setEstado_pago(entidad.getEstado_pago());
-        return dto;
     }
 }
+

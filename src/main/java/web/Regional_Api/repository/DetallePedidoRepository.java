@@ -1,6 +1,5 @@
 package web.Regional_Api.repository;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,16 +8,17 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import web.Regional_Api.entity.DetallePedido;
-
 @Repository
 public interface DetallePedidoRepository extends JpaRepository<DetallePedido, Integer> {
-    
-    @Query("SELECT dp FROM DetallePedido dp WHERE dp.id_pedido = :id_pedido")
-    List<DetallePedido> detallesPorPedido(@Param("id_pedido") Integer id_pedido);
 
-    @Query("SELECT dp FROM DetallePedido dp WHERE dp.id_plato = :id_plato")
-    List<DetallePedido> detallesPorPlato(@Param("id_plato") Integer id_plato);
-    
-    @Query("SELECT SUM(dp.subtotal) FROM DetallePedido dp WHERE dp.id_pedido = :id_pedido")
-    BigDecimal calcularTotalPedido(@Param("id_pedido") Integer id_pedido);
+    @Query("SELECT dp FROM DetallePedido dp WHERE dp.pedido.idPedido = :idPedido ORDER BY dp.idDetalle")
+    List<DetallePedido> buscarPorPedido(@Param("idPedido") Integer idPedido);
+
+    @Query("SELECT dp FROM DetallePedido dp WHERE dp.plato.id_plato = :idPlato")
+    List<DetallePedido> buscarPorPlato(@Param("idPlato") Integer idPlato);
+
+    @Query("SELECT dp FROM DetallePedido dp WHERE dp.pedido.idPedido = :idPedido AND dp.plato.id_plato = :idPlato")
+    List<DetallePedido> findByPedidoAndPlato(
+            @Param("idPedido") Integer idPedido,
+            @Param("idPlato") Integer idPlato);
 }

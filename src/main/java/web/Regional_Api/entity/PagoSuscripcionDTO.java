@@ -1,42 +1,79 @@
 package web.Regional_Api.entity;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.util.Date;
 
 public class PagoSuscripcionDTO {
+    private Long idPago;
+    private Integer idRestaurante;
+    private Double monto;
+    private Date fechaPago;
+    private String periodoCubierto;
+    private String metodoPago;
+    private String comprobanteUrl;
+    private String estado;
+    private String observaciones;
+    private Date fechaAprobacion;
+    public Long getIdPago() {
+        return idPago;
+    }
+    public void setIdPago(Long idPago) {
+        this.idPago = idPago;
+    }
+    public Integer getIdRestaurante() {
+        return idRestaurante;
+    }
+    public void setIdRestaurante(Integer idRestaurante) {
+        this.idRestaurante = idRestaurante;
+    }
+    public Double getMonto() {
+        return monto;
+    }
+    public void setMonto(Double monto) {
+        this.monto = monto;
+    }
+    public Date getFechaPago() {
+        return fechaPago;
+    }
+    public void setFechaPago(Date fechaPago) {
+        this.fechaPago = fechaPago;
+    }
+    public String getPeriodoCubierto() {
+        return periodoCubierto;
+    }
+    public void setPeriodoCubierto(String periodoCubierto) {
+        this.periodoCubierto = periodoCubierto;
+    }
+    public String getMetodoPago() {
+        return metodoPago;
+    }
+    public void setMetodoPago(String metodoPago) {
+        this.metodoPago = metodoPago;
+    }
+    public String getComprobanteUrl() {
+        return comprobanteUrl;
+    }
+    public void setComprobanteUrl(String comprobanteUrl) {
+        this.comprobanteUrl = comprobanteUrl;
+    }
+    public String getEstado() {
+        return estado;
+    }
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+    public String getObservaciones() {
+        return observaciones;
+    }
+    public void setObservaciones(String observaciones) {
+        this.observaciones = observaciones;
+    }
+    public Date getFechaAprobacion() {
+        return fechaAprobacion;
+    }
+    public void setFechaAprobacion(Date fechaAprobacion) {
+        this.fechaAprobacion = fechaAprobacion;
+    }
+
     
-    private Integer id_pago;
-    private Integer id_restaurante; 
-    
-    private LocalDate fecha_pago;
-    private BigDecimal monto_pagado; 
-    
-    // Nombres alineados con React:
-    private LocalDate fecha_inicio_suscripcion; 
-    private LocalDate fecha_fin_suscripcion;
-    
-    private Integer estado_pago;
-    
-    // --- Getters y Setters ---
 
-    public Integer getId_pago() { return id_pago; }
-    public void setId_pago(Integer id_pago) { this.id_pago = id_pago; }
-
-    public Integer getId_restaurante() { return id_restaurante; }
-    public void setId_restaurante(Integer id_restaurante) { this.id_restaurante = id_restaurante; }
-
-    public LocalDate getFecha_pago() { return fecha_pago; }
-    public void setFecha_pago(LocalDate fecha_pago) { this.fecha_pago = fecha_pago; }
-
-    public BigDecimal getMonto_pagado() { return monto_pagado; }
-    public void setMonto_pagado(BigDecimal monto_pagado) { this.monto_pagado = monto_pagado; }
-
-    public LocalDate getFecha_inicio_suscripcion() { return fecha_inicio_suscripcion; }
-    public void setFecha_inicio_suscripcion(LocalDate fecha_inicio_suscripcion) { this.fecha_inicio_suscripcion = fecha_inicio_suscripcion; }
-
-    public LocalDate getFecha_fin_suscripcion() { return fecha_fin_suscripcion; }
-    public void setFecha_fin_suscripcion(LocalDate fecha_fin_suscripcion) { this.fecha_fin_suscripcion = fecha_fin_suscripcion; }
-
-    public Integer getEstado_pago() { return estado_pago; }
-    public void setEstado_pago(Integer estado_pago) { this.estado_pago = estado_pago; }
 }
