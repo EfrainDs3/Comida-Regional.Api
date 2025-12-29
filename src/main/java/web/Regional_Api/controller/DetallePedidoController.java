@@ -25,7 +25,7 @@ import web.Regional_Api.service.IDetallePedidoService;
 
 @RestController
 @RequestMapping("/api/detalles-pedido")
-@CrossOrigin(origins = "*")
+
 public class DetallePedidoController {
 
     @Autowired
