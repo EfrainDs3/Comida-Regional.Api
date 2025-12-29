@@ -3,6 +3,10 @@ package web.Regional_Api.entity;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+
 import jakarta.persistence.*;
 
 @Entity
@@ -32,6 +36,7 @@ public class Sucursales {
         insertable = false,
         updatable = false
     )
+    @JsonIgnore
     private Restaurante restaurante;
 
     @Column(nullable = false, length = 150)
