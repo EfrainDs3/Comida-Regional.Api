@@ -3,19 +3,16 @@ package web.Regional_Api.entity;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "sucursales")
+
 // Soft Delete: Al eliminar cambia el estado a 0
-@SQLDelete(sql = "UPDATE sucursales SET estado=0 WHERE id_sucursal=?") 
+@SQLDelete(sql = "UPDATE sucursales SET estado=0 WHERE id_sucursal=?")
+
 // Filtrado automático: Solo trae registros activos (estado=1)
-@Where(clause = "estado=1") 
+@Where(clause = "estado=1")
 public class Sucursales {
 
     @Id
@@ -23,31 +20,41 @@ public class Sucursales {
     @Column(name = "id_sucursal")
     private Integer idSucursal;
 
-    // Clave Foránea para Multi-Tenant
+    // Clave Foránea (la sigues usando para multi-tenant)
     @Column(name = "id_restaurante", nullable = false)
     private Integer idRestaurante;
 
+    // RELACIÓN JPA REAL (usa la misma columna id_restaurante)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+        name = "id_restaurante",
+        referencedColumnName = "id_restaurante",
+        insertable = false,
+        updatable = false
+    )
+    private Restaurante restaurante;
+
     @Column(nullable = false, length = 150)
     private String nombre;
-    
+
     @Column(nullable = false)
     private String direccion;
-    
+
     @Column(length = 20)
     private String telefono;
-    
+
     @Column(name = "horario_atencion")
     private String horarioAtencion;
-    
+
     // Estado (1: Activo, 0: Eliminado)
     @Column(nullable = false)
     private Integer estado = 1;
 
-    // Constructor vacío (obligatorio para JPA)
+    // Constructor vacío (JPA)
     public Sucursales() {}
 
-    // --- Getters y Setters ---
-    
+    // ---------------- GETTERS & SETTERS ----------------
+
     public Integer getIdSucursal() {
         return idSucursal;
     }
@@ -62,6 +69,14 @@ public class Sucursales {
 
     public void setIdRestaurante(Integer idRestaurante) {
         this.idRestaurante = idRestaurante;
+    }
+
+    public Restaurante getRestaurante() {
+        return restaurante;
+    }
+
+    public void setRestaurante(Restaurante restaurante) {
+        this.restaurante = restaurante;
     }
 
     public String getNombre() {
@@ -106,9 +121,12 @@ public class Sucursales {
 
     @Override
     public String toString() {
-        return "Sucursales [idSucursal=" + idSucursal + ", idRestaurante=" + idRestaurante + ", nombre=" + nombre
-                + ", direccion=" + direccion + ", telefono=" + telefono + ", horarioAtencion=" + horarioAtencion
-                + ", estado=" + estado + "]";
+        return "Sucursales [idSucursal=" + idSucursal +
+               ", idRestaurante=" + idRestaurante +
+               ", nombre=" + nombre +
+               ", direccion=" + direccion +
+               ", telefono=" + telefono +
+               ", horarioAtencion=" + horarioAtencion +
+               ", estado=" + estado + "]";
     }
-
 }
