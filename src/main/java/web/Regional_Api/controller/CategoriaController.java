@@ -75,6 +75,7 @@ public class CategoriaController {
         categoria.setRestaurante(optRestaurante.get()); // <-- Asignar el padre
         categoria.setNombre(categoriaDTO.getNombre());
         categoria.setDescripcion(categoriaDTO.getDescripcion());
+        categoria.setEstado(categoriaDTO.getEstado() != null ? categoriaDTO.getEstado() : 1);
         // El estado '1' se asigna por defecto en la entidad
 
         try {
