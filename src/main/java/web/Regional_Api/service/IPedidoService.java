@@ -7,7 +7,7 @@ import java.util.Optional;
 import web.Regional_Api.entity.Pedido;
 
 public interface IPedidoService {
-    // CRUD básico
+    
     List<Pedido> buscarTodos();
     
     Pedido guardar(Pedido pedido);
@@ -18,19 +18,21 @@ public interface IPedidoService {
     
     void eliminar(Integer id);
     
-    // Búsquedas específicas
     List<Pedido> buscarPorSucursal(Integer idSucursal);
     
-    List<Pedido> buscarPorEstado(String estado);
+    List<Pedido> buscarPorEstado(Integer estado);
     
     List<Pedido> buscarPorUsuario(Integer idUsuario);
     
     List<Pedido> buscarPorMesa(Integer idMesa);
     
+    List<Pedido> buscarPorPlato(Integer idPlato);
+    
     List<Pedido> buscarPorFecha(LocalDateTime fechaInicio, LocalDateTime fechaFin);
     
-    List<Pedido> buscarPorSucursalYEstado(Integer idSucursal, String estado);
+    List<Pedido> buscarPorSucursalYEstado(Integer idSucursal, Integer estado);
     
-    // Cálculo de total
-    Double calcularTotal(Integer idPedido);
+    List<Pedido> buscarPorTipoPedido(String tipoPedido);
+    
+    List<Pedido> buscarPedidosActivos(Integer idSucursal);
 }

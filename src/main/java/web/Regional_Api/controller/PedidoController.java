@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,22 +18,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import web.Regional_Api.entity.Mesas;
 import web.Regional_Api.entity.Pedido;
-import web.Regional_Api.entity.PedidoDTO;
-import web.Regional_Api.entity.Sucursales;
-import web.Regional_Api.entity.Usuarios;
 import web.Regional_Api.service.IPedidoService;
 
 @RestController
 @RequestMapping("/api/pedidos")
-
 public class PedidoController {
 
     @Autowired
     private IPedidoService pedidoService;
-
-    // ===== CRUD BÁSICO =====
 
     @GetMapping
     public ResponseEntity<List<Pedido>> buscarTodos() {
@@ -60,71 +52,22 @@ public class PedidoController {
     }
 
     @PostMapping
-    public ResponseEntity<Pedido> guardar(@RequestBody PedidoDTO dto) {
+    public ResponseEntity<Pedido> guardar(@RequestBody Pedido pedido) {
         try {
-            Pedido pedido = new Pedido();
-            // Set relationships
-            if (dto.getIdUsuario() != null) {
-                Usuarios usuario = new Usuarios();
-                usuario.setIdUsuario(dto.getIdUsuario());
-                pedido.setUsuario(usuario);
-            }
-            if (dto.getIdSucursal() != null) {
-                Sucursales sucursal = new Sucursales();
-                sucursal.setIdSucursal(dto.getIdSucursal());
-                pedido.setSucursal(sucursal);
-            }
-            if (dto.getIdMesa() != null) {
-                Mesas mesa = new Mesas();
-                mesa.setId_mesa(dto.getIdMesa());
-                pedido.setMesa(mesa);
-            }
-            pedido.setEstado(dto.getEstado());
-            pedido.setTipoPedido(dto.getTipoPedido());
-            pedido.setNombreCliente(dto.getNombreCliente());
-            pedido.setTelefonoCliente(dto.getTelefonoCliente());
             Pedido pedidoGuardado = pedidoService.guardar(pedido);
             return new ResponseEntity<>(pedidoGuardado, HttpStatus.CREATED);
         } catch (Exception e) {
-            e.printStackTrace(); // Agregar logging para debug
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Pedido> modificar(@PathVariable Integer id, @RequestBody PedidoDTO dto) {
+    public ResponseEntity<Pedido> modificar(@PathVariable Integer id, @RequestBody Pedido pedido) {
         try {
-            Optional<Pedido> optional = pedidoService.buscarId(id);
-            if (!optional.isPresent()) {
-                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-            }
-            Pedido pedido = optional.get();
-            // Update relationships
-            if (dto.getIdUsuario() != null) {
-                Usuarios usuario = new Usuarios();
-                usuario.setIdUsuario(dto.getIdUsuario());
-                pedido.setUsuario(usuario);
-            }
-            if (dto.getIdSucursal() != null) {
-                Sucursales sucursal = new Sucursales();
-                sucursal.setIdSucursal(dto.getIdSucursal());
-                pedido.setSucursal(sucursal);
-            }
-            if (dto.getIdMesa() != null) {
-                Mesas mesa = new Mesas();
-                mesa.setId_mesa(dto.getIdMesa());
-                pedido.setMesa(mesa);
-            }
-            pedido.setEstado(dto.getEstado());
-            pedido.setTipoPedido(dto.getTipoPedido());
-            pedido.setNombreCliente(dto.getNombreCliente());
-            pedido.setTelefonoCliente(dto.getTelefonoCliente());
-            // Update fechaUpdate
-            pedido.setFechaUpdate(LocalDateTime.now());
+            pedido.setIdPedido(id);
             Pedido pedidoModificado = pedidoService.modificar(pedido);
             return new ResponseEntity<>(pedidoModificado, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace(); // Agregar logging para debug
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
@@ -139,8 +82,6 @@ public class PedidoController {
         }
     }
 
-    // ===== BÚSQUEDAS ESPECÍFICAS =====
-
     @GetMapping("/sucursal/{idSucursal}")
     public ResponseEntity<List<Pedido>> buscarPorSucursal(@PathVariable Integer idSucursal) {
         try {
@@ -152,7 +93,7 @@ public class PedidoController {
     }
 
     @GetMapping("/estado/{estado}")
-    public ResponseEntity<List<Pedido>> buscarPorEstado(@PathVariable String estado) {
+    public ResponseEntity<List<Pedido>> buscarPorEstado(@PathVariable Integer estado) {
         try {
             List<Pedido> pedidos = pedidoService.buscarPorEstado(estado);
             return new ResponseEntity<>(pedidos, HttpStatus.OK);
@@ -181,6 +122,26 @@ public class PedidoController {
         }
     }
 
+    @GetMapping("/plato/{idPlato}")
+    public ResponseEntity<List<Pedido>> buscarPorPlato(@PathVariable Integer idPlato) {
+        try {
+            List<Pedido> pedidos = pedidoService.buscarPorPlato(idPlato);
+            return new ResponseEntity<>(pedidos, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/tipo/{tipoPedido}")
+    public ResponseEntity<List<Pedido>> buscarPorTipoPedido(@PathVariable String tipoPedido) {
+        try {
+            List<Pedido> pedidos = pedidoService.buscarPorTipoPedido(tipoPedido);
+            return new ResponseEntity<>(pedidos, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/fechas")
     public ResponseEntity<List<Pedido>> buscarPorFecha(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaInicio,
@@ -196,7 +157,7 @@ public class PedidoController {
     @GetMapping("/sucursal/{idSucursal}/estado/{estado}")
     public ResponseEntity<List<Pedido>> buscarPorSucursalYEstado(
             @PathVariable Integer idSucursal,
-            @PathVariable String estado) {
+            @PathVariable Integer estado) {
         try {
             List<Pedido> pedidos = pedidoService.buscarPorSucursalYEstado(idSucursal, estado);
             return new ResponseEntity<>(pedidos, HttpStatus.OK);
@@ -205,13 +166,11 @@ public class PedidoController {
         }
     }
 
-    // ===== CÁLCULOS =====
-
-    @GetMapping("/{idPedido}/total")
-    public ResponseEntity<Double> calcularTotal(@PathVariable Integer idPedido) {
+    @GetMapping("/sucursal/{idSucursal}/activos")
+    public ResponseEntity<List<Pedido>> buscarPedidosActivos(@PathVariable Integer idSucursal) {
         try {
-            Double total = pedidoService.calcularTotal(idPedido);
-            return new ResponseEntity<>(total, HttpStatus.OK);
+            List<Pedido> pedidos = pedidoService.buscarPedidosActivos(idSucursal);
+            return new ResponseEntity<>(pedidos, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
