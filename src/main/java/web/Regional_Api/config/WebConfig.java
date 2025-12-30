@@ -13,6 +13,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOriginPatterns(
                         "http://localhost:5173",
                         "https://frontend-api-regional.vercel.app",
+                        "https://frontend-lake-kappa-13.vercel.app",
                         "https://*.vercel.app",
                         "https://*.informaticapp.com",
                         "https://informaticapp.com")

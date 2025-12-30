@@ -75,6 +75,9 @@ public class SuperAdminController {
     @Autowired
     private web.Regional_Api.service.jpa.UsuarioService usuarioService;
 
+    @Autowired
+    private web.Regional_Api.service.IReporteService reporteService;
+
     // ============================================
     // AUTENTICACIÓN SUPERADMIN
     // ============================================
@@ -269,6 +272,12 @@ public class SuperAdminController {
 
             created.setPassword(null);
 
+            // LOG
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            superAdminService.getSuperAdminByEmail(authentication.getName())
+                    .ifPresent(admin -> reporteService.registrarAccion(admin, "CREAR_SUPERADMIN",
+                            "Creó SuperAdmin: " + created.getEmail(), "IP_PENDIENTE"));
+
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -288,6 +297,13 @@ public class SuperAdminController {
                 SuperAdmin result = updated.get();
                 // No devolver la contraseña en la respuesta
                 result.setPassword(null);
+
+                // LOG
+                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                superAdminService.getSuperAdminByEmail(auth.getName())
+                        .ifPresent(admin -> reporteService.registrarAccion(admin, "ACTUALIZAR_SUPERADMIN",
+                                "Actualizó SuperAdmin ID: " + id, "IP_PENDIENTE"));
+
                 return ResponseEntity.ok(result);
             } else {
                 return ResponseEntity.notFound().build();
@@ -301,6 +317,12 @@ public class SuperAdminController {
     public ResponseEntity<?> deleteSuperAdmin(@PathVariable Integer id) {
         try {
             superAdminService.deleteSuperAdmin(id);
+
+            // LOG
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            superAdminService.getSuperAdminByEmail(auth.getName()).ifPresent(admin -> reporteService
+                    .registrarAccion(admin, "ELIMINAR_SUPERADMIN", "Eliminó SuperAdmin ID: " + id, "IP_PENDIENTE"));
+
             return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
@@ -518,6 +540,20 @@ public class SuperAdminController {
             sucursalPrincipal.setEstado(1);
             sucursalesService.guardar(sucursalPrincipal);
 
+            // LOG DE REPORTE
+            try {
+                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                String emailSuperAdmin = auth.getName();
+                Optional<SuperAdmin> adminOpt = superAdminService.getSuperAdminByEmail(emailSuperAdmin);
+                if (adminOpt.isPresent()) {
+                    reporteService.registrarAccion(adminOpt.get(), "CREAR_RESTAURANTE",
+                            "Creó restaurante: " + saved.getNombre() + " (RUC: " + saved.getRuc() + ")",
+                            "IP_PENDIENTE");
+                }
+            } catch (Exception ex) {
+                System.err.println("Error al registrar reporte: " + ex.getMessage());
+            }
+
             return ResponseEntity.status(HttpStatus.CREATED).body(saved);
         } catch (Exception e) {
             System.err.println("❌ Error al crear restaurante: " + e.getMessage());
@@ -528,15 +564,62 @@ public class SuperAdminController {
     }
 
     @PutMapping("/restaurantes/{id}")
-    public ResponseEntity<?> updateRestaurante(@PathVariable Integer id, @RequestBody Restaurante restaurante) {
-        if (restauranteService.buscarId(id).isEmpty()) {
+
+    public ResponseEntity<?> updateRestaurante(@PathVariable Integer id, @RequestBody Restaurante restauranteData) {
+        java.util.Optional<Restaurante> optionalRestaurante = restauranteService.buscarId(id);
+
+        if (optionalRestaurante.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Restaurante no encontrado");
         }
-        restaurante.setIdRestaurante(id);
-        Restaurante updated = restauranteService.guardar(restaurante);
 
-        // bitacoraService.logActualizacion(0, "restaurante", id,
-        // "Restaurante actualizado: " + updated.getRazon_social());
+        Restaurante existing = optionalRestaurante.get();
+
+        // Actualizar solo los campos que vienen en el JSON (evita nulos)
+        if (restauranteData.getNombre() != null)
+            existing.setNombre(restauranteData.getNombre());
+        if (restauranteData.getRuc() != null)
+            existing.setRuc(restauranteData.getRuc());
+        if (restauranteData.getDireccion() != null)
+            existing.setDireccion(restauranteData.getDireccion());
+        if (restauranteData.getLogoUrl() != null)
+            existing.setLogoUrl(restauranteData.getLogoUrl());
+        if (restauranteData.getSimboloMoneda() != null)
+            existing.setSimboloMoneda(restauranteData.getSimboloMoneda());
+        if (restauranteData.getTasaIgv() != null)
+            existing.setTasaIgv(restauranteData.getTasaIgv());
+        if (restauranteData.getEmailContacto() != null)
+            existing.setEmailContacto(restauranteData.getEmailContacto());
+        if (restauranteData.getEstado() != null)
+            existing.setEstado(restauranteData.getEstado());
+
+        // Fechas: solo actualizar vencimiento si viene. Creación se respeta.
+        if (restauranteData.getFechaVencimiento() != null) {
+            existing.setFechaVencimiento(restauranteData.getFechaVencimiento());
+        }
+
+        // 🛡️ Defensa contra datos corruptos (Fechas nulas en BD antigua)
+        if (existing.getFechaVencimiento() == null) {
+            existing.setFechaVencimiento(java.time.LocalDateTime.now().plusMonths(1));
+        }
+        if (existing.getFechaCreacion() == null) {
+            existing.setFechaCreacion(java.time.LocalDateTime.now());
+        }
+
+        Restaurante updated = restauranteService.guardar(existing);
+
+        // LOG DE REPORTE
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String emailSuperAdmin = auth.getName();
+            Optional<SuperAdmin> adminOpt = superAdminService.getSuperAdminByEmail(emailSuperAdmin);
+            if (adminOpt.isPresent()) {
+                reporteService.registrarAccion(adminOpt.get(), "ACTUALIZAR_RESTAURANTE",
+                        "Actualizó restaurante ID " + id + ": " + updated.getNombre(),
+                        "IP_PENDIENTE");
+            }
+        } catch (Exception ex) {
+            System.err.println("Error al registrar reporte: " + ex.getMessage());
+        }
 
         return ResponseEntity.ok(updated);
     }
@@ -548,8 +631,19 @@ public class SuperAdminController {
         }
         restauranteService.eliminar(id);
 
-        // bitacoraService.logEliminacion(0, "restaurante", id, "Restaurante eliminado
-        // ID: " + id);
+        // LOG DE REPORTE
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String emailSuperAdmin = auth.getName();
+            Optional<SuperAdmin> adminOpt = superAdminService.getSuperAdminByEmail(emailSuperAdmin);
+            if (adminOpt.isPresent()) {
+                reporteService.registrarAccion(adminOpt.get(), "ELIMINAR_RESTAURANTE",
+                        "Eliminó restaurante ID: " + id,
+                        "IP_PENDIENTE");
+            }
+        } catch (Exception ex) {
+            System.err.println("Error al registrar reporte: " + ex.getMessage());
+        }
 
         return ResponseEntity.ok("Restaurante eliminado correctamente");
     }
@@ -635,6 +729,12 @@ public class SuperAdminController {
 
             // bitacoraService.logCreacion(0, "usuario", savedUser.getIdUsuario(),
             // "Usuario creado: " + savedUser.getNombreUsuarioLogin());
+
+            // LOG REPORTE
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            superAdminService.getSuperAdminByEmail(auth.getName())
+                    .ifPresent(admin -> reporteService.registrarAccion(admin, "CREAR_USUARIO",
+                            "Creó Usuario: " + savedUser.getNombreUsuarioLogin(), "IP_PENDIENTE"));
 
             return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
 
@@ -759,6 +859,11 @@ public class SuperAdminController {
 
             }
 
+            // LOG REPORTE
+            Authentication authLog = SecurityContextHolder.getContext().getAuthentication();
+            superAdminService.getSuperAdminByEmail(authLog.getName())
+                    .ifPresent(admin -> reporteService.registrarAccion(admin, "CREAR_ADMINISTRADOR",
+                            "Creó Admin (Usuario): " + savedUser.getNombreUsuarioLogin(), "IP_PENDIENTE"));
             return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
 
         } catch (Exception e) {
@@ -830,6 +935,12 @@ public class SuperAdminController {
             // bitacoraService.logActualizacion(0, "usuario", id,
             // "Usuario actualizado: " + updated.getNombreUsuarioLogin());
 
+            // LOG REPORTE
+            Authentication authCtx = SecurityContextHolder.getContext().getAuthentication();
+            superAdminService.getSuperAdminByEmail(authCtx.getName())
+                    .ifPresent(admin -> reporteService.registrarAccion(admin, "ACTUALIZAR_USUARIO",
+                            "Actualizó Usuario: " + updated.getNombreUsuarioLogin(), "IP_PENDIENTE"));
+
             return ResponseEntity.ok(updated);
 
         } catch (Exception e) {
@@ -849,6 +960,11 @@ public class SuperAdminController {
 
             // bitacoraService.logEliminacion(0, "usuario", id, "Usuario eliminado ID: " +
             // id);
+
+            // LOG REPORTE
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            superAdminService.getSuperAdminByEmail(auth.getName()).ifPresent(admin -> reporteService
+                    .registrarAccion(admin, "ELIMINAR_USUARIO", "Eliminó Usuario ID: " + id, "IP_PENDIENTE"));
 
             return ResponseEntity.ok().build();
         } catch (Exception e) {
