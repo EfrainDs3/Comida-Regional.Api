@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import web.Regional_Api.entity.Categoria;
 import web.Regional_Api.entity.CategoriaDTO;
 import web.Regional_Api.entity.Restaurante;
+import web.Regional_Api.entity.Sucursales;
 import web.Regional_Api.service.ICategoriaService;
 
 @RestController
@@ -32,6 +33,8 @@ public class CategoriaController {
     private web.Regional_Api.repository.CategoriaRepository categoriaRepository;
     @Autowired
     private web.Regional_Api.repository.RestauranteRepository restauranteRepository;
+    @Autowired
+    private web.Regional_Api.repository.SucursalesRepository sucursalesRepository;
 
     // Obtener todas las categorías
     @GetMapping
@@ -63,23 +66,31 @@ public class CategoriaController {
     @PostMapping
     public ResponseEntity<?> crear(@RequestBody CategoriaDTO categoriaDTO) {
 
-        // 1. Validar que el "padre" (Restaurante) existe
+        // 1. Validar que el restaurante existe
         Optional<Restaurante> optRestaurante = restauranteRepository.findById(categoriaDTO.getId_restaurante());
         if (optRestaurante.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Error: El restaurante con ID " + categoriaDTO.getId_restaurante() + " no existe.");
         }
 
-        // 2. Mapear DTO a Entidad
+        // 2. Validar que la sucursal existe
+        Optional<Sucursales> optSucursal = sucursalesRepository.findById(categoriaDTO.getId_sucursal());
+        if (optSucursal.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error: La sucursal con ID " + categoriaDTO.getId_sucursal() + " no existe.");
+        }
+
+        // 3. Mapear DTO a Entidad
         Categoria categoria = new Categoria();
-        categoria.setRestaurante(optRestaurante.get()); // <-- Asignar el padre
+        categoria.setRestaurante(optRestaurante.get());
+        categoria.setSucursales(optSucursal.get());
         categoria.setNombre(categoriaDTO.getNombre());
         categoria.setDescripcion(categoriaDTO.getDescripcion());
-        // El estado '1' se asigna por defecto en la entidad
+        categoria.setEstado(categoriaDTO.getEstado() != null ? categoriaDTO.getEstado() : 1);
 
         try {
             Categoria guardada = categoriaRepository.save(categoria);
-            return ResponseEntity.status(HttpStatus.CREATED).body(guardada);
+            return ResponseEntity.status(HttpStatus.CREATED).body(convertirADTO(guardada));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al guardar: " + e.getMessage());
@@ -120,6 +131,8 @@ public class CategoriaController {
     private CategoriaDTO convertirADTO(Categoria entidad) {
         CategoriaDTO dto = new CategoriaDTO();
         dto.setId_categoria(entidad.getId_categoria());
+        dto.setId_restaurante(entidad.getRestaurante().getIdRestaurante());
+        dto.setId_sucursal(entidad.getSucursales().getIdSucursal());
         dto.setNombre(entidad.getNombre());
         dto.setDescripcion(entidad.getDescripcion());
         dto.setEstado(entidad.getEstado());

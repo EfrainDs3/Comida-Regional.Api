@@ -3,10 +3,8 @@ package web.Regional_Api.entity;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-
+// IMPORTANTE: Cambiamos JsonIgnore por JsonBackReference
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -24,11 +22,11 @@ public class Sucursales {
     @Column(name = "id_sucursal")
     private Integer idSucursal;
 
-    // Clave Foránea (la sigues usando para multi-tenant)
+    // Clave Foránea (se mantiene visible para el JSON)
     @Column(name = "id_restaurante", nullable = false)
     private Integer idRestaurante;
 
-    // RELACIÓN JPA REAL (usa la misma columna id_restaurante)
+    // RELACIÓN JPA REAL
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
         name = "id_restaurante",
@@ -36,7 +34,8 @@ public class Sucursales {
         insertable = false,
         updatable = false
     )
-    @JsonIgnore
+    // CAMBIO AQUÍ: Esto evita el bucle infinito con la clase Restaurante
+    @JsonBackReference 
     private Restaurante restaurante;
 
     @Column(nullable = false, length = 150)

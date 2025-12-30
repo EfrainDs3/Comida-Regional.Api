@@ -1,8 +1,18 @@
 package web.Regional_Api.entity;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-public class RestauranteDTO {
+/**
+ * DTO para Restaurante.
+ * Se utiliza para transferir datos de forma segura sin recursion infinita.
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class RestauranteDTO implements Serializable {
+    
+    private static final long serialVersionUID = 1L;
+
     private Integer idRestaurante;
     private String nombre;
     private String ruc;
@@ -15,7 +25,10 @@ public class RestauranteDTO {
     private String fechaCreacion;
     private String fechaVencimiento;
 
+    // Constructor vacío
+    public RestauranteDTO() {}
 
+    // Getters y Setters
     public Integer getIdRestaurante() {
         return idRestaurante;
     }
@@ -82,5 +95,4 @@ public class RestauranteDTO {
     public void setFechaVencimiento(String fechaVencimiento) {
         this.fechaVencimiento = fechaVencimiento;
     }
-    
 }
