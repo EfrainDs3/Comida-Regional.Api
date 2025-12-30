@@ -22,7 +22,7 @@ import web.Regional_Api.entity.PagoSuscripcionDTO;
 import web.Regional_Api.service.PagoSuscripcionService;
 @RestController
 @RequestMapping("/api/pagos-suscripcion")
-@CrossOrigin(origins = "*")
+
 public class PagoSuscripcionController {
     
     @Autowired

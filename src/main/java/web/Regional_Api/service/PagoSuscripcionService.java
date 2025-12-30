@@ -97,12 +97,25 @@ public class PagoSuscripcionService {
         PagoSuscripcion pago = pagoRepository.findById(idPago)
             .orElseThrow(() -> new RuntimeException("Pago no encontrado"));
         
+        // Solo permitir aprobar si está pendiente
+        if (!"PENDIENTE".equals(pago.getEstado())) {
+            throw new RuntimeException("Solo se pueden aprobar pagos en estado PENDIENTE");
+        }
+        
         pago.setEstado("APROBADO");
         pago.setFechaAprobacion(LocalDateTime.now());
         
         // Renovar la suscripción del restaurante por 30 días adicionales
         Restaurante restaurante = pago.getRestaurante();
-        restaurante.setFechaVencimiento(restaurante.getFechaVencimiento().plusDays(30));
+        if (restaurante != null) {
+            LocalDateTime nuevaFecha = restaurante.getFechaVencimiento();
+            if (nuevaFecha == null) {
+                nuevaFecha = LocalDateTime.now();
+            }
+            restaurante.setFechaVencimiento(nuevaFecha.plusDays(30));
+        } else {
+            throw new RuntimeException("Restaurante no encontrado para el pago");
+        }
         
         PagoSuscripcion updated = pagoRepository.save(pago);
         return convertirADTO(updated);
