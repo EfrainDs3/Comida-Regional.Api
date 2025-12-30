@@ -41,10 +41,17 @@ public class Pedido implements Serializable {
     @JsonIgnore
     private Sucursales sucursal;
 
+    // Relación original (Mantiene la lógica interna)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_mesa")
     @JsonIgnore
     private Mesas mesa;
+
+    // --- CAMPO ESPEJO (NUEVO) ---
+    // Esto expone el ID al frontend sin romper la relación
+    @Column(name = "id_mesa", insertable = false, updatable = false)
+    private Integer idMesa;
+    // ----------------------------
 
     @Column(name = "fecha_hora", nullable = false)
     private LocalDateTime fechaPedido;
@@ -107,6 +114,16 @@ public class Pedido implements Serializable {
     public void setMesa(Mesas mesa) {
         this.mesa = mesa;
     }
+
+    // --- GETTER Y SETTER PARA EL CAMPO ESPEJO ---
+    public Integer getIdMesa() {
+        return idMesa;
+    }
+
+    public void setIdMesa(Integer idMesa) {
+        this.idMesa = idMesa;
+    }
+    // --------------------------------------------
 
     public LocalDateTime getFechaPedido() {
         return fechaPedido;
@@ -174,6 +191,7 @@ public class Pedido implements Serializable {
     @Override
     public String toString() {
         return "Pedido [idPedido=" + idPedido + ", usuario=" + usuario + ", sucursal=" + sucursal + ", mesa=" + mesa
+                + ", idMesa=" + idMesa // Agregado al toString para debug
                 + ", fechaPedido=" + fechaPedido + ", estado=" + estado + ", total=" + total + ", tipoPedido="
                 + tipoPedido + ", nombreCliente=" + nombreCliente + ", fechaUpdate=" + fechaUpdate
                 + ", telefonoCliente=" + telefonoCliente + ", detalles=" + detalles + "]";
