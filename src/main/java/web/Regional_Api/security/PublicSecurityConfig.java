@@ -21,6 +21,9 @@ public class PublicSecurityConfig {
             "/restful/superadmin/login",
             "/restful/superadmin/auth/initiate-login",
 
+            // Endpoints públicos de API (para testing)
+            "/api/categorias/**",
+
             // Documentación API (Swagger - si se implementa en el futuro)
             "/swagger-ui/**",
             "/v3/api-docs/**",

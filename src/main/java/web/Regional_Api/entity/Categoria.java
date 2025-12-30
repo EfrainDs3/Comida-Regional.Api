@@ -23,10 +23,6 @@ public class Categoria {
     private Integer id_categoria;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_restaurante", nullable = false)
-    private Restaurante restaurante;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_sucursal", nullable = false)
     private Sucursales sucursales;
     
@@ -39,13 +35,6 @@ public class Categoria {
     }
     public void setId_categoria(Integer id_categoria) {
         this.id_categoria = id_categoria;
-    }
-    
-    public Restaurante getRestaurante() {
-        return restaurante;
-    }
-    public void setRestaurante(Restaurante restaurante) {
-        this.restaurante = restaurante;
     }
     
     public Sucursales getSucursales() {
@@ -78,7 +67,7 @@ public class Categoria {
     
     @Override
     public String toString() {
-        return "Categoria [id_categoria=" + id_categoria + ", restaurante=" + restaurante 
+        return "Categoria [id_categoria=" + id_categoria 
                 + ", sucursales=" + sucursales + ", nombre=" + nombre
                 + ", descripcion=" + descripcion + ", estado=" + estado + "]";
     }

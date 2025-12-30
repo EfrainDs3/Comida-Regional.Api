@@ -2,8 +2,7 @@ package web.Regional_Api.entity;
 
 public class CategoriaDTO {
     private Integer id_categoria;
-    private Integer id_restaurante; 
-    private Integer id_sucursal;  // ← CAMPO AGREGADO
+    private Integer id_sucursal;
     private String nombre;
     private String descripcion;
     private Integer estado;
@@ -13,13 +12,6 @@ public class CategoriaDTO {
     }
     public void setId_categoria(Integer id_categoria) {
         this.id_categoria = id_categoria;
-    }
-    
-    public Integer getId_restaurante() {
-        return id_restaurante;
-    }
-    public void setId_restaurante(Integer id_restaurante) {
-        this.id_restaurante = id_restaurante;
     }
     
     public Integer getId_sucursal() {

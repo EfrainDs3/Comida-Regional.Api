@@ -66,23 +66,15 @@ public class CategoriaController {
     @PostMapping
     public ResponseEntity<?> crear(@RequestBody CategoriaDTO categoriaDTO) {
 
-        // 1. Validar que el restaurante existe
-        Optional<Restaurante> optRestaurante = restauranteRepository.findById(categoriaDTO.getId_restaurante());
-        if (optRestaurante.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Error: El restaurante con ID " + categoriaDTO.getId_restaurante() + " no existe.");
-        }
-
-        // 2. Validar que la sucursal existe
+        // Validar que la sucursal existe
         Optional<Sucursales> optSucursal = sucursalesRepository.findById(categoriaDTO.getId_sucursal());
         if (optSucursal.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Error: La sucursal con ID " + categoriaDTO.getId_sucursal() + " no existe.");
         }
 
-        // 3. Mapear DTO a Entidad
+        // Mapear DTO a Entidad
         Categoria categoria = new Categoria();
-        categoria.setRestaurante(optRestaurante.get());
         categoria.setSucursales(optSucursal.get());
         categoria.setNombre(categoriaDTO.getNombre());
         categoria.setDescripcion(categoriaDTO.getDescripcion());
@@ -131,8 +123,12 @@ public class CategoriaController {
     private CategoriaDTO convertirADTO(Categoria entidad) {
         CategoriaDTO dto = new CategoriaDTO();
         dto.setId_categoria(entidad.getId_categoria());
-        dto.setId_restaurante(entidad.getRestaurante().getIdRestaurante());
-        dto.setId_sucursal(entidad.getSucursales().getIdSucursal());
+        
+        // Manejar relación lazy de forma segura
+        if (entidad.getSucursales() != null) {
+            dto.setId_sucursal(entidad.getSucursales().getIdSucursal());
+        }
+        
         dto.setNombre(entidad.getNombre());
         dto.setDescripcion(entidad.getDescripcion());
         dto.setEstado(entidad.getEstado());

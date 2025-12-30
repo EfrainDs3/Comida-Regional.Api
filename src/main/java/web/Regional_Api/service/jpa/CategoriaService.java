@@ -5,12 +5,14 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import web.Regional_Api.entity.Categoria;
 import web.Regional_Api.repository.CategoriaRepository;
 import web.Regional_Api.service.ICategoriaService;
 
 @Service
+@Transactional(readOnly = true)
 public class CategoriaService implements ICategoriaService {
     
     @Autowired
@@ -22,11 +24,13 @@ public class CategoriaService implements ICategoriaService {
     }
     
     @Override
+    @Transactional
     public Categoria guardar(Categoria categoria) {
         return repoCategoria.save(categoria);
     }
     
     @Override
+    @Transactional
     public Categoria modificar(Categoria categoria) {
         return repoCategoria.save(categoria);
     }
@@ -35,6 +39,7 @@ public class CategoriaService implements ICategoriaService {
     public Optional<Categoria> buscarId(Integer id) {
         return repoCategoria.findById(id);
     }
+    @Transactional
     
     @Override
     public void eliminar(Integer id) {
