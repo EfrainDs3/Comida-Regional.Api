@@ -20,7 +20,7 @@ public interface IPedidoService {
     
     List<Pedido> buscarPorSucursal(Integer idSucursal);
     
-    List<Pedido> buscarPorEstado(Integer estado);
+    List<Pedido> buscarPorEstado(String estadoPedido);
     
     List<Pedido> buscarPorUsuario(Integer idUsuario);
     
@@ -30,9 +30,13 @@ public interface IPedidoService {
     
     List<Pedido> buscarPorFecha(LocalDateTime fechaInicio, LocalDateTime fechaFin);
     
-    List<Pedido> buscarPorSucursalYEstado(Integer idSucursal, Integer estado);
+    List<Pedido> buscarPorSucursalYEstado(Integer idSucursal, String estadoPedido);
     
     List<Pedido> buscarPorTipoPedido(String tipoPedido);
     
     List<Pedido> buscarPedidosActivos(Integer idSucursal);
+
+    List<Pedido> buscarPorNombreCliente(String nombreCliente);
+
+    Optional<Pedido> buscarUltimoPedidoActivoByMesa(Integer idMesa);
 }

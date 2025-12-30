@@ -28,38 +28,37 @@ public class DetallePedido implements Serializable {
     @JoinColumn(name = "id_pedido", nullable = false)
     private Pedido pedido;
 
-    // Asumo entidad Plato o Producto
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_plato", nullable = false)
-    private Plato plato;
+    @Column(name = "id_plato", nullable = false)
+    private Integer idPlato;
 
     @Column(name = "cantidad", nullable = false)
     private Integer cantidad;
 
-    @Column(name = "precio_unitario", nullable = false, precision = 10, scale = 2)
+    @Column(name = "precio_unitario", precision = 10, scale = 2, nullable = false)
     private BigDecimal precioUnitario;
 
-    @Column(name = "subtotal", nullable = false, precision = 10, scale = 2)
+    @Column(name = "subtotal", precision = 10, scale = 2, nullable = false)
     private BigDecimal subtotal;
 
     public DetallePedido() {
     }
 
-    public DetallePedido(Pedido pedido, Plato plato, Integer cantidad, BigDecimal precioUnitario) {
+    public DetallePedido(Pedido pedido, Integer idPlato, Integer cantidad, BigDecimal precioUnitario) {
         this.pedido = pedido;
-        this.plato = plato;
+        this.idPlato = idPlato;
         this.cantidad = cantidad;
         this.precioUnitario = precioUnitario;
-        this.actualizarSubtotal();
-    }
-
-    public void actualizarSubtotal() {
-        if(this.cantidad != null && this.precioUnitario != null) {
-            this.subtotal = this.precioUnitario.multiply(new BigDecimal(this.cantidad));
+        if (cantidad != null && precioUnitario != null) {
+            this.subtotal = precioUnitario.multiply(new BigDecimal(cantidad));
         }
     }
 
-    // Getters y Setters
+    public void calcularSubtotal() {
+        if (cantidad != null && precioUnitario != null) {
+            this.subtotal = precioUnitario.multiply(new BigDecimal(cantidad));
+        }
+    }
+
     public Integer getIdDetalle() {
         return idDetalle;
     }
@@ -76,12 +75,12 @@ public class DetallePedido implements Serializable {
         this.pedido = pedido;
     }
 
-    public Plato getPlato() {
-        return plato;
+    public Integer getIdPlato() {
+        return idPlato;
     }
 
-    public void setPlato(Plato plato) {
-        this.plato = plato;
+    public void setIdPlato(Integer idPlato) {
+        this.idPlato = idPlato;
     }
 
     public Integer getCantidad() {
@@ -90,7 +89,7 @@ public class DetallePedido implements Serializable {
 
     public void setCantidad(Integer cantidad) {
         this.cantidad = cantidad;
-        this.actualizarSubtotal();
+        this.calcularSubtotal();
     }
 
     public BigDecimal getPrecioUnitario() {
@@ -99,7 +98,7 @@ public class DetallePedido implements Serializable {
 
     public void setPrecioUnitario(BigDecimal precioUnitario) {
         this.precioUnitario = precioUnitario;
-        this.actualizarSubtotal();
+        this.calcularSubtotal();
     }
 
     public BigDecimal getSubtotal() {
@@ -110,15 +109,9 @@ public class DetallePedido implements Serializable {
         this.subtotal = subtotal;
     }
 
-   @Override
+    @Override
     public String toString() {
-        return "DetallePedido{" +
-                "idDetalle=" + idDetalle +
-                ", pedido=" + (pedido != null ? pedido.getIdPedido() : null) +
-                ", plato=" + (plato != null ? plato.getId_plato() : null) +
-                ", cantidad=" + cantidad +
-                ", precioUnitario=" + precioUnitario +
-                ", subtotal=" + subtotal +
-                '}';
+        return "DetallePedido [idDetalle=" + idDetalle + ", idPlato=" + idPlato + ", cantidad=" + cantidad
+                + ", precioUnitario=" + precioUnitario + ", subtotal=" + subtotal + "]";
     }
 }

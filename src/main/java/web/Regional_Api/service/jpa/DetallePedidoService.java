@@ -1,4 +1,4 @@
-/*package web.Regional_Api.service.jpa;
+package web.Regional_Api.service.jpa;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -31,18 +31,18 @@ public class DetallePedidoService implements IDetallePedidoService {
     @Override
     @Transactional
     public DetallePedido guardar(DetallePedido detallePedido) {
+        detallePedido.calcularSubtotal();
         DetallePedido guardado = repoDetallePedido.save(detallePedido);
-        // Actualizar total del pedido padre
-        actualizarTotalPedido(detallePedido.getPedido().getIdPedido());
+        actualizarMontoTotalPedido(detallePedido.getPedido().getIdPedido());
         return guardado;
     }
 
     @Override
     @Transactional
     public DetallePedido modificar(DetallePedido detallePedido) {
+        detallePedido.calcularSubtotal();
         DetallePedido modificado = repoDetallePedido.save(detallePedido);
-        // Actualizar total del pedido padre
-        actualizarTotalPedido(detallePedido.getPedido().getIdPedido());
+        actualizarMontoTotalPedido(detallePedido.getPedido().getIdPedido());
         return modificado;
     }
 
@@ -59,8 +59,7 @@ public class DetallePedidoService implements IDetallePedidoService {
             DetallePedido detalle = optional.get();
             Integer idPedido = detalle.getPedido().getIdPedido();
             repoDetallePedido.deleteById(id);
-            // Actualizar total del pedido padre
-            actualizarTotalPedido(idPedido);
+            actualizarMontoTotalPedido(idPedido);
         }
     }
 
@@ -74,30 +73,20 @@ public class DetallePedidoService implements IDetallePedidoService {
         return repoDetallePedido.buscarPorPlato(idPlato);
     }
 
-    @Override
-    public Double calcularSubtotal(Integer idDetallePedido) {
-        Optional<DetallePedido> optional = repoDetallePedido.findById(idDetallePedido);
-        if (optional.isPresent()) {
-            DetallePedido detalle = optional.get();
-            return detalle.getSubtotal().doubleValue();
-        }
-        return 0.0;
-    }
-
-    // Método privado para actualizar el total del pedido
     @Transactional
-    private void actualizarTotalPedido(Integer idPedido) {
+    private void actualizarMontoTotalPedido(Integer idPedido) {
         Optional<Pedido> optionalPedido = repoPedido.findById(idPedido);
         if (optionalPedido.isPresent()) {
             Pedido pedido = optionalPedido.get();
             List<DetallePedido> detalles = repoDetallePedido.buscarPorPedido(idPedido);
+            
             BigDecimal total = detalles.stream()
-                    .map(d -> d.getSubtotal())
+                    .map(DetallePedido::getSubtotal)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
-            pedido.setTotal(total);
+            
+            pedido.setMontoTotal(total);
+            pedido.setFechaUpdate(java.time.LocalDateTime.now());
             repoPedido.save(pedido);
         }
     }
 }
-
-*/

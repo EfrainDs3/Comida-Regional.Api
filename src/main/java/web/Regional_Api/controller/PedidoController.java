@@ -34,7 +34,7 @@ public class PedidoController {
             List<Pedido> pedidos = pedidoService.buscarTodos();
             return new ResponseEntity<>(pedidos, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -45,9 +45,9 @@ public class PedidoController {
             if (pedido.isPresent()) {
                 return new ResponseEntity<>(pedido.get(), HttpStatus.OK);
             }
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -57,7 +57,7 @@ public class PedidoController {
             Pedido pedidoGuardado = pedidoService.guardar(pedido);
             return new ResponseEntity<>(pedidoGuardado, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -68,7 +68,7 @@ public class PedidoController {
             Pedido pedidoModificado = pedidoService.modificar(pedido);
             return new ResponseEntity<>(pedidoModificado, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -76,9 +76,9 @@ public class PedidoController {
     public ResponseEntity<String> eliminar(@PathVariable Integer id) {
         try {
             pedidoService.eliminar(id);
-            return new ResponseEntity<>("Pedido eliminado correctamente", HttpStatus.OK);
+            return new ResponseEntity<>("Pedido cancelado correctamente", HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error al eliminar pedido", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Error al cancelar pedido", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -88,17 +88,17 @@ public class PedidoController {
             List<Pedido> pedidos = pedidoService.buscarPorSucursal(idSucursal);
             return new ResponseEntity<>(pedidos, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @GetMapping("/estado/{estado}")
-    public ResponseEntity<List<Pedido>> buscarPorEstado(@PathVariable Integer estado) {
+    @GetMapping("/estado/{estadoPedido}")
+    public ResponseEntity<List<Pedido>> buscarPorEstado(@PathVariable String estadoPedido) {
         try {
-            List<Pedido> pedidos = pedidoService.buscarPorEstado(estado);
+            List<Pedido> pedidos = pedidoService.buscarPorEstado(estadoPedido);
             return new ResponseEntity<>(pedidos, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -108,7 +108,7 @@ public class PedidoController {
             List<Pedido> pedidos = pedidoService.buscarPorUsuario(idUsuario);
             return new ResponseEntity<>(pedidos, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -118,17 +118,7 @@ public class PedidoController {
             List<Pedido> pedidos = pedidoService.buscarPorMesa(idMesa);
             return new ResponseEntity<>(pedidos, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/plato/{idPlato}")
-    public ResponseEntity<List<Pedido>> buscarPorPlato(@PathVariable Integer idPlato) {
-        try {
-            List<Pedido> pedidos = pedidoService.buscarPorPlato(idPlato);
-            return new ResponseEntity<>(pedidos, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -138,7 +128,7 @@ public class PedidoController {
             List<Pedido> pedidos = pedidoService.buscarPorTipoPedido(tipoPedido);
             return new ResponseEntity<>(pedidos, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -150,19 +140,19 @@ public class PedidoController {
             List<Pedido> pedidos = pedidoService.buscarPorFecha(fechaInicio, fechaFin);
             return new ResponseEntity<>(pedidos, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @GetMapping("/sucursal/{idSucursal}/estado/{estado}")
+    @GetMapping("/sucursal/{idSucursal}/estado/{estadoPedido}")
     public ResponseEntity<List<Pedido>> buscarPorSucursalYEstado(
             @PathVariable Integer idSucursal,
-            @PathVariable Integer estado) {
+            @PathVariable String estadoPedido) {
         try {
-            List<Pedido> pedidos = pedidoService.buscarPorSucursalYEstado(idSucursal, estado);
+            List<Pedido> pedidos = pedidoService.buscarPorSucursalYEstado(idSucursal, estadoPedido);
             return new ResponseEntity<>(pedidos, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -172,7 +162,30 @@ public class PedidoController {
             List<Pedido> pedidos = pedidoService.buscarPedidosActivos(idSucursal);
             return new ResponseEntity<>(pedidos, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/cliente/{nombreCliente}")
+    public ResponseEntity<List<Pedido>> buscarPorNombreCliente(@PathVariable String nombreCliente) {
+        try {
+            List<Pedido> pedidos = pedidoService.buscarPorNombreCliente(nombreCliente);
+            return new ResponseEntity<>(pedidos, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/mesa/{idMesa}/ultimo-activo")
+    public ResponseEntity<Pedido> buscarUltimoPedidoActivoByMesa(@PathVariable Integer idMesa) {
+        try {
+            Optional<Pedido> pedido = pedidoService.buscarUltimoPedidoActivoByMesa(idMesa);
+            if (pedido.isPresent()) {
+                return new ResponseEntity<>(pedido.get(), HttpStatus.OK);
+            }
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

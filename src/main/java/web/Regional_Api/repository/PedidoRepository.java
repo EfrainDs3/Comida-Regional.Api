@@ -20,30 +20,32 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
 
     List<Pedido> findByIdMesa(Integer idMesa);
 
-    List<Pedido> findByIdPlato(Integer idPlato);
-
-    List<Pedido> findByEstado(Integer estado);
+    List<Pedido> findByEstadoPedido(String estadoPedido);
 
     List<Pedido> findByTipoPedido(String tipoPedido);
 
-    @Query("SELECT p FROM Pedido p WHERE p.fechaCreacion BETWEEN :fechaInicio AND :fechaFin")
+    @Query("SELECT p FROM Pedido p WHERE p.fechaHora BETWEEN :fechaInicio AND :fechaFin ORDER BY p.fechaHora DESC")
     List<Pedido> buscarPorFecha(
             @Param("fechaInicio") LocalDateTime fechaInicio,
             @Param("fechaFin") LocalDateTime fechaFin);
 
-    @Query("SELECT p FROM Pedido p WHERE p.idSucursal = :idSucursal AND p.estado = :estado")
+    @Query("SELECT p FROM Pedido p WHERE p.idSucursal = :idSucursal AND p.estadoPedido = :estadoPedido ORDER BY p.fechaHora DESC")
     List<Pedido> buscarPorSucursalYEstado(
             @Param("idSucursal") Integer idSucursal,
-            @Param("estado") Integer estado);
+            @Param("estadoPedido") String estadoPedido);
 
-    @Query("SELECT p FROM Pedido p WHERE p.idUsuario = :idUsuario AND p.estado = :estado")
-    List<Pedido> buscarPorUsuarioYEstado(
-            @Param("idUsuario") Integer idUsuario,
-            @Param("estado") Integer estado);
+    @Query("SELECT p FROM Pedido p WHERE p.idUsuario = :idUsuario AND p.estadoPedido != 'Cancelado' ORDER BY p.fechaHora DESC")
+    List<Pedido> buscarPorUsuarioActivos(@Param("idUsuario") Integer idUsuario);
 
-    @Query("SELECT p FROM Pedido p WHERE p.idSucursal = :idSucursal AND p.estado = 1 ORDER BY p.fechaCreacion DESC")
+    @Query("SELECT p FROM Pedido p WHERE p.idSucursal = :idSucursal AND p.estadoPedido != 'Cancelado' ORDER BY p.fechaHora DESC")
     List<Pedido> buscarPedidosActivosBySucursal(@Param("idSucursal") Integer idSucursal);
 
-    @Query(value = "SELECT * FROM pedidos WHERE id_mesa = :idMesa AND estado = 1 ORDER BY fecha_creacion DESC LIMIT 1", nativeQuery = true)
+    @Query(value = "SELECT * FROM pedidos WHERE id_mesa = :idMesa AND estado_pedido != 'Cancelado' ORDER BY fecha_hora DESC LIMIT 1", nativeQuery = true)
     Optional<Pedido> findUltimoPedidoActivoByMesa(@Param("idMesa") Integer idMesa);
+
+    @Query("SELECT p FROM Pedido p WHERE p.nombreCliente LIKE %:nombreCliente%")
+    List<Pedido> buscarPorNombreCliente(@Param("nombreCliente") String nombreCliente);
+
+    @Query("SELECT DISTINCT p FROM Pedido p JOIN p.detalles dp WHERE dp.idPlato = :idPlato")
+    List<Pedido> buscarPorPlato(@Param("idPlato") Integer idPlato);
 }
