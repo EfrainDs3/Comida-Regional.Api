@@ -6,6 +6,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -27,9 +28,13 @@ public class Plato {
     private BigDecimal precio;
     private Integer estado;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_categoria")
     private Categoria categoria;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_sucursal", nullable = false)
+    private Sucursales sucursales;
 
     public Plato() {
     }
@@ -81,11 +86,19 @@ public class Plato {
     public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
     }
+    
+    public Sucursales getSucursales() {
+        return sucursales;
+    }
+    
+    public void setSucursales(Sucursales sucursales) {
+        this.sucursales = sucursales;
+    }
 
     @Override
     public String toString() {
         return "Plato [id_plato=" + id_plato + ", nombre=" + nombre + ", descripcion=" + descripcion + ", precio="
-                + precio + ", estado=" + estado + ", categoria=" + categoria + "]";
+                + precio + ", estado=" + estado + ", categoria=" + categoria + ", sucursales=" + sucursales + "]";
     }
     
 }

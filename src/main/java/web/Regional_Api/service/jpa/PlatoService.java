@@ -5,12 +5,14 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import web.Regional_Api.entity.Plato;
 import web.Regional_Api.repository.PlatoRepository;
 import web.Regional_Api.service.IPlatoService;
 
 @Service
+@Transactional(readOnly = true)
 public class PlatoService implements IPlatoService {
 
     @Autowired
@@ -22,11 +24,13 @@ public class PlatoService implements IPlatoService {
     }
 
     @Override
+    @Transactional
     public Plato guardar(Plato plato) {
         return repoPlato.save(plato);
     }
 
     @Override
+    @Transactional
     public Plato modificar(Plato plato) {
         return repoPlato.save(plato);
     }
@@ -37,6 +41,7 @@ public class PlatoService implements IPlatoService {
     }
 
     @Override
+    @Transactional
     public void eliminar(Integer id) {
         // Soft delete: cambiar estado a 0
         Optional<Plato> optional = repoPlato.findById(id);

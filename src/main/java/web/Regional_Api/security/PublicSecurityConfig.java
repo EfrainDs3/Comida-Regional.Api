@@ -23,6 +23,7 @@ public class PublicSecurityConfig {
 
             // Endpoints públicos de API (para testing)
             "/api/categorias/**",
+            "/api/platos/**",
 
             // Documentación API (Swagger - si se implementa en el futuro)
             "/swagger-ui/**",

@@ -8,6 +8,7 @@ public class PlatoDTO {
     private String descripcion;
     private BigDecimal precio;
     private Integer id_categoria;
+    private Integer id_sucursal;
     private Integer estado;
 
     public PlatoDTO() {}
@@ -59,6 +60,14 @@ public class PlatoDTO {
 
     public void setId_categoria(Integer id_categoria) {
         this.id_categoria = id_categoria;
+    }
+    
+    public Integer getId_sucursal() {
+        return id_sucursal;
+    }
+    
+    public void setId_sucursal(Integer id_sucursal) {
+        this.id_sucursal = id_sucursal;
     }
 
     public Integer getEstado() {

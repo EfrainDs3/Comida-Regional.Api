@@ -21,8 +21,10 @@ import org.springframework.web.bind.annotation.RestController;
 import web.Regional_Api.entity.Categoria;
 import web.Regional_Api.entity.Plato;
 import web.Regional_Api.entity.PlatoDTO;
+import web.Regional_Api.entity.Sucursales;
 import web.Regional_Api.repository.CategoriaRepository;
 import web.Regional_Api.repository.PlatoRepository;
+import web.Regional_Api.repository.SucursalesRepository;
 
 @RestController
 @RequestMapping("/api/platos")
@@ -33,6 +35,9 @@ public class PlatoController {
 
     @Autowired
     private CategoriaRepository categoriaRepository;
+    
+    @Autowired
+    private SucursalesRepository sucursalesRepository;
 
     // Obtener todos los platos
     @GetMapping
@@ -82,13 +87,22 @@ public class PlatoController {
     // Crear plato
     @PostMapping
     public ResponseEntity<PlatoDTO> crear(@RequestBody PlatoDTO platoDTO) {
+        // Validar que la categoría existe
         if (platoDTO.getId_categoria() == null) {
             return ResponseEntity.badRequest().body(null);
         }
-
         Optional<Categoria> categoriaOpt = categoriaRepository.findById(platoDTO.getId_categoria());
         if (categoriaOpt.isEmpty()) {
             return ResponseEntity.badRequest().build();
+        }
+        
+        // Validar que la sucursal existe
+        if (platoDTO.getId_sucursal() == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        Optional<Sucursales> sucursalOpt = sucursalesRepository.findById(platoDTO.getId_sucursal());
+        if (sucursalOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
 
         Plato plato = new Plato();
@@ -96,6 +110,7 @@ public class PlatoController {
         plato.setDescripcion(platoDTO.getDescripcion());
         plato.setPrecio(platoDTO.getPrecio());
         plato.setCategoria(categoriaOpt.get());
+        plato.setSucursales(sucursalOpt.get());
         plato.setEstado(1);
 
         Plato guardado = platoRepository.save(plato);
@@ -136,9 +151,15 @@ public class PlatoController {
         dto.setDescripcion(entidad.getDescripcion());
         dto.setPrecio(entidad.getPrecio());
         dto.setEstado(entidad.getEstado());
+        
+        // Manejar relaciones lazy de forma segura
         if (entidad.getCategoria() != null) {
             dto.setId_categoria(entidad.getCategoria().getId_categoria());
         }
+        if (entidad.getSucursales() != null) {
+            dto.setId_sucursal(entidad.getSucursales().getIdSucursal());
+        }
+        
         return dto;
     }
 }
