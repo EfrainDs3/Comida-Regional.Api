@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference; // Necesario para evitar recursión
 import com.fasterxml.jackson.annotation.JsonFormat; // Para formatear fechas y evitar error 500
+//import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -127,6 +128,7 @@ public class Restaurante implements Serializable {
         this.estado = estado;
     }
 
+    // @JsonIgnore
     public List<Sucursales> getSucursales() {
         return sucursales;
     }
@@ -183,6 +185,7 @@ public class Restaurante implements Serializable {
         this.fechaVencimiento = fechaVencimiento;
     }
 
+    // @JsonIgnore
     public List<PagoSuscripcion> getPagosSuscripcion() {
         return pagosSuscripcion;
     }

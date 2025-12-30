@@ -29,6 +29,7 @@ import web.Regional_Api.entity.Acceso;
 import web.Regional_Api.entity.Modulo;
 import web.Regional_Api.entity.Perfil;
 import web.Regional_Api.entity.Restaurante;
+import web.Regional_Api.entity.RestauranteDTO;
 import web.Regional_Api.entity.SuperAdmin;
 import web.Regional_Api.entity.Usuarios;
 
@@ -473,8 +474,8 @@ public class SuperAdminController {
     // GESTIÓN DE RESTAURANTES
     // ============================================
     @GetMapping("/restaurantes")
-    public ResponseEntity<List<Restaurante>> getAllRestaurantes() {
-        return ResponseEntity.ok(restauranteService.buscarTodos());
+    public ResponseEntity<List<RestauranteDTO>> getAllRestaurantes() {
+        return ResponseEntity.ok(restauranteService.obtenerTodos());
     }
 
     @GetMapping("/restaurantes/{id}")
