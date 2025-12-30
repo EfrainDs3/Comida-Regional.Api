@@ -5,7 +5,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference; // Necesario para evitar recursión
+import com.fasterxml.jackson.annotation.JsonFormat; // Para formatear fechas y evitar error 500
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -49,30 +50,34 @@ public class Restaurante implements Serializable {
     @Column(name = "email_contacto", length = 100)
     private String emailContacto;
 
-    // 1: Activo, 0: Inactivo
     @Column(name = "estado")
     private Integer estado;
 
+    // Se añade formato para que Jackson no falle al serializar LocalDateTime
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "fecha_vencimiento", nullable = false)
     private LocalDateTime fechaVencimiento;
 
-    // Relación con Sucursales (Visible en tus FKs: sucursales -> restaurantes)
-    // Se usa 'cascade' para que al borrar el restaurante se borren sus sucursales
-    // si es necesario
-    @JsonIgnore
+    // CAMBIO CLAVE: Usamos JsonManagedReference en lugar de solo JsonIgnore
+    // Esto permite que el restaurante sea el "padre" en el JSON sin entrar en bucle
+    @JsonManagedReference
     @OneToMany(mappedBy = "restaurante", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Sucursales> sucursales;
 
-    // Relación con Pagos de Suscripción
-    @JsonIgnore
+    @JsonManagedReference
     @OneToMany(mappedBy = "restaurante", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PagoSuscripcion> pagosSuscripcion;
 
     public Restaurante() {
     }
+
+    // Mantén tus constructores, getters y setters iguales...
+    // IMPORTANTE: Asegúrate de que en la clase Sucursales.java
+    // la variable 'restaurante' tenga la anotación @JsonBackReference
 
     public Restaurante(Integer idRestaurante, String nombre, String direccion, String telefono, Integer estado) {
         this.idRestaurante = idRestaurante;
