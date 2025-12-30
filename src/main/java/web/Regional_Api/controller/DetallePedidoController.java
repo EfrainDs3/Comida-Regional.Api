@@ -1,13 +1,11 @@
 package web.Regional_Api.controller;
-/*
+
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,79 +16,56 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import web.Regional_Api.entity.DetallePedido;
-import web.Regional_Api.entity.DetallePedidoDTO;
-import web.Regional_Api.entity.Pedido;
-import web.Regional_Api.entity.Plato;
 import web.Regional_Api.service.IDetallePedidoService;
 
 @RestController
 @RequestMapping("/api/detalles-pedido")
-
 public class DetallePedidoController {
 
     @Autowired
     private IDetallePedidoService detallePedidoService;
 
-    // ===== CRUD BÁSICO =====
-
     @GetMapping
-    public ResponseEntity<List<DetallePedidoDTO>> buscarTodos() {
+    public ResponseEntity<List<DetallePedido>> buscarTodos() {
         try {
             List<DetallePedido> detalles = detallePedidoService.buscarTodos();
-            List<DetallePedidoDTO> dtos = detalles.stream().map(this::convertirADTO).collect(Collectors.toList());
-            return new ResponseEntity<>(dtos, HttpStatus.OK);
+            return new ResponseEntity<>(detalles, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DetallePedidoDTO> buscarPorId(@PathVariable Integer id) {
+    public ResponseEntity<DetallePedido> buscarPorId(@PathVariable Integer id) {
         try {
             Optional<DetallePedido> detalle = detallePedidoService.buscarId(id);
             if (detalle.isPresent()) {
-                DetallePedidoDTO dto = convertirADTO(detalle.get());
-                return new ResponseEntity<>(dto, HttpStatus.OK);
+                return new ResponseEntity<>(detalle.get(), HttpStatus.OK);
             }
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @PostMapping
-    public ResponseEntity<DetallePedidoDTO> guardar(@RequestBody DetallePedidoDTO dto) {
+    public ResponseEntity<DetallePedido> guardar(@RequestBody DetallePedido detallePedido) {
         try {
-            DetallePedido detalle = new DetallePedido();
-            if (dto.getIdPedido() != null) {
-                Pedido pedido = new Pedido();
-                pedido.setIdPedido(dto.getIdPedido());
-                detalle.setPedido(pedido);
-            }
-            if (dto.getIdPlato() != null) {
-                Plato plato = new Plato();
-                plato.setId_plato(dto.getIdPlato());
-                detalle.setPlato(plato);
-            }
-            detalle.setCantidad(dto.getCantidad());
-            detalle.setPrecioUnitario(dto.getPrecioUnitario());
-            DetallePedido detalleGuardado = detallePedidoService.guardar(detalle);
-            DetallePedidoDTO dtoGuardado = convertirADTO(detalleGuardado);
-            return new ResponseEntity<>(dtoGuardado, HttpStatus.CREATED);
+            DetallePedido detalleGuardado = detallePedidoService.guardar(detallePedido);
+            return new ResponseEntity<>(detalleGuardado, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DetallePedidoDTO> modificar(@PathVariable Integer id, @RequestBody DetallePedido detallePedido) {
+    public ResponseEntity<DetallePedido> modificar(@PathVariable Integer id, @RequestBody DetallePedido detallePedido) {
         try {
             detallePedido.setIdDetalle(id);
             DetallePedido detalleModificado = detallePedidoService.modificar(detallePedido);
-            DetallePedidoDTO dto = convertirADTO(detalleModificado);
-            return new ResponseEntity<>(dto, HttpStatus.OK);
+            return new ResponseEntity<>(detalleModificado, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -104,52 +79,23 @@ public class DetallePedidoController {
         }
     }
 
-    // ===== BÚSQUEDAS ESPECÍFICAS =====
-
     @GetMapping("/pedido/{idPedido}")
-    public ResponseEntity<List<DetallePedidoDTO>> buscarPorPedido(@PathVariable Integer idPedido) {
+    public ResponseEntity<List<DetallePedido>> buscarPorPedido(@PathVariable Integer idPedido) {
         try {
             List<DetallePedido> detalles = detallePedidoService.buscarPorPedido(idPedido);
-            List<DetallePedidoDTO> dtos = detalles.stream().map(this::convertirADTO).collect(Collectors.toList());
-            return new ResponseEntity<>(dtos, HttpStatus.OK);
+            return new ResponseEntity<>(detalles, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @GetMapping("/plato/{idPlato}")
-    public ResponseEntity<List<DetallePedidoDTO>> buscarPorPlato(@PathVariable Integer idPlato) {
+    public ResponseEntity<List<DetallePedido>> buscarPorPlato(@PathVariable Integer idPlato) {
         try {
             List<DetallePedido> detalles = detallePedidoService.buscarPorPlato(idPlato);
-            List<DetallePedidoDTO> dtos = detalles.stream().map(this::convertirADTO).collect(Collectors.toList());
-            return new ResponseEntity<>(dtos, HttpStatus.OK);
+            return new ResponseEntity<>(detalles, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-    }
-
-    // ===== CÁLCULOS =====
-
-    @GetMapping("/{idDetallePedido}/subtotal")
-    public ResponseEntity<Double> calcularSubtotal(@PathVariable Integer idDetallePedido) {
-        try {
-            Double subtotal = detallePedidoService.calcularSubtotal(idDetallePedido);
-            return new ResponseEntity<>(subtotal, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    private DetallePedidoDTO convertirADTO(DetallePedido detalle) {
-        DetallePedidoDTO dto = new DetallePedidoDTO();
-        dto.setIdDetalle(detalle.getIdDetalle());
-        dto.setIdPedido(detalle.getPedido() != null ? detalle.getPedido().getIdPedido() : null);
-        dto.setIdPlato(detalle.getPlato() != null ? detalle.getPlato().getId_plato() : null);
-        dto.setNombrePlato(detalle.getPlato() != null ? detalle.getPlato().getNombre() : null);
-        dto.setCantidad(detalle.getCantidad());
-        dto.setPrecioUnitario(detalle.getPrecioUnitario());
-        dto.setSubtotal(detalle.getSubtotal());
-        return dto;
     }
 }
-*/
