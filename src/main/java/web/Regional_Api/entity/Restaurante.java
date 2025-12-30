@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,7 +30,7 @@ public class Restaurante implements Serializable {
 
     @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
-    
+
     @Column(name = "ruc", length = 20)
     private String ruc;
 
@@ -38,31 +40,34 @@ public class Restaurante implements Serializable {
     @Column(name = "logo_url", length = 255)
     private String logoUrl;
 
-    @Column(name="simbolo_moneda", length=10)
+    @Column(name = "simbolo_moneda", length = 10)
     private String simboloMoneda;
 
     @Column(name = "tasa_igv", precision = 5, scale = 2)
     private BigDecimal tasaIgv;
 
-    @Column(name="email_contacto", length=100)
+    @Column(name = "email_contacto", length = 100)
     private String emailContacto;
 
     // 1: Activo, 0: Inactivo
     @Column(name = "estado")
     private Integer estado;
 
-    @Column(name="fecha_creacion", nullable = false)
+    @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion;
 
-    @Column(name="fecha_vencimiento", nullable = false)
+    @Column(name = "fecha_vencimiento", nullable = false)
     private LocalDateTime fechaVencimiento;
 
     // Relación con Sucursales (Visible en tus FKs: sucursales -> restaurantes)
-    // Se usa 'cascade' para que al borrar el restaurante se borren sus sucursales si es necesario
+    // Se usa 'cascade' para que al borrar el restaurante se borren sus sucursales
+    // si es necesario
+    @JsonIgnore
     @OneToMany(mappedBy = "restaurante", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Sucursales> sucursales;
 
     // Relación con Pagos de Suscripción
+    @JsonIgnore
     @OneToMany(mappedBy = "restaurante", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PagoSuscripcion> pagosSuscripcion;
 
@@ -100,9 +105,11 @@ public class Restaurante implements Serializable {
     public String getRuc() {
         return ruc;
     }
+
     public void setRuc(String ruc) {
         this.ruc = ruc;
     }
+
     public void setDireccion(String direccion) {
         this.direccion = direccion;
     }
@@ -122,42 +129,55 @@ public class Restaurante implements Serializable {
     public void setSucursales(List<Sucursales> sucursales) {
         this.sucursales = sucursales;
     }
+
     public String getLogoUrl() {
         return logoUrl;
     }
+
     public void setLogoUrl(String logoUrl) {
         this.logoUrl = logoUrl;
     }
+
     public String getSimboloMoneda() {
         return simboloMoneda;
     }
+
     public void setSimboloMoneda(String simboloMoneda) {
         this.simboloMoneda = simboloMoneda;
     }
+
     public BigDecimal getTasaIgv() {
         return tasaIgv;
     }
+
     public void setTasaIgv(BigDecimal tasaIgv) {
         this.tasaIgv = tasaIgv;
     }
+
     public String getEmailContacto() {
         return emailContacto;
     }
+
     public void setEmailContacto(String emailContacto) {
         this.emailContacto = emailContacto;
     }
+
     public LocalDateTime getFechaCreacion() {
         return fechaCreacion;
     }
+
     public void setFechaCreacion(LocalDateTime fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
     }
+
     public LocalDateTime getFechaVencimiento() {
         return fechaVencimiento;
     }
+
     public void setFechaVencimiento(LocalDateTime fechaVencimiento) {
         this.fechaVencimiento = fechaVencimiento;
     }
+
     public List<PagoSuscripcion> getPagosSuscripcion() {
         return pagosSuscripcion;
     }
@@ -165,10 +185,12 @@ public class Restaurante implements Serializable {
     public void setPagosSuscripcion(List<PagoSuscripcion> pagosSuscripcion) {
         this.pagosSuscripcion = pagosSuscripcion;
     }
+
     @Override
     public String toString() {
-        return "Restaurante [idRestaurante=" + idRestaurante + ", nombre=" + nombre + ",ruc=" + ruc + ", direccion=" + direccion
-                + ", logoUrl=" + logoUrl + ", simboloMoneda=" + simboloMoneda + ", tasaIgv=" + tasaIgv 
+        return "Restaurante [idRestaurante=" + idRestaurante + ", nombre=" + nombre + ",ruc=" + ruc + ", direccion="
+                + direccion
+                + ", logoUrl=" + logoUrl + ", simboloMoneda=" + simboloMoneda + ", tasaIgv=" + tasaIgv
                 + ", emailContacto=" + emailContacto + ", estado=" + estado
                 + ", fechaCreacion=" + fechaCreacion + ", fechaVencimiento=" + fechaVencimiento + "]";
     }
