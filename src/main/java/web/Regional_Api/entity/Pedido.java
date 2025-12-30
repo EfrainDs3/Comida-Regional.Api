@@ -1,81 +1,90 @@
 package web.Regional_Api.entity;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "pedidos")
-public class Pedido implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+@Table(name = "pedidos_new")
+@SQLDelete(sql = "UPDATE pedidos_new SET estado = 0 WHERE id_pedido = ?")
+@Where(clause = "estado = 1")
+public class Pedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_pedido")
     private Integer idPedido;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_usuario", nullable = false)
-    @JsonIgnore
-    private Usuarios usuario;
+    @Column(name = "id_usuario")
+    private Integer idUsuario;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_sucursal", nullable = false)
-    @JsonIgnore
-    private Sucursales sucursal;
+    @Column(name = "id_sucursal")
+    private Integer idSucursal;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_mesa")
-    @JsonIgnore
-    private Mesas mesa;
+    @Column(name = "id_mesa")
+    private Integer idMesa;
 
-    @Column(name = "fecha_hora", nullable = false)
-    private LocalDateTime fechaPedido;
+    @Column(name = "id_plato")
+    private Integer idPlato;
 
-    // PENDIENTE, EN_PREPARACION, SERVIDO, PAGADO, CANCELADO
-    @Column(name = "estado_pedido", length = 20)
-    private String estado;
+    @Column(name = "cantidad")
+    private Integer cantidad;
 
-    @Column(name = "monto_total", precision = 10, scale = 2)
-    private BigDecimal total;
+    @Column(name = "precio_unitario")
+    private BigDecimal precioUnitario;
 
-    @Column(name = "tipo_pedido", length = 500)
+    @Column(name = "subtotal")
+    private BigDecimal subtotal;
+
+    @Column(name = "monto_total")
+    private BigDecimal montoTotal;
+
+    @Column(name = "tipo_pedido")
     private String tipoPedido;
 
-    @Column(name = "nombre_cliente", length = 500)
+    @Column(name = "nombre_cliente")
     private String nombreCliente;
 
-    @Column(name = "fecha_update", nullable= false)
-    private LocalDateTime fechaUpdate;
+    @Column(name = "notas")
+    private String notas;
 
-    @Column(name = "telefono_cliente", length = 10)
-    private String telefonoCliente;
+    @Column(name = "codigo_turno")
+    private String codigoTurno;
 
-    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<DetallePedido> detalles;
+    @Column(name = "estado")
+    private Integer estado = 1;
+
+    @Column(name = "fecha_creacion", insertable = false, updatable = false)
+    private LocalDateTime fechaCreacion;
+
+    @Column(name = "fecha_actualizacion")
+    private LocalDateTime fechaActualizacion;
 
     public Pedido() {
     }
 
-    // Getters y Setters
+    public Pedido(Integer idUsuario, Integer idSucursal, Integer idMesa, Integer idPlato, Integer cantidad,
+            BigDecimal precioUnitario, String tipoPedido, String nombreCliente) {
+        this.idUsuario = idUsuario;
+        this.idSucursal = idSucursal;
+        this.idMesa = idMesa;
+        this.idPlato = idPlato;
+        this.cantidad = cantidad;
+        this.precioUnitario = precioUnitario;
+        this.tipoPedido = tipoPedido;
+        this.nombreCliente = nombreCliente;
+        this.estado = 1;
+    }
+
     public Integer getIdPedido() {
         return idPedido;
     }
@@ -84,98 +93,132 @@ public class Pedido implements Serializable {
         this.idPedido = idPedido;
     }
 
-    public Usuarios getUsuario() {
-        return usuario;
+    public Integer getIdUsuario() {
+        return idUsuario;
     }
 
-    public void setUsuario(Usuarios usuario) {
-        this.usuario = usuario;
+    public void setIdUsuario(Integer idUsuario) {
+        this.idUsuario = idUsuario;
     }
 
-    public Sucursales getSucursal() {
-        return sucursal;
+    public Integer getIdSucursal() {
+        return idSucursal;
     }
 
-    public void setSucursal(Sucursales sucursal) {
-        this.sucursal = sucursal;
+    public void setIdSucursal(Integer idSucursal) {
+        this.idSucursal = idSucursal;
     }
 
-    public Mesas getMesa() {
-        return mesa;
+    public Integer getIdMesa() {
+        return idMesa;
     }
 
-    public void setMesa(Mesas mesa) {
-        this.mesa = mesa;
+    public void setIdMesa(Integer idMesa) {
+        this.idMesa = idMesa;
     }
 
-    public LocalDateTime getFechaPedido() {
-        return fechaPedido;
+    public Integer getIdPlato() {
+        return idPlato;
     }
 
-    public void setFechaPedido(LocalDateTime fechaPedido) {
-        this.fechaPedido = fechaPedido;
+    public void setIdPlato(Integer idPlato) {
+        this.idPlato = idPlato;
     }
 
-    public String getEstado() {
-        return estado;
+    public Integer getCantidad() {
+        return cantidad;
     }
 
-    public void setEstado(String estado) {
-        this.estado = estado;
+    public void setCantidad(Integer cantidad) {
+        this.cantidad = cantidad;
     }
 
-    public BigDecimal getTotal() {
-        return total;
+    public BigDecimal getPrecioUnitario() {
+        return precioUnitario;
     }
 
-    public void setTotal(BigDecimal total) {
-        this.total = total;
+    public void setPrecioUnitario(BigDecimal precioUnitario) {
+        this.precioUnitario = precioUnitario;
+    }
+
+    public BigDecimal getSubtotal() {
+        return subtotal;
+    }
+
+    public void setSubtotal(BigDecimal subtotal) {
+        this.subtotal = subtotal;
+    }
+
+    public BigDecimal getMontoTotal() {
+        return montoTotal;
+    }
+
+    public void setMontoTotal(BigDecimal montoTotal) {
+        this.montoTotal = montoTotal;
     }
 
     public String getTipoPedido() {
         return tipoPedido;
     }
+
     public void setTipoPedido(String tipoPedido) {
         this.tipoPedido = tipoPedido;
     }
+
     public String getNombreCliente() {
         return nombreCliente;
     }
+
     public void setNombreCliente(String nombreCliente) {
         this.nombreCliente = nombreCliente;
     }
-    public LocalDateTime getFechaUpdate() {
-        return fechaUpdate;
-    }
-    public void setFechaUpdate(LocalDateTime fechaUpdate) {
-        this.fechaUpdate = fechaUpdate;
-    }
-    public String getTelefonoCliente() {
-        return telefonoCliente;
-    }
-    public void setTelefonoCliente(String telefonoCliente) {
-        this.telefonoCliente = telefonoCliente;
+
+    public String getNotas() {
+        return notas;
     }
 
-    public List<DetallePedido> getDetalles() {
-        return detalles;
+    public void setNotas(String notas) {
+        this.notas = notas;
     }
 
-    public void setDetalles(List<DetallePedido> detalles) {
-        this.detalles = detalles;
+    public String getCodigoTurno() {
+        return codigoTurno;
     }
-    
-    @PrePersist
-    public void prePersist() {
-        if(this.fechaPedido == null) this.fechaPedido = LocalDateTime.now();
-        if(this.total == null) this.total = BigDecimal.ZERO;
-        if(this.fechaUpdate == null) this.fechaUpdate = LocalDateTime.now();
+
+    public void setCodigoTurno(String codigoTurno) {
+        this.codigoTurno = codigoTurno;
     }
+
+    public Integer getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Integer estado) {
+        this.estado = estado;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public LocalDateTime getFechaActualizacion() {
+        return fechaActualizacion;
+    }
+
+    public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
+        this.fechaActualizacion = fechaActualizacion;
+    }
+
     @Override
     public String toString() {
-        return "Pedido [idPedido=" + idPedido + ", usuario=" + usuario + ", sucursal=" + sucursal + ", mesa=" + mesa
-                + ", fechaPedido=" + fechaPedido + ", estado=" + estado + ", total=" + total + ", tipoPedido="
-                + tipoPedido + ", nombreCliente=" + nombreCliente + ", fechaUpdate=" + fechaUpdate
-                + ", telefonoCliente=" + telefonoCliente + ", detalles=" + detalles + "]";
+        return "Pedido [idPedido=" + idPedido + ", idUsuario=" + idUsuario + ", idSucursal=" + idSucursal
+                + ", idMesa=" + idMesa + ", idPlato=" + idPlato + ", cantidad=" + cantidad + ", precioUnitario="
+                + precioUnitario + ", subtotal=" + subtotal + ", montoTotal=" + montoTotal + ", tipoPedido="
+                + tipoPedido + ", nombreCliente=" + nombreCliente + ", codigoTurno=" + codigoTurno + ", estado="
+                + estado + ", fechaCreacion=" + fechaCreacion + ", fechaActualizacion=" + fechaActualizacion + "]";
     }
 }

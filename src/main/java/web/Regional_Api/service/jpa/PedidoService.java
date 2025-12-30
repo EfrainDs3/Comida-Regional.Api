@@ -8,9 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import web.Regional_Api.entity.DetallePedido;
 import web.Regional_Api.entity.Pedido;
-import web.Regional_Api.repository.DetallePedidoRepository;
 import web.Regional_Api.repository.PedidoRepository;
 import web.Regional_Api.service.IPedidoService;
 
@@ -19,9 +17,6 @@ public class PedidoService implements IPedidoService {
 
     @Autowired
     private PedidoRepository repoPedido;
-    
-    @Autowired
-    private DetallePedidoRepository repoDetallePedido;
 
     @Override
     public List<Pedido> buscarTodos() {
@@ -31,12 +26,15 @@ public class PedidoService implements IPedidoService {
     @Override
     @Transactional
     public Pedido guardar(Pedido pedido) {
+        pedido.setFechaCreacion(LocalDateTime.now());
+        pedido.setFechaActualizacion(LocalDateTime.now());
         return repoPedido.save(pedido);
     }
 
     @Override
     @Transactional
     public Pedido modificar(Pedido pedido) {
+        pedido.setFechaActualizacion(LocalDateTime.now());
         return repoPedido.save(pedido);
     }
 
@@ -48,32 +46,36 @@ public class PedidoService implements IPedidoService {
     @Override
     @Transactional
     public void eliminar(Integer id) {
-        // Soft delete: cambiar estado a "cancelado"
         Optional<Pedido> optional = repoPedido.findById(id);
         optional.ifPresent(p -> {
-            p.setEstado("cancelado");
+            p.setEstado(0);
             repoPedido.save(p);
         });
     }
 
     @Override
     public List<Pedido> buscarPorSucursal(Integer idSucursal) {
-        return repoPedido.buscarPorSucursal(idSucursal);
+        return repoPedido.findByIdSucursal(idSucursal);
     }
 
     @Override
-    public List<Pedido> buscarPorEstado(String estado) {
-        return repoPedido.buscarPorEstado(estado);
+    public List<Pedido> buscarPorEstado(Integer estado) {
+        return repoPedido.findByEstado(estado);
     }
 
     @Override
     public List<Pedido> buscarPorUsuario(Integer idUsuario) {
-        return repoPedido.buscarPorUsuario(idUsuario);
+        return repoPedido.findByIdUsuario(idUsuario);
     }
 
     @Override
     public List<Pedido> buscarPorMesa(Integer idMesa) {
-        return repoPedido.buscarPorMesa(idMesa);
+        return repoPedido.findByIdMesa(idMesa);
+    }
+
+    @Override
+    public List<Pedido> buscarPorPlato(Integer idPlato) {
+        return repoPedido.findByIdPlato(idPlato);
     }
 
     @Override
@@ -82,15 +84,17 @@ public class PedidoService implements IPedidoService {
     }
 
     @Override
-    public List<Pedido> buscarPorSucursalYEstado(Integer idSucursal, String estado) {
+    public List<Pedido> buscarPorSucursalYEstado(Integer idSucursal, Integer estado) {
         return repoPedido.buscarPorSucursalYEstado(idSucursal, estado);
     }
 
     @Override
-    public Double calcularTotal(Integer idPedido) {
-        List<DetallePedido> detalles = repoDetallePedido.buscarPorPedido(idPedido);
-        return detalles.stream()
-                .mapToDouble(d -> d.getSubtotal().doubleValue())
-                .sum();
+    public List<Pedido> buscarPorTipoPedido(String tipoPedido) {
+        return repoPedido.findByTipoPedido(tipoPedido);
+    }
+
+    @Override
+    public List<Pedido> buscarPedidosActivos(Integer idSucursal) {
+        return repoPedido.buscarPedidosActivosBySucursal(idSucursal);
     }
 }
